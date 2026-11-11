@@ -31,9 +31,14 @@ import { Route as AppPurchasingIndexRouteImport } from './routes/_app/purchasing
 import { Route as AppPurchasingNewRouteImport } from './routes/_app/purchasing/new'
 import { Route as AppQuotesIndexRouteImport } from './routes/_app/quotes/index'
 import { Route as AppQuotesNewRouteImport } from './routes/_app/quotes/new'
+import { Route as AppRgasIndexRouteImport } from './routes/_app/rgas/index'
+import { Route as AppRgasIdRouteImport } from './routes/_app/rgas/$id'
+import { Route as AppRgasNewRouteImport } from './routes/_app/rgas/new'
+import { Route as AppWarrantiesIndexRouteImport } from './routes/_app/warranties/index'
 import { Route as AppWorkOrdersIndexRouteImport } from './routes/_app/work-orders/index'
 import { Route as AppWorkOrdersNewRouteImport } from './routes/_app/work-orders/new'
 import { Route as ApiCronComplianceExpiryRouteImport } from './routes/api/cron/compliance-expiry'
+import { Route as ApiCronSageKeepaliveRouteImport } from './routes/api/cron/sage-keepalive'
 import { Route as ApiCronSagePostingsRouteImport } from './routes/api/cron/sage-postings'
 import { Route as AppMaintenanceWorkOrdersIndexRouteImport } from './routes/_app/maintenance/work-orders/index'
 import { Route as AppMaintenanceWorkOrdersNewRouteImport } from './routes/_app/maintenance/work-orders/new'
@@ -62,7 +67,10 @@ import { Route as AppQuotesIdIndexRouteImport } from './routes/_app/quotes/$id/i
 import { Route as AppQuotesIdEditRouteImport } from './routes/_app/quotes/$id/edit'
 import { Route as AppWorkOrdersIdIndexRouteImport } from './routes/_app/work-orders/$id/index'
 import { Route as AppWorkOrdersIdRevisionsRouteImport } from './routes/_app/work-orders/$id/revisions'
+import { Route as ApiInternalJobsKeyRouteImport } from './routes/api/internal/jobs/$key'
 import { Route as ApiMasterDataDocumentsIdRouteImport } from './routes/api/master-data/documents/$id'
+import { Route as ApiSageOauthCallbackRouteImport } from './routes/api/sage/oauth/callback'
+import { Route as ApiSageOauthStartRouteImport } from './routes/api/sage/oauth/start'
 import { Route as AppMaintenanceWorkOrdersIdIndexRouteImport } from './routes/_app/maintenance/work-orders/$id/index'
 import { Route as AppMasterDataCustomersEditIdRouteImport } from './routes/_app/master-data/customers/edit/$id'
 import { Route as AppMasterDataPartsEditIdRouteImport } from './routes/_app/master-data/parts/edit/$id'
@@ -185,6 +193,26 @@ const AppQuotesNewRoute = AppQuotesNewRouteImport.update({
   path: '/quotes/new',
   getParentRoute: () => AppRoute,
 } as any)
+const AppRgasIndexRoute = AppRgasIndexRouteImport.update({
+  id: '/rgas/',
+  path: '/rgas/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppRgasIdRoute = AppRgasIdRouteImport.update({
+  id: '/rgas/$id',
+  path: '/rgas/$id',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppRgasNewRoute = AppRgasNewRouteImport.update({
+  id: '/rgas/new',
+  path: '/rgas/new',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppWarrantiesIndexRoute = AppWarrantiesIndexRouteImport.update({
+  id: '/warranties/',
+  path: '/warranties/',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppWorkOrdersIndexRoute = AppWorkOrdersIndexRouteImport.update({
   id: '/work-orders/',
   path: '/work-orders/',
@@ -198,6 +226,11 @@ const AppWorkOrdersNewRoute = AppWorkOrdersNewRouteImport.update({
 const ApiCronComplianceExpiryRoute = ApiCronComplianceExpiryRouteImport.update({
   id: '/api/cron/compliance-expiry',
   path: '/api/cron/compliance-expiry',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCronSageKeepaliveRoute = ApiCronSageKeepaliveRouteImport.update({
+  id: '/api/cron/sage-keepalive',
+  path: '/api/cron/sage-keepalive',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiCronSagePostingsRoute = ApiCronSagePostingsRouteImport.update({
@@ -352,12 +385,27 @@ const AppWorkOrdersIdRevisionsRoute =
     path: '/work-orders/$id/revisions',
     getParentRoute: () => AppRoute,
   } as any)
+const ApiInternalJobsKeyRoute = ApiInternalJobsKeyRouteImport.update({
+  id: '/api/internal/jobs/$key',
+  path: '/api/internal/jobs/$key',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiMasterDataDocumentsIdRoute =
   ApiMasterDataDocumentsIdRouteImport.update({
     id: '/api/master-data/documents/$id',
     path: '/api/master-data/documents/$id',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiSageOauthCallbackRoute = ApiSageOauthCallbackRouteImport.update({
+  id: '/api/sage/oauth/callback',
+  path: '/api/sage/oauth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSageOauthStartRoute = ApiSageOauthStartRouteImport.update({
+  id: '/api/sage/oauth/start',
+  path: '/api/sage/oauth/start',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppMaintenanceWorkOrdersIdIndexRoute =
   AppMaintenanceWorkOrdersIdIndexRouteImport.update({
     id: '/maintenance/work-orders/$id/',
@@ -440,14 +488,19 @@ export interface FileRoutesByFullPath {
   '/master-data/import': typeof AppMasterDataImportRoute
   '/purchasing/new': typeof AppPurchasingNewRoute
   '/quotes/new': typeof AppQuotesNewRoute
+  '/rgas/$id': typeof AppRgasIdRoute
+  '/rgas/new': typeof AppRgasNewRoute
   '/work-orders/new': typeof AppWorkOrdersNewRoute
   '/api/cron/compliance-expiry': typeof ApiCronComplianceExpiryRoute
+  '/api/cron/sage-keepalive': typeof ApiCronSageKeepaliveRoute
   '/api/cron/sage-postings': typeof ApiCronSagePostingsRoute
   '/inventory/': typeof AppInventoryIndexRoute
   '/invoicing/': typeof AppInvoicingIndexRoute
   '/master-data/': typeof AppMasterDataIndexRoute
   '/purchasing/': typeof AppPurchasingIndexRoute
   '/quotes/': typeof AppQuotesIndexRoute
+  '/rgas/': typeof AppRgasIndexRoute
+  '/warranties/': typeof AppWarrantiesIndexRoute
   '/work-orders/': typeof AppWorkOrdersIndexRoute
   '/maintenance/work-orders/new': typeof AppMaintenanceWorkOrdersNewRoute
   '/master-data/customers/$id': typeof AppMasterDataCustomersIdRoute
@@ -465,7 +518,10 @@ export interface FileRoutesByFullPath {
   '/purchasing/$id/edit': typeof AppPurchasingIdEditRoute
   '/quotes/$id/edit': typeof AppQuotesIdEditRoute
   '/work-orders/$id/revisions': typeof AppWorkOrdersIdRevisionsRoute
+  '/api/internal/jobs/$key': typeof ApiInternalJobsKeyRoute
   '/api/master-data/documents/$id': typeof ApiMasterDataDocumentsIdRoute
+  '/api/sage/oauth/callback': typeof ApiSageOauthCallbackRoute
+  '/api/sage/oauth/start': typeof ApiSageOauthStartRoute
   '/maintenance/work-orders/': typeof AppMaintenanceWorkOrdersIndexRoute
   '/master-data/customers/': typeof AppMasterDataCustomersIndexRoute
   '/master-data/parts/': typeof AppMasterDataPartsIndexRoute
@@ -506,14 +562,19 @@ export interface FileRoutesByTo {
   '/master-data/import': typeof AppMasterDataImportRoute
   '/purchasing/new': typeof AppPurchasingNewRoute
   '/quotes/new': typeof AppQuotesNewRoute
+  '/rgas/$id': typeof AppRgasIdRoute
+  '/rgas/new': typeof AppRgasNewRoute
   '/work-orders/new': typeof AppWorkOrdersNewRoute
   '/api/cron/compliance-expiry': typeof ApiCronComplianceExpiryRoute
+  '/api/cron/sage-keepalive': typeof ApiCronSageKeepaliveRoute
   '/api/cron/sage-postings': typeof ApiCronSagePostingsRoute
   '/inventory': typeof AppInventoryIndexRoute
   '/invoicing': typeof AppInvoicingIndexRoute
   '/master-data': typeof AppMasterDataIndexRoute
   '/purchasing': typeof AppPurchasingIndexRoute
   '/quotes': typeof AppQuotesIndexRoute
+  '/rgas': typeof AppRgasIndexRoute
+  '/warranties': typeof AppWarrantiesIndexRoute
   '/work-orders': typeof AppWorkOrdersIndexRoute
   '/maintenance/work-orders/new': typeof AppMaintenanceWorkOrdersNewRoute
   '/master-data/customers/$id': typeof AppMasterDataCustomersIdRoute
@@ -530,7 +591,10 @@ export interface FileRoutesByTo {
   '/purchasing/$id/edit': typeof AppPurchasingIdEditRoute
   '/quotes/$id/edit': typeof AppQuotesIdEditRoute
   '/work-orders/$id/revisions': typeof AppWorkOrdersIdRevisionsRoute
+  '/api/internal/jobs/$key': typeof ApiInternalJobsKeyRoute
   '/api/master-data/documents/$id': typeof ApiMasterDataDocumentsIdRoute
+  '/api/sage/oauth/callback': typeof ApiSageOauthCallbackRoute
+  '/api/sage/oauth/start': typeof ApiSageOauthStartRoute
   '/maintenance/work-orders': typeof AppMaintenanceWorkOrdersIndexRoute
   '/master-data/customers': typeof AppMasterDataCustomersIndexRoute
   '/master-data/parts': typeof AppMasterDataPartsIndexRoute
@@ -573,14 +637,19 @@ export interface FileRoutesById {
   '/_app/master-data/import': typeof AppMasterDataImportRoute
   '/_app/purchasing/new': typeof AppPurchasingNewRoute
   '/_app/quotes/new': typeof AppQuotesNewRoute
+  '/_app/rgas/$id': typeof AppRgasIdRoute
+  '/_app/rgas/new': typeof AppRgasNewRoute
   '/_app/work-orders/new': typeof AppWorkOrdersNewRoute
   '/api/cron/compliance-expiry': typeof ApiCronComplianceExpiryRoute
+  '/api/cron/sage-keepalive': typeof ApiCronSageKeepaliveRoute
   '/api/cron/sage-postings': typeof ApiCronSagePostingsRoute
   '/_app/inventory/': typeof AppInventoryIndexRoute
   '/_app/invoicing/': typeof AppInvoicingIndexRoute
   '/_app/master-data/': typeof AppMasterDataIndexRoute
   '/_app/purchasing/': typeof AppPurchasingIndexRoute
   '/_app/quotes/': typeof AppQuotesIndexRoute
+  '/_app/rgas/': typeof AppRgasIndexRoute
+  '/_app/warranties/': typeof AppWarrantiesIndexRoute
   '/_app/work-orders/': typeof AppWorkOrdersIndexRoute
   '/_app/maintenance/work-orders/new': typeof AppMaintenanceWorkOrdersNewRoute
   '/_app/master-data/customers/$id': typeof AppMasterDataCustomersIdRoute
@@ -598,7 +667,10 @@ export interface FileRoutesById {
   '/_app/purchasing/$id/edit': typeof AppPurchasingIdEditRoute
   '/_app/quotes/$id/edit': typeof AppQuotesIdEditRoute
   '/_app/work-orders/$id/revisions': typeof AppWorkOrdersIdRevisionsRoute
+  '/api/internal/jobs/$key': typeof ApiInternalJobsKeyRoute
   '/api/master-data/documents/$id': typeof ApiMasterDataDocumentsIdRoute
+  '/api/sage/oauth/callback': typeof ApiSageOauthCallbackRoute
+  '/api/sage/oauth/start': typeof ApiSageOauthStartRoute
   '/_app/maintenance/work-orders/': typeof AppMaintenanceWorkOrdersIndexRoute
   '/_app/master-data/customers/': typeof AppMasterDataCustomersIndexRoute
   '/_app/master-data/parts/': typeof AppMasterDataPartsIndexRoute
@@ -641,14 +713,19 @@ export interface FileRouteTypes {
     | '/master-data/import'
     | '/purchasing/new'
     | '/quotes/new'
+    | '/rgas/$id'
+    | '/rgas/new'
     | '/work-orders/new'
     | '/api/cron/compliance-expiry'
+    | '/api/cron/sage-keepalive'
     | '/api/cron/sage-postings'
     | '/inventory/'
     | '/invoicing/'
     | '/master-data/'
     | '/purchasing/'
     | '/quotes/'
+    | '/rgas/'
+    | '/warranties/'
     | '/work-orders/'
     | '/maintenance/work-orders/new'
     | '/master-data/customers/$id'
@@ -666,7 +743,10 @@ export interface FileRouteTypes {
     | '/purchasing/$id/edit'
     | '/quotes/$id/edit'
     | '/work-orders/$id/revisions'
+    | '/api/internal/jobs/$key'
     | '/api/master-data/documents/$id'
+    | '/api/sage/oauth/callback'
+    | '/api/sage/oauth/start'
     | '/maintenance/work-orders/'
     | '/master-data/customers/'
     | '/master-data/parts/'
@@ -707,14 +787,19 @@ export interface FileRouteTypes {
     | '/master-data/import'
     | '/purchasing/new'
     | '/quotes/new'
+    | '/rgas/$id'
+    | '/rgas/new'
     | '/work-orders/new'
     | '/api/cron/compliance-expiry'
+    | '/api/cron/sage-keepalive'
     | '/api/cron/sage-postings'
     | '/inventory'
     | '/invoicing'
     | '/master-data'
     | '/purchasing'
     | '/quotes'
+    | '/rgas'
+    | '/warranties'
     | '/work-orders'
     | '/maintenance/work-orders/new'
     | '/master-data/customers/$id'
@@ -731,7 +816,10 @@ export interface FileRouteTypes {
     | '/purchasing/$id/edit'
     | '/quotes/$id/edit'
     | '/work-orders/$id/revisions'
+    | '/api/internal/jobs/$key'
     | '/api/master-data/documents/$id'
+    | '/api/sage/oauth/callback'
+    | '/api/sage/oauth/start'
     | '/maintenance/work-orders'
     | '/master-data/customers'
     | '/master-data/parts'
@@ -773,14 +861,19 @@ export interface FileRouteTypes {
     | '/_app/master-data/import'
     | '/_app/purchasing/new'
     | '/_app/quotes/new'
+    | '/_app/rgas/$id'
+    | '/_app/rgas/new'
     | '/_app/work-orders/new'
     | '/api/cron/compliance-expiry'
+    | '/api/cron/sage-keepalive'
     | '/api/cron/sage-postings'
     | '/_app/inventory/'
     | '/_app/invoicing/'
     | '/_app/master-data/'
     | '/_app/purchasing/'
     | '/_app/quotes/'
+    | '/_app/rgas/'
+    | '/_app/warranties/'
     | '/_app/work-orders/'
     | '/_app/maintenance/work-orders/new'
     | '/_app/master-data/customers/$id'
@@ -798,7 +891,10 @@ export interface FileRouteTypes {
     | '/_app/purchasing/$id/edit'
     | '/_app/quotes/$id/edit'
     | '/_app/work-orders/$id/revisions'
+    | '/api/internal/jobs/$key'
     | '/api/master-data/documents/$id'
+    | '/api/sage/oauth/callback'
+    | '/api/sage/oauth/start'
     | '/_app/maintenance/work-orders/'
     | '/_app/master-data/customers/'
     | '/_app/master-data/parts/'
@@ -830,8 +926,12 @@ export interface RootRouteChildren {
   ApiHealthRoute: typeof ApiHealthRoute
   ApiReadyRoute: typeof ApiReadyRoute
   ApiCronComplianceExpiryRoute: typeof ApiCronComplianceExpiryRoute
+  ApiCronSageKeepaliveRoute: typeof ApiCronSageKeepaliveRoute
   ApiCronSagePostingsRoute: typeof ApiCronSagePostingsRoute
+  ApiInternalJobsKeyRoute: typeof ApiInternalJobsKeyRoute
   ApiMasterDataDocumentsIdRoute: typeof ApiMasterDataDocumentsIdRoute
+  ApiSageOauthCallbackRoute: typeof ApiSageOauthCallbackRoute
+  ApiSageOauthStartRoute: typeof ApiSageOauthStartRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -990,6 +1090,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppQuotesNewRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/rgas/': {
+      id: '/_app/rgas/'
+      path: '/rgas'
+      fullPath: '/rgas/'
+      preLoaderRoute: typeof AppRgasIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/rgas/$id': {
+      id: '/_app/rgas/$id'
+      path: '/rgas/$id'
+      fullPath: '/rgas/$id'
+      preLoaderRoute: typeof AppRgasIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/rgas/new': {
+      id: '/_app/rgas/new'
+      path: '/rgas/new'
+      fullPath: '/rgas/new'
+      preLoaderRoute: typeof AppRgasNewRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/warranties/': {
+      id: '/_app/warranties/'
+      path: '/warranties'
+      fullPath: '/warranties/'
+      preLoaderRoute: typeof AppWarrantiesIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/work-orders/': {
       id: '/_app/work-orders/'
       path: '/work-orders'
@@ -1009,6 +1137,13 @@ declare module '@tanstack/react-router' {
       path: '/api/cron/compliance-expiry'
       fullPath: '/api/cron/compliance-expiry'
       preLoaderRoute: typeof ApiCronComplianceExpiryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/cron/sage-keepalive': {
+      id: '/api/cron/sage-keepalive'
+      path: '/api/cron/sage-keepalive'
+      fullPath: '/api/cron/sage-keepalive'
+      preLoaderRoute: typeof ApiCronSageKeepaliveRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/cron/sage-postings': {
@@ -1207,11 +1342,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppWorkOrdersIdRevisionsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/api/internal/jobs/$key': {
+      id: '/api/internal/jobs/$key'
+      path: '/api/internal/jobs/$key'
+      fullPath: '/api/internal/jobs/$key'
+      preLoaderRoute: typeof ApiInternalJobsKeyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/master-data/documents/$id': {
       id: '/api/master-data/documents/$id'
       path: '/api/master-data/documents/$id'
       fullPath: '/api/master-data/documents/$id'
       preLoaderRoute: typeof ApiMasterDataDocumentsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/sage/oauth/callback': {
+      id: '/api/sage/oauth/callback'
+      path: '/api/sage/oauth/callback'
+      fullPath: '/api/sage/oauth/callback'
+      preLoaderRoute: typeof ApiSageOauthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/sage/oauth/start': {
+      id: '/api/sage/oauth/start'
+      path: '/api/sage/oauth/start'
+      fullPath: '/api/sage/oauth/start'
+      preLoaderRoute: typeof ApiSageOauthStartRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app/maintenance/work-orders/$id/': {
@@ -1320,12 +1476,16 @@ interface AppRouteChildren {
   AppMasterDataImportRoute: typeof AppMasterDataImportRoute
   AppPurchasingNewRoute: typeof AppPurchasingNewRoute
   AppQuotesNewRoute: typeof AppQuotesNewRoute
+  AppRgasIdRoute: typeof AppRgasIdRoute
+  AppRgasNewRoute: typeof AppRgasNewRoute
   AppWorkOrdersNewRoute: typeof AppWorkOrdersNewRoute
   AppInventoryIndexRoute: typeof AppInventoryIndexRoute
   AppInvoicingIndexRoute: typeof AppInvoicingIndexRoute
   AppMasterDataIndexRoute: typeof AppMasterDataIndexRoute
   AppPurchasingIndexRoute: typeof AppPurchasingIndexRoute
   AppQuotesIndexRoute: typeof AppQuotesIndexRoute
+  AppRgasIndexRoute: typeof AppRgasIndexRoute
+  AppWarrantiesIndexRoute: typeof AppWarrantiesIndexRoute
   AppWorkOrdersIndexRoute: typeof AppWorkOrdersIndexRoute
   AppMaintenanceWorkOrdersNewRoute: typeof AppMaintenanceWorkOrdersNewRoute
   AppMasterDataCustomersIdRoute: typeof AppMasterDataCustomersIdRoute
@@ -1378,12 +1538,16 @@ const AppRouteChildren: AppRouteChildren = {
   AppMasterDataImportRoute: AppMasterDataImportRoute,
   AppPurchasingNewRoute: AppPurchasingNewRoute,
   AppQuotesNewRoute: AppQuotesNewRoute,
+  AppRgasIdRoute: AppRgasIdRoute,
+  AppRgasNewRoute: AppRgasNewRoute,
   AppWorkOrdersNewRoute: AppWorkOrdersNewRoute,
   AppInventoryIndexRoute: AppInventoryIndexRoute,
   AppInvoicingIndexRoute: AppInvoicingIndexRoute,
   AppMasterDataIndexRoute: AppMasterDataIndexRoute,
   AppPurchasingIndexRoute: AppPurchasingIndexRoute,
   AppQuotesIndexRoute: AppQuotesIndexRoute,
+  AppRgasIndexRoute: AppRgasIndexRoute,
+  AppWarrantiesIndexRoute: AppWarrantiesIndexRoute,
   AppWorkOrdersIndexRoute: AppWorkOrdersIndexRoute,
   AppMaintenanceWorkOrdersNewRoute: AppMaintenanceWorkOrdersNewRoute,
   AppMasterDataCustomersIdRoute: AppMasterDataCustomersIdRoute,
@@ -1433,8 +1597,12 @@ const rootRouteChildren: RootRouteChildren = {
   ApiHealthRoute: ApiHealthRoute,
   ApiReadyRoute: ApiReadyRoute,
   ApiCronComplianceExpiryRoute: ApiCronComplianceExpiryRoute,
+  ApiCronSageKeepaliveRoute: ApiCronSageKeepaliveRoute,
   ApiCronSagePostingsRoute: ApiCronSagePostingsRoute,
+  ApiInternalJobsKeyRoute: ApiInternalJobsKeyRoute,
   ApiMasterDataDocumentsIdRoute: ApiMasterDataDocumentsIdRoute,
+  ApiSageOauthCallbackRoute: ApiSageOauthCallbackRoute,
+  ApiSageOauthStartRoute: ApiSageOauthStartRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

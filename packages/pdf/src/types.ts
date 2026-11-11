@@ -13,7 +13,7 @@ export const PDF_SCHEMA_VERSION = 1 as const
 /** Version of the layout/renderer contract, recorded with generated documents. */
 export const PDF_RENDERER_VERSION = '0.1.0' as const
 
-export const DOCUMENT_KINDS = ['quote', 'packing-slip', 'invoice'] as const
+export const DOCUMENT_KINDS = ['quote', 'packing-slip', 'invoice', 'rga'] as const
 
 export type DocumentKind = (typeof DOCUMENT_KINDS)[number]
 
@@ -125,7 +125,39 @@ export const invoiceDocumentDataSchema = z.strictObject({
 
 export type InvoiceDocumentData = z.infer<typeof invoiceDocumentDataSchema>
 
-export type DocumentData = QuoteDocumentData | PackingSlipDocumentData | InvoiceDocumentData
+export const rgaLineSchema = z.strictObject({
+  position: z.number().int().positive(),
+  partNumber: optionalText('Part number'),
+  description: nonEmptyText('Description'),
+  quantity: decimalStringSchema,
+  returnQuantity: decimalStringSchema,
+  unitPrice: decimalStringSchema,
+  reason: optionalText('Reason for return'),
+})
+
+export const rgaDocumentDataSchema = z.strictObject({
+  schemaVersion: z.literal(PDF_SCHEMA_VERSION),
+  kind: z.literal('rga'),
+  number: nonEmptyText('RGA number'),
+  issuedOn: z.iso.date(),
+  typeLabel: nonEmptyText('RGA type'),
+  statusLabel: nonEmptyText('RGA status'),
+  supplier: addressBlockDataSchema.optional(),
+  site: addressBlockDataSchema.optional(),
+  workOrderNumber: optionalText('Work order number'),
+  purchaseOrderNumber: optionalText('Purchase order number'),
+  lines: z.array(rgaLineSchema).min(1, 'An RGA needs at least one line'),
+  notes: noteListSchema,
+})
+
+export type RgaLine = z.infer<typeof rgaLineSchema>
+export type RgaDocumentData = z.infer<typeof rgaDocumentDataSchema>
+
+export type DocumentData =
+  | QuoteDocumentData
+  | PackingSlipDocumentData
+  | InvoiceDocumentData
+  | RgaDocumentData
 
 /** The DTO a given document kind accepts, e.g. `DocumentDataFor<'quote'>`. */
 export type DocumentDataFor<TKind extends DocumentKind> = Extract<

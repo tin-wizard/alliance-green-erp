@@ -43,6 +43,29 @@ const csrfMiddleware = createCsrfMiddleware({
   filter: (ctx) => ctx.handlerType === 'serverFn',
 })
 
+/**
+ * Starts the background job ticker on the first server request (ADR 0012 §1).
+ *
+ * The app has no other long-lived boot hook: `scripts/start.mjs` loads .env and
+ * hands over to the Nitro output, and the compliance job is driven by an
+ * external timer calling an HTTP route. Starting on the first request keeps the
+ * ticker out of the serverless path entirely (a serverless deploy sets
+ * `JOBS_SCHEDULER=off` and its platform cron calls the trigger route), and the
+ * import sits inside a `.server()` body, so it is server code only.
+ *
+ * `startScheduler` is idempotent, so this stays a cheap no-op after the first
+ * request.
+ */
+const jobsScheduler = createMiddleware().server(async ({ next }) => {
+  // Domain handlers attach before the ticker starts. Each registration is
+  // idempotent, so a second request is a no-op.
+  void import('./modules/rga/server/job.server').then(({ registerRgaNotificationsJob }) =>
+    registerRgaNotificationsJob(),
+  )
+  void import('./modules/jobs/server/ticker.server').then(({ startScheduler }) => startScheduler())
+  return next()
+})
+
 export const startInstance = createStart(() => ({
-  requestMiddleware: [securityHeaders, csrfMiddleware],
+  requestMiddleware: [jobsScheduler, securityHeaders, csrfMiddleware],
 }))

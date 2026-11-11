@@ -265,6 +265,31 @@ export interface PurchaseOrderInvoiceCloseInput {
   acceptVarianceReason?: string | null
 }
 
+export interface SupplierCreditLineInput {
+  description: string
+  /** `purchase_order_parts.id`; required when the source is an RGA reference. */
+  partId?: number | null
+  /** Negative: a credit reduces the invoiced quantity. */
+  qty: string
+  rate: string
+  taxRate: string
+}
+
+/**
+ * A supplier credit is a supplier-invoice-shaped document with negative
+ * quantities. The source names either the corrected PO or the RGA it settles;
+ * an RGA-sourced credit derives its PO from the part lines it corrects.
+ */
+export interface CreateSupplierCreditInput {
+  source: { purchaseOrderId: number } | { rgaReference: string }
+  supplierId: number
+  creditDate: string
+  /** No AP ledger exists in purchasing; the id is carried on the audit payload. */
+  apAccountId?: string | null
+  reference?: string | null
+  lines: SupplierCreditLineInput[]
+}
+
 export interface SupplierPoRow {
   id: number
   displayNumber: string

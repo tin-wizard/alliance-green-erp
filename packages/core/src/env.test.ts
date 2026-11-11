@@ -7,25 +7,35 @@ describe('envSchema', () => {
     expect(parsed.HOST).toBe('0.0.0.0')
     expect(parsed.PORT).toBe(3000)
     expect(parsed.SESSION_TTL_HOURS).toBe(12)
-    expect(parsed.SAGE_HOST).toBe('127.0.0.1')
-    expect(parsed.SAGE_PORTS).toEqual([13541, 13540, 13542, 13543, 13544])
-    expect(parsed.SAGE_DATABASE).toBe('simply')
+    expect(parsed.SAGE_ENVIRONMENT).toBe('sandbox')
+    expect(parsed.SAGE_API_BASE_URL).toBe('https://api.accounting.sage.com/v3.1')
+    expect(parsed.SAGE_DAILY_QUOTA).toBe(2500)
     expect(parsed.SAGE_ENABLED).toBe(false)
   })
 
-  it('parses the legacy port list', () => {
-    const parsed = envSchema.parse({ SAGE_PORTS: '13540, 13544' })
-    expect(parsed.SAGE_PORTS).toEqual([13540, 13544])
+  it('parses the cloud Sage credentials and quotas', () => {
+    const parsed = envSchema.parse({
+      SAGE_ENABLED: 'true',
+      SAGE_CLIENT_ID: 'client',
+      SAGE_CLIENT_SECRET: 'secret',
+      SAGE_REDIRECT_URI: 'https://app.example/api/sage/oauth/callback',
+      SAGE_TOKEN_ENC_KEY: 'a'.repeat(64),
+      SAGE_DAILY_QUOTA: '1500',
+      SAGE_MINUTE_QUOTA: '90',
+    })
+    expect(parsed.SAGE_ENABLED).toBe(true)
+    expect(parsed.SAGE_DAILY_QUOTA).toBe(1500)
+    expect(parsed.SAGE_MINUTE_QUOTA).toBe(90)
+    expect(parsed.SAGE_TOKEN_URL).toBe('https://oauth.accounting.sage.com/token')
   })
 
-  it('rejects an out-of-range port', () => {
-    const result = envSchema.safeParse({ SAGE_PORTS: '0,13540' })
-    expect(result.success).toBe(false)
+  it('strips a trailing slash from the API base URL', () => {
+    const parsed = envSchema.parse({ SAGE_API_BASE_URL: 'https://api.example/v3.1/' })
+    expect(parsed.SAGE_API_BASE_URL).toBe('https://api.example/v3.1')
   })
 
-  it('rejects a non-numeric port list', () => {
-    const result = envSchema.safeParse({ SAGE_PORTS: 'abc' })
-    expect(result.success).toBe(false)
+  it('rejects an unknown Sage environment', () => {
+    expect(envSchema.safeParse({ SAGE_ENVIRONMENT: 'staging' }).success).toBe(false)
   })
 
   it('coerces numeric strings', () => {

@@ -257,7 +257,9 @@ export async function processSagePostingCore(
     const result =
       posting.docType === 'sales_invoice'
         ? await gateway.postSalesInvoice(posting.payload as never)
-        : await gateway.postPurchaseInvoice(posting.payload as never)
+        : posting.docType === 'purchase_credit_note'
+          ? await gateway.postPurchaseCreditNote(posting.payload as never)
+          : await gateway.postPurchaseInvoice(posting.payload as never)
     await tx
       .insert(sageLinks)
       .values({

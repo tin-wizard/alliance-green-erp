@@ -14,6 +14,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core'
 import { app } from './base'
+import { workOrders } from './workorder'
 
 /**
  * Master Data — forward model.
@@ -109,9 +110,15 @@ export const siteWarranties = app.table(
     description: text('description'),
     expiresOn: date('expires_on'),
     documentKey: text('document_key'),
+    /** The work order that created or evidences this site warranty. */
+    workOrderId: integer('work_order_id').references(() => workOrders.id, { onDelete: 'set null' }),
+    createdBy: uuid('created_by'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
-  (table) => [index('site_warranties_site_idx').on(table.siteId)],
+  (table) => [
+    index('site_warranties_site_idx').on(table.siteId),
+    index('site_warranties_expiry_idx').on(table.expiresOn),
+  ],
 )
 
 export const subcontractors = app.table(

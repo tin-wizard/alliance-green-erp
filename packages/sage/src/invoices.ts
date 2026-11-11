@@ -49,10 +49,29 @@ export interface SagePostingOutcome {
   duplicate: boolean
 }
 
+/**
+ * A credit note is its own artefact. Purchasing creates supplier credits (RGA
+ * returns), which post to `/purchase_credit_notes` and are later allocated
+ * against the original bill with `/contact_allocations`.
+ */
+export interface SageCreditNotePayload {
+  externalRef: string
+  creditDate: string
+  contactName: string
+  workOrderNumber?: string | null
+  subtotal: string
+  tax: string
+  total: string
+  lines: SageInvoiceLine[]
+  note?: string | null
+}
+
 export interface SageInvoiceGateway {
   readonly name: string
   postSalesInvoice(payload: SageSalesInvoicePayload): Promise<SagePostingOutcome>
   postPurchaseInvoice(payload: SagePurchaseInvoicePayload): Promise<SagePostingOutcome>
+  /** Supplier credit, always a negative-amount credit note, never a bill. */
+  postPurchaseCreditNote(payload: SageCreditNotePayload): Promise<SagePostingOutcome>
   findSalesInvoice(externalRef: string): Promise<string | null>
 }
 
@@ -68,6 +87,7 @@ export class FakeSageInvoiceGateway implements SageInvoiceGateway {
   readonly name = 'fake'
   readonly #sales = new Map<string, string>()
   readonly #purchases = new Map<string, string>()
+  readonly #credits = new Map<string, string>()
   #reachable: boolean
 
   constructor(options: { reachable?: boolean } = {}) {
@@ -98,6 +118,15 @@ export class FakeSageInvoiceGateway implements SageInvoiceGateway {
     if (existing) return { externalId: existing, duplicate: true }
     const externalId = fakeId('FAKE-PI', payload.externalRef)
     this.#purchases.set(payload.externalRef, externalId)
+    return { externalId, duplicate: false }
+  }
+
+  async postPurchaseCreditNote(payload: SageCreditNotePayload): Promise<SagePostingOutcome> {
+    if (!this.#reachable) throw new Error('Sage is unreachable.')
+    const existing = this.#credits.get(payload.externalRef)
+    if (existing) return { externalId: existing, duplicate: true }
+    const externalId = fakeId('FAKE-PCN', payload.externalRef)
+    this.#credits.set(payload.externalRef, externalId)
     return { externalId, duplicate: false }
   }
 }

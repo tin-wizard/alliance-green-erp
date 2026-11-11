@@ -10,6 +10,7 @@ import {
   receiptSchema,
   invoiceSchema,
   invoiceCloseSchema,
+  supplierCreditSchema,
   preorderSchema,
   preorderActionSchema,
   preorderConvertSchema,
@@ -19,6 +20,7 @@ import {
   supplierPortalListSchema,
 } from '../lib/validation'
 import type {
+  CreateSupplierCreditInput,
   PurchaseOrderCreateInput,
   PurchaseOrderInvoiceCloseInput,
   PurchaseOrderInvoiceInput,
@@ -91,6 +93,18 @@ export const closePurchaseOrderInvoiceFn = createServerFn({ method: 'POST' })
   .handler(async ({ data, context }) => {
     const { closePurchaseOrderInvoice } = await import('./invoices.server')
     return closePurchaseOrderInvoice(data as PurchaseOrderInvoiceCloseInput, context.session)
+  })
+
+/**
+ * Supplier credit. A separate function from the invoice path on purpose: the
+ * credit carries negative quantities and its own source (a PO or an RGA).
+ */
+export const createSupplierCredit = createServerFn({ method: 'POST' })
+  .validator((input: unknown) => supplierCreditSchema.parse(input))
+  .middleware([authMiddleware])
+  .handler(async ({ data, context }) => {
+    const { createSupplierCredit: createCredit } = await import('./credits.server')
+    return createCredit(data as CreateSupplierCreditInput, context.session)
   })
 
 export const createPreorderFn = createServerFn({ method: 'POST' })

@@ -7,7 +7,6 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "@cls/core": "workspace:*",
-    "mysql2": "^3.24.6"
+    "@cls/core": "workspace:*"
   }
 }

@@ -21,8 +21,11 @@ export interface HealthReport {
     database: DatabaseHealth
     sage: {
       status: SageHealth['status']
-      endpoint: { host: string; port: number } | null
-      database: string
+      environment: 'sandbox' | 'production'
+      businessId: string | null
+      /** Whole days since the last refresh or keep-alive; null when unconnected. */
+      tokenAgeDays: number | null
+      quota: { used: number; limit: number; resetsAt: string }
       message: string
     }
     auth: ServiceHealth

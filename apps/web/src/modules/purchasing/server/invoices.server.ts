@@ -37,12 +37,23 @@ import type {
 import { loadPurchaseOrder } from './access.server'
 import { auditPurchaseOrder, recordStatus } from './records.server'
 
-const ZERO: Decimal = { value: 0n, scale: 2 }
+/** Money helpers shared with `credits.server.ts` so the credit path never re-derives rounding. */
+export const ZERO: Decimal = { value: 0n, scale: 2 }
 
-function dec(value: string) {
+export function dec(value: string) {
   const parsed = parseDecimal(value)
   if (!parsed) throw new ValidationError(`Invalid amount: ${value}`)
   return parsed
+}
+
+/**
+ * Per-line money for supplier documents: the line total is rounded to 2dp, then
+ * tax is taken from the rounded line total. Supplier credits reuse this so a
+ * credit is the exact negative of the invoice it corrects.
+ */
+export function invoiceLineAmounts(qty: Decimal, unitPrice: Decimal, rate: Decimal) {
+  const lineTotal = round(multiply(qty, unitPrice), 2)
+  return { lineTotal, taxAmount: round(multiply(lineTotal, rate), 2) }
 }
 
 interface InvoiceTotals {
@@ -134,12 +145,9 @@ export async function createPurchaseOrderInvoiceCore(
     if (compare(invoicedAfter, received) > 0) pendingReceipt = true
 
     const unitPrice = dec(line.unitPrice)
-    const lineTotal = round(multiply(qty, unitPrice), 2)
+    const { lineTotal, taxAmount: expectedTax } = invoiceLineAmounts(qty, unitPrice, rate)
     const priceVariance = round(multiply(qty, subtract(unitPrice, poPrice)), 2)
-    const taxAmount = line.taxAmount
-      ? dec(line.taxAmount)
-      : round(multiply(lineTotal, rate), 2)
-    const expectedTax = round(multiply(lineTotal, rate), 2)
+    const taxAmount = line.taxAmount ? dec(line.taxAmount) : expectedTax
     const taxVariance = round(subtract(taxAmount, expectedTax), 2)
 
     subtotal = add(subtotal, lineTotal)

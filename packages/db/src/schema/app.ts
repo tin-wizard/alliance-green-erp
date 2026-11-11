@@ -34,6 +34,9 @@ export * from './app/documents'
 export * from './app/purchasing'
 export * from './app/inventory'
 export * from './app/invoicing'
+export * from './app/sage'
+export * from './app/rga'
+export * from './app/jobs'
 
 export const userRoleEnum = app.enum('user_role', [
   'admin',

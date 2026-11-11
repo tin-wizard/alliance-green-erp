@@ -3,8 +3,9 @@
  *
  * Real Neon branch, every test rolls back. Covers the approval control
  * (self-approval, edit-after-approval reset, denied approval), receiving and
- * stock posting idempotency, invoice matching and the receipt gate, numbering,
- * plus RFQ/pre-order idempotency and supplier scoping.
+ * stock posting idempotency, invoice matching and the receipt gate, supplier
+ * credits (sign, PO caps, AP balancing, permission), numbering, plus
+ * RFQ/pre-order idempotency and supplier scoping.
  */
 import { and, eq } from 'drizzle-orm'
 import { describe, expect, test, vi } from 'vitest'
@@ -15,8 +16,10 @@ import { getConfig } from '@cls/core/env.server'
 import { ALL_PERMISSIONS, ForbiddenError, ValidationError } from '@cls/core'
 import { getDb, type Tx } from '@cls/db'
 import {
+  auditLog,
   inventoryMovements,
   purchaseOrderApprovals,
+  purchaseOrderInvoiceLines,
   purchaseOrderInvoices,
   purchaseOrderPreorderParts,
   purchaseOrderPreorders,
@@ -27,9 +30,11 @@ import {
   suppliers,
   users,
 } from '@cls/db/schema'
+import { add, compare, parseDecimal } from '@cls/pricing'
 import type { AuthSessionView } from '../../../server/auth.types'
-import type { PurchaseOrderCreateInput } from '../types'
+import type { CreateSupplierCreditInput, PurchaseOrderCreateInput } from '../types'
 import { createPurchaseOrderCore } from './create.server'
+import { createSupplierCreditCore } from './credits.server'
 import { getPurchaseOrderDetail } from './get.server'
 import {
   closePurchaseOrderInvoiceCore,
@@ -147,6 +152,34 @@ async function approveAndIssue(tx: Tx, id: number, version: number, approver = a
     adminA,
   )
   return issued
+}
+
+/** Invoice every PO line at the ordered price, so a credit has something to reduce. */
+async function invoiceWholeOrder(tx: Tx, poId: number, supplierInvoiceNumber: string) {
+  const detail = await getPurchaseOrderDetail(adminA, poId, tx)
+  return createPurchaseOrderInvoiceCore(
+    tx,
+    {
+      id: poId,
+      supplierInvoiceNumber,
+      invoiceDate: '2026-11-11',
+      taxCode: 'ON',
+      lines: detail.lines.map((line) => ({
+        partLineId: line.id,
+        qty: line.qty,
+        unitPrice: line.price,
+      })),
+    },
+    adminA,
+  )
+}
+
+/** Decimal property: the two amounts sum to exactly zero, to the cent. */
+function netsToZero(left: string, right: string): boolean {
+  const parsedLeft = parseDecimal(left)
+  const parsedRight = parseDecimal(right)
+  if (!parsedLeft || !parsedRight) return false
+  return compare(add(parsedLeft, parsedRight), { value: 0n, scale: 2 }) === 0
 }
 
 describe.skipIf(!databaseConfigured())('purchasing', () => {
@@ -442,6 +475,268 @@ describe.skipIf(!databaseConfigured())('purchasing', () => {
         .from(purchaseOrderInvoices)
         .where(eq(purchaseOrderInvoices.id, invoice.invoiceId))
       expect(stored?.acceptedVarianceReason).toBe('Supplier price increase approved by purchasing')
+    })
+  })
+
+  test('a credit is a negative document on the PO and the invoice path still refuses qty <= 0', async () => {
+    await inRollback(async (tx) => {
+      await seedReference(tx)
+      const created = await createDraft(tx)
+      await approveAndIssue(tx, created.id, 1)
+      const detail = await getPurchaseOrderDetail(adminA, created.id, tx)
+      const first = detail.lines[0]!
+      await invoiceWholeOrder(tx, created.id, 'INV-CREDIT-BASE')
+
+      // Regression: the ordinary invoice path is untouched. A zero or negative
+      // line is still refused with the module's existing message, so the credit
+      // path did not loosen it.
+      await expect(
+        createPurchaseOrderInvoiceCore(
+          tx,
+          {
+            id: created.id,
+            supplierInvoiceNumber: 'INV-CREDIT-ZERO',
+            invoiceDate: '2026-11-11',
+            taxCode: 'ON',
+            lines: [{ partLineId: first.id, qty: '0.00', unitPrice: '10.00' }],
+          },
+          adminA,
+        ),
+      ).rejects.toThrow('Invoice quantity must be greater than zero.')
+
+      const credit = await createSupplierCreditCore(
+        tx,
+        {
+          source: { purchaseOrderId: created.id },
+          supplierId: SUPPLIER_ID,
+          creditDate: '2026-11-12',
+          reference: 'SUPPLIER-CR-01',
+          lines: [
+            {
+              description: 'Returned part, supplier credit',
+              partId: first.id,
+              qty: '-1.00',
+              rate: first.price,
+              taxRate: '0.13',
+            },
+          ],
+        },
+        adminA,
+      )
+      expect(credit.reference).toBe('SUPPLIER-CR-01')
+
+      const [stored] = await tx
+        .select()
+        .from(purchaseOrderInvoices)
+        .where(eq(purchaseOrderInvoices.id, credit.creditId))
+      expect(stored?.poId).toBe(created.id)
+      expect(stored?.supplierId).toBe(SUPPLIER_ID)
+      expect(stored?.status).toBe('matched')
+      expect(stored?.subtotal).toBe('-10.00')
+      expect(stored?.tax).toBe('-1.30')
+      expect(stored?.total).toBe('-11.30')
+
+      const lines = await tx
+        .select()
+        .from(purchaseOrderInvoiceLines)
+        .where(eq(purchaseOrderInvoiceLines.invoiceId, credit.creditId))
+      expect(lines).toHaveLength(1)
+      expect(lines[0]?.qty).toBe('-1.00')
+      expect(lines[0]?.lineTotal).toBe('-10.00')
+      expect(lines[0]?.taxAmount).toBe('-1.30')
+
+      const audits = await tx
+        .select()
+        .from(auditLog)
+        .where(
+          and(
+            eq(auditLog.action, 'purchase_credit.created'),
+            eq(auditLog.entityId, String(created.id)),
+          ),
+        )
+      expect(audits).toHaveLength(1)
+      expect(audits[0]?.summary).toContain('SUPPLIER-CR-01')
+    })
+  })
+
+  test('a credit that would leave the PO line below zero invoiced quantity is rejected', async () => {
+    await inRollback(async (tx) => {
+      await seedReference(tx)
+      const created = await createDraft(tx)
+      await approveAndIssue(tx, created.id, 1)
+      const detail = await getPurchaseOrderDetail(adminA, created.id, tx)
+      const first = detail.lines[0]!
+      await invoiceWholeOrder(tx, created.id, 'INV-CREDIT-CAP')
+
+      const creditFor = (qty: string): CreateSupplierCreditInput => ({
+        source: { purchaseOrderId: created.id },
+        supplierId: SUPPLIER_ID,
+        creditDate: '2026-11-12',
+        lines: [
+          {
+            description: 'Returned part',
+            partId: first.id,
+            qty,
+            rate: first.price,
+            taxRate: '0.13',
+          },
+        ],
+      })
+
+      // The invoice path caps invoiced quantity at the ordered quantity; the
+      // credit path is its mirror and caps the reduction at what was invoiced.
+      // 3.00 credited against 2.00 invoiced is therefore rejected, not recorded:
+      // the PO would otherwise read a negative invoiced quantity, which the
+      // close rule ("all received quantity invoiced") cannot reason about.
+      await expect(createSupplierCreditCore(tx, creditFor('-3.00'), adminA)).rejects.toBeInstanceOf(
+        ValidationError,
+      )
+
+      // Crediting exactly what was invoiced is legal and leaves the line at zero.
+      const credit = await createSupplierCreditCore(tx, creditFor('-2.00'), adminA)
+      const [stored] = await tx
+        .select()
+        .from(purchaseOrderInvoices)
+        .where(eq(purchaseOrderInvoices.id, credit.creditId))
+      expect(stored?.total).toBe('-22.60')
+    })
+  })
+
+  test('a credit is the exact negative of the invoice it corrects, to the cent', async () => {
+    await inRollback(async (tx) => {
+      await seedReference(tx)
+      const created = await createDraft(tx)
+      await approveAndIssue(tx, created.id, 1)
+      const detail = await getPurchaseOrderDetail(adminA, created.id, tx)
+      const invoice = await invoiceWholeOrder(tx, created.id, 'INV-CREDIT-PROPERTY')
+
+      const credit = await createSupplierCreditCore(
+        tx,
+        {
+          source: { purchaseOrderId: created.id },
+          supplierId: SUPPLIER_ID,
+          creditDate: '2026-11-12',
+          reference: 'SUPPLIER-CR-PROPERTY',
+          lines: detail.lines.map((line) => ({
+            description: `Credit for ${line.partNo}`,
+            partId: line.id,
+            qty: `-${line.qty}`,
+            rate: line.price,
+            taxRate: '0.13',
+          })),
+        },
+        adminA,
+      )
+
+      const [invoiceRow] = await tx
+        .select()
+        .from(purchaseOrderInvoices)
+        .where(eq(purchaseOrderInvoices.id, invoice.invoiceId))
+      const [creditRow] = await tx
+        .select()
+        .from(purchaseOrderInvoices)
+        .where(eq(purchaseOrderInvoices.id, credit.creditId))
+      expect(invoiceRow?.total).toBe('28.25')
+      expect(creditRow?.total).toBe('-28.25')
+      // AP balancing: every money field nets to exactly zero against the invoice
+      // when the same lines and rates are used.
+      for (const field of ['subtotal', 'tax', 'total', 'variance'] as const) {
+        expect(netsToZero(invoiceRow![field], creditRow![field])).toBe(true)
+      }
+    })
+  })
+
+  test('a session without invoice:write cannot create a supplier credit', async () => {
+    await inRollback(async (tx) => {
+      await seedReference(tx)
+      const created = await createDraft(tx)
+      const detail = await getPurchaseOrderDetail(adminA, created.id, tx)
+      const first = detail.lines[0]!
+
+      // The technician holds purchasing:read and purchasing:write but not the
+      // invoice permission the module already checks.
+      await expect(
+        createSupplierCreditCore(
+          tx,
+          {
+            source: { purchaseOrderId: created.id },
+            supplierId: SUPPLIER_ID,
+            creditDate: '2026-11-12',
+            lines: [
+              {
+                description: 'Returned part',
+                partId: first.id,
+                qty: '-1.00',
+                rate: first.price,
+                taxRate: '0.13',
+              },
+            ],
+          },
+          technician,
+        ),
+      ).rejects.toBeInstanceOf(ForbiddenError)
+    })
+  })
+
+  test('credit validation covers sign, supplier, PO membership and the RGA-derived source', async () => {
+    await inRollback(async (tx) => {
+      await seedReference(tx)
+      const created = await createDraft(tx)
+      await approveAndIssue(tx, created.id, 1)
+      const detail = await getPurchaseOrderDetail(adminA, created.id, tx)
+      const first = detail.lines[0]!
+      await invoiceWholeOrder(tx, created.id, 'INV-CREDIT-VALIDATION')
+      const other = await createDraft(tx)
+      const otherDetail = await getPurchaseOrderDetail(adminA, other.id, tx)
+
+      const base: CreateSupplierCreditInput = {
+        source: { purchaseOrderId: created.id },
+        supplierId: SUPPLIER_ID,
+        creditDate: '2026-11-12',
+        apAccountId: 'AP-2100',
+        lines: [
+          { description: 'Returned part', partId: first.id, qty: '-1.00', rate: '10.00', taxRate: '0.13' },
+        ],
+      }
+
+      await expect(
+        createSupplierCreditCore(
+          tx,
+          { ...base, lines: [{ ...base.lines[0]!, qty: '1.00' }] },
+          adminA,
+        ),
+      ).rejects.toThrow('Credit quantity must be less than zero.')
+      await expect(
+        createSupplierCreditCore(tx, { ...base, supplierId: OTHER_SUPPLIER_ID }, adminA),
+      ).rejects.toThrow('The supplier does not match the purchase order')
+      await expect(
+        createSupplierCreditCore(
+          tx,
+          { ...base, lines: [{ ...base.lines[0]!, partId: otherDetail.lines[0]!.id }] },
+          adminA,
+        ),
+      ).rejects.toThrow('That part line is not on this purchase order.')
+
+      // An RGA-sourced credit names no PO; the PO is derived from the part line
+      // it corrects and the RGA reference becomes the document reference.
+      const rgaCredit = await createSupplierCreditCore(
+        tx,
+        {
+          source: { rgaReference: 'RGA-9001' },
+          supplierId: SUPPLIER_ID,
+          creditDate: '2026-11-12',
+          lines: [
+            { description: 'RGA return', partId: first.id, qty: '-1.00', rate: '10.00', taxRate: '0.13' },
+          ],
+        },
+        adminA,
+      )
+      expect(rgaCredit.reference).toBe('RGA-9001')
+      const [stored] = await tx
+        .select()
+        .from(purchaseOrderInvoices)
+        .where(eq(purchaseOrderInvoices.id, rgaCredit.creditId))
+      expect(stored?.poId).toBe(created.id)
     })
   })
 

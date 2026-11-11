@@ -7,15 +7,18 @@ import type { z } from 'zod'
 import { InvoiceDocument } from './documents/invoice'
 import { PackingSlipDocument } from './documents/packing-slip'
 import { QuoteDocument } from './documents/quote'
+import { RgaDocument } from './documents/rga'
 import { LETTER_PAGE, type PageSpec } from './theme'
 import {
   invoiceDocumentDataSchema,
   packingSlipDocumentDataSchema,
   quoteDocumentDataSchema,
+  rgaDocumentDataSchema,
   type DocumentData,
   type InvoiceDocumentData,
   type PackingSlipDocumentData,
   type QuoteDocumentData,
+  type RgaDocumentData,
 } from './types'
 
 export interface PdfDocumentDefinition<TData extends DocumentData = DocumentData> {
@@ -31,6 +34,7 @@ export interface PdfDocumentRegistry {
   readonly quote: PdfDocumentDefinition<QuoteDocumentData>
   readonly 'packing-slip': PdfDocumentDefinition<PackingSlipDocumentData>
   readonly invoice: PdfDocumentDefinition<InvoiceDocumentData>
+  readonly rga: PdfDocumentDefinition<RgaDocumentData>
 }
 
 export const PDF_REGISTRY: PdfDocumentRegistry = {
@@ -53,6 +57,13 @@ export const PDF_REGISTRY: PdfDocumentRegistry = {
     title: 'Invoice',
     schema: invoiceDocumentDataSchema,
     component: InvoiceDocument,
+    page: LETTER_PAGE,
+  },
+  rga: {
+    kind: 'rga',
+    title: 'Return goods authorization',
+    schema: rgaDocumentDataSchema,
+    component: RgaDocument,
     page: LETTER_PAGE,
   },
 }

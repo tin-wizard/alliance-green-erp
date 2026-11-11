@@ -138,6 +138,26 @@ export const invoiceCloseSchema = z.object({
   acceptVarianceReason: z.string().trim().max(1000).nullish(),
 })
 
+const supplierCreditLineSchema = z.object({
+  description: z.string().trim().min(1).max(500),
+  partId: z.number().int().positive().nullish(),
+  qty: decimal,
+  rate: decimal,
+  taxRate: z.string().trim().regex(/^\d(\.\d{1,5})?$/, 'Use a decimal rate such as 0.13.'),
+})
+
+export const supplierCreditSchema = z.object({
+  source: z.union([
+    z.object({ purchaseOrderId: z.number().int().positive() }),
+    z.object({ rgaReference: z.string().trim().min(1).max(100) }),
+  ]),
+  supplierId: z.number().int().positive(),
+  creditDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  apAccountId: z.string().trim().max(100).nullish(),
+  reference: z.string().trim().max(100).nullish(),
+  lines: z.array(supplierCreditLineSchema).min(1).max(500),
+})
+
 export const invoiceStatusSchema = z.enum(PO_INVOICE_STATUSES)
 
 export const preorderSchema = z.object({

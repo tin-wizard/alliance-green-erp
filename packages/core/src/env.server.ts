@@ -25,21 +25,21 @@ const flag = z
   .optional()
   .transform((value) => value === 'true' || value === '1')
 
-const portList = z
-  .string()
-  .optional()
-  .transform((value, ctx) => {
-    const raw = value && value.trim() !== '' ? value : '13541,13540,13542,13543,13544'
-    const ports = raw
-      .split(',')
-      .map((part) => Number.parseInt(part.trim(), 10))
-      .filter((port) => Number.isInteger(port))
-    if (ports.length === 0 || ports.some((port) => port < 1 || port > 65535)) {
-      ctx.addIssue({ code: 'custom', message: 'must be 1-5 comma-separated TCP ports' })
-      return z.NEVER
-    }
-    return ports
-  })
+const urlWithDefault = (fallback: string) =>
+  z
+    .string()
+    .optional()
+    .transform((value) => (value && value.trim() !== '' ? value.trim().replace(/\/$/, '') : fallback))
+
+/** Keys that belonged to the Sage 50 localhost adapter; the cloud move deleted them. */
+export const RETIRED_SAGE_KEYS = [
+  'SAGE_HOST',
+  'SAGE_PORTS',
+  'SAGE_DATABASE',
+  'SAGE_USER',
+  'SAGE_PASSWORD',
+  'SAGE_CONNECT_TIMEOUT_MS',
+] as const
 
 export const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
@@ -55,12 +55,22 @@ export const envSchema = z.object({
   SESSION_COOKIE_SECURE: flag,
 
   SAGE_ENABLED: flag,
-  SAGE_HOST: z.string().default('127.0.0.1'),
-  SAGE_PORTS: portList,
-  SAGE_DATABASE: z.string().default('simply'),
-  SAGE_USER: optionalText,
-  SAGE_PASSWORD: optionalText,
-  SAGE_CONNECT_TIMEOUT_MS: z.coerce.number().int().min(50).max(10_000).default(750),
+  SAGE_FAKE: flag,
+  SAGE_ENVIRONMENT: z.enum(['sandbox', 'production']).default('sandbox'),
+  SAGE_CLIENT_ID: optionalText,
+  SAGE_CLIENT_SECRET: optionalText,
+  SAGE_REDIRECT_URI: optionalText,
+  SAGE_API_BASE_URL: urlWithDefault('https://api.accounting.sage.com/v3.1'),
+  SAGE_AUTH_BASE_URL: urlWithDefault('https://www.sageone.com/oauth2/auth/central'),
+  SAGE_TOKEN_URL: urlWithDefault('https://oauth.accounting.sage.com/token'),
+  SAGE_BUSINESS_ID: optionalText,
+  SAGE_TOKEN_ENC_KEY: optionalText,
+  SAGE_DAILY_QUOTA: z.coerce.number().int().min(1).max(100_000).default(2500),
+  SAGE_MINUTE_QUOTA: z.coerce.number().int().min(1).max(10_000).default(100),
+  // Ledger accounts used by the payload mappers; tenant-specific, so optional.
+  SAGE_SALES_ACCOUNT_ID: optionalText,
+  SAGE_PURCHASE_ACCOUNT_ID: optionalText,
+  SAGE_ROUNDING_ACCOUNT_ID: optionalText,
 
   NEON_AUTH_BASE_URL: optionalText,
   NEON_AUTH_JWKS_URL: optionalText,
@@ -90,12 +100,23 @@ export type RawEnv = z.infer<typeof envSchema>
 
 export interface SageConfig {
   enabled: boolean
-  host: string
-  ports: number[]
-  database: string
-  user: string | undefined
-  password: string | undefined
-  connectTimeoutMs: number
+  fake: boolean
+  environment: 'sandbox' | 'production'
+  clientId: string | undefined
+  clientSecret: string | undefined
+  redirectUri: string | undefined
+  apiBaseUrl: string
+  authBaseUrl: string
+  tokenUrl: string
+  businessId: string | undefined
+  tokenEncKey: string | undefined
+  dailyQuota: number
+  minuteQuota: number
+  ledger: {
+    salesAccountId: string | undefined
+    purchaseAccountId: string | undefined
+    roundingAccountId: string | undefined
+  }
 }
 
 export interface AppConfig {
@@ -179,8 +200,18 @@ function loadDotEnv(): void {
 
 let warnedEphemeralSecret = false
 
-function buildConfig(): AppConfig {
+export function buildConfig(): AppConfig {
   loadDotEnv()
+  const retired = RETIRED_SAGE_KEYS.filter((key) => {
+    const value = process.env[key]
+    return value !== undefined && value.trim() !== ''
+  })
+  if (retired.length > 0) {
+    throw new Error(
+      `Retired Sage 50 configuration present: ${retired.join(', ')}. The rebuild uses the Sage Accounting cloud API; ` +
+        'use SAGE_CLIENT_ID, SAGE_CLIENT_SECRET, SAGE_REDIRECT_URI, SAGE_TOKEN_ENC_KEY and SAGE_BUSINESS_ID instead.',
+    )
+  }
   const parsed = envSchema.safeParse(process.env)
   if (!parsed.success) {
     const problems = parsed.error.issues
@@ -208,6 +239,33 @@ function buildConfig(): AppConfig {
     throw new Error('SESSION_SECRET must be at least 32 characters.')
   }
 
+  // Cloud Sage: refuse to run enabled-but-unconfigured. Falling back to the fake
+  // would put the client's invoices nowhere and say nothing.
+  if (env.SAGE_ENABLED) {
+    if (env.SAGE_FAKE && env.NODE_ENV === 'production') {
+      throw new Error('SAGE_FAKE=true is refused in production; supply the Sage credentials instead.')
+    }
+    if (env.NODE_ENV === 'production' && env.SAGE_ENVIRONMENT === 'sandbox') {
+      throw new Error('SAGE_ENVIRONMENT=sandbox is refused in production.')
+    }
+    if (env.NODE_ENV === 'production') {
+      const missing = [
+        ['SAGE_CLIENT_ID', env.SAGE_CLIENT_ID],
+        ['SAGE_CLIENT_SECRET', env.SAGE_CLIENT_SECRET],
+        ['SAGE_REDIRECT_URI', env.SAGE_REDIRECT_URI],
+        ['SAGE_TOKEN_ENC_KEY', env.SAGE_TOKEN_ENC_KEY],
+      ]
+        .filter(([, value]) => !value)
+        .map(([key]) => key)
+      if (missing.length > 0) {
+        throw new Error(
+          `SAGE_ENABLED=true in production requires ${missing.join(', ')}. ` +
+            'The Sage developer app is owned by Alliance Lighting; see plan/modules/SAGE-CLOUD.md §1.2.',
+        )
+      }
+    }
+  }
+
   return {
     nodeEnv: env.NODE_ENV,
     isProduction: env.NODE_ENV === 'production',
@@ -224,12 +282,23 @@ function buildConfig(): AppConfig {
     },
     sage: {
       enabled: env.SAGE_ENABLED,
-      host: env.SAGE_HOST,
-      ports: env.SAGE_PORTS,
-      database: env.SAGE_DATABASE,
-      user: env.SAGE_USER,
-      password: env.SAGE_PASSWORD,
-      connectTimeoutMs: env.SAGE_CONNECT_TIMEOUT_MS,
+      fake: env.SAGE_FAKE,
+      environment: env.SAGE_ENVIRONMENT,
+      clientId: env.SAGE_CLIENT_ID,
+      clientSecret: env.SAGE_CLIENT_SECRET,
+      redirectUri: env.SAGE_REDIRECT_URI,
+      apiBaseUrl: env.SAGE_API_BASE_URL,
+      authBaseUrl: env.SAGE_AUTH_BASE_URL,
+      tokenUrl: env.SAGE_TOKEN_URL,
+      businessId: env.SAGE_BUSINESS_ID,
+      tokenEncKey: env.SAGE_TOKEN_ENC_KEY,
+      dailyQuota: env.SAGE_DAILY_QUOTA,
+      minuteQuota: env.SAGE_MINUTE_QUOTA,
+      ledger: {
+        salesAccountId: env.SAGE_SALES_ACCOUNT_ID,
+        purchaseAccountId: env.SAGE_PURCHASE_ACCOUNT_ID,
+        roundingAccountId: env.SAGE_ROUNDING_ACCOUNT_ID,
+      },
     },
     seedAdmin: {
       // Deliberately optional: a default address would let anyone who signs up

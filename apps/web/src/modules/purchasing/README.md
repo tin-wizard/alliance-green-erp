@@ -40,6 +40,25 @@ the general transition action.
   it to `matched`/`draft`. Closing requires status 4, all received quantity invoiced, and
   `invoice:issue`; a variance needs an accepted reason.
 
+## Supplier credits
+
+- A credit is a supplier-invoice-shaped document with negative quantities, stored in
+  `purchase_order_invoices`/`purchase_order_invoice_lines`. It reduces the open AP balance and
+  never the ordered quantity.
+- The ordinary invoice path stays positive-only: `createPurchaseOrderInvoiceCore` still rejects
+  `qty <= 0`. Credits are created only by `createSupplierCreditCore` in `server/credits.server.ts`,
+  through the `createSupplierCredit` server function.
+- Source is explicit: `{ purchaseOrderId }` or `{ rgaReference }`. An RGA-sourced credit derives
+  its PO from the part lines it corrects (one PO per credit) and uses the RGA reference as the
+  document reference when none is supplied.
+- Line money reuses the invoice helpers (`invoiceLineAmounts`), so a credit for the same lines and
+  rates is the exact negative of the invoice, to the cent. Each line states its own `taxRate`.
+- A credit cannot take a PO line below zero invoiced quantity; that is the mirror of the invoice
+  cap at the ordered quantity. Credits leave PO status, ordered prices and received quantities
+  untouched.
+- Purchasing has no AP ledger. `apAccountId` is carried on the credit's audit payload for the
+  posting adapter; the audit action is `purchase_credit.created`.
+
 ## Money
 
 `calculatePurchaseOrderTotals` in `packages/pricing` uses `purchaseTaxRate` (purchase table),
@@ -58,6 +77,7 @@ PO totals that differ are reported by the backfill, never restored at runtime.
 - `lib/status.test.ts` — every legal and illegal status pair, permission mapping, numbering.
 - `server/purchasing.integration.test.ts` — rolled-back Neon transactions for self-approval and
   the edit reset, denied approval, receipts/idempotency/over-receipt/cancel, invoice gate,
-  numbering, RFQ award and pre-order conversion idempotency.
+  supplier credits (negative totals, invoice sign regression, the invoiced-quantity cap, AP
+  balancing, permission), numbering, RFQ award and pre-order conversion idempotency.
 - `e2e/purchasing.spec.ts` — signed-in draft → request → self-approve → issue → receive →
   invoice → invoiced, denied technician approval, supplier isolation.

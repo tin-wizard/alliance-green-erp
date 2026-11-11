@@ -57,6 +57,13 @@
       "when": 1794432096489,
       "tag": "0007_condemned_luckman",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1794434591761,
+      "tag": "0008_lowly_stephen_strange",
+      "breakpoints": true
     }
   ]
 }

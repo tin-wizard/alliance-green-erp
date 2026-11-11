@@ -118,6 +118,36 @@ export const PERMISSIONS = [
     defaultRoles: ['admin'],
   },
   {
+    key: 'rga:read',
+    module: 'rga',
+    label: 'View RGAs',
+    description:
+      'See return-goods authorisations and their supplier, purchase-order and work-order links. Subcontractors see only their own company.',
+    defaultRoles: ['admin', 'technician', 'subcontractor'],
+  },
+  {
+    key: 'rga:write',
+    module: 'rga',
+    label: 'Edit RGAs',
+    description: 'Raise and change RGAs and their parts and special-part lines.',
+    defaultRoles: ['admin', 'technician', 'subcontractor'],
+  },
+  {
+    key: 'rga:approve',
+    module: 'rga',
+    label: 'Approve RGAs',
+    description: 'Approve an RGA for return or replacement, and move it through its lifecycle.',
+    defaultRoles: ['admin'],
+  },
+  {
+    key: 'rga:credit',
+    module: 'rga',
+    label: 'Record RGA credit',
+    description:
+      'Record the supplier credit note for an approved RGA. The credit is posted through the shared Sage outbox.',
+    defaultRoles: ['admin'],
+  },
+  {
     key: 'inventory:read',
     module: 'inventory',
     label: 'View inventory',

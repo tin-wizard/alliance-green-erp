@@ -466,7 +466,9 @@ describe.skipIf(!databaseConfigured())('quote server functions', () => {
         .select()
         .from(workOrderNumberSeries)
         .where(eq(workOrderNumberSeries.id, 1))
-      expect(afterCancel?.nextId).toBe(second.workOrderNumber! + 1)
+      // `Promise.all` does not promise completion order, so the counter is
+      // asserted against the higher of the two numbers, not against `second`.
+      expect(afterCancel?.nextId).toBe(high! + 1)
 
       const third = await create()
       createdIds.push(third.id)

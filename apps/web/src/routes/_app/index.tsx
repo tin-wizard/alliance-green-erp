@@ -70,30 +70,35 @@ function Dashboard() {
           />
           <StatusCard
             icon={PlugZap}
-            title="Sage 50"
+            title="Sage Accounting"
             value={
               status.isPending
                 ? 'Checking…'
                 : status.data?.checks.sage.status === 'disabled'
                   ? 'Disabled'
-                  : status.data?.checks.sage.status === 'unreachable'
-                    ? 'Unreachable'
-                    : status.data?.checks.sage.status === 'unverified'
-                      ? 'Unverified'
-                      : status.data?.checks.sage.status === 'verified'
-                        ? 'Connected'
-                        : status.data?.checks.sage.status === 'error'
-                          ? 'Wrong company'
-                          : 'Unknown'
+                  : status.data?.checks.sage.status === 'disconnected'
+                    ? 'Not connected'
+                    : status.data?.checks.sage.status === 'needs_reauth'
+                      ? 'Needs authorisation'
+                      : status.data?.checks.sage.status === 'unverified'
+                        ? 'Unverified'
+                        : status.data?.checks.sage.status === 'verified'
+                          ? 'Connected'
+                          : status.data?.checks.sage.status === 'degraded'
+                            ? 'Degraded'
+                            : status.data?.checks.sage.status === 'error'
+                              ? 'Error'
+                              : 'Unknown'
             }
             tone={
               status.data?.checks.sage.status === 'verified'
                 ? 'ok'
-                : status.data?.checks.sage.status === 'disabled'
+                : status.data?.checks.sage.status === 'disabled' ||
+                    status.data?.checks.sage.status === 'disconnected'
                   ? 'neutral'
                   : 'warn'
             }
-            detail={status.data?.checks.sage.message ?? 'Legacy MySQL port scan, 13541 first.'}
+            detail={status.data?.checks.sage.message ?? 'Cloud API; no tenant configured yet.'}
           />
           <StatusCard
             icon={ShieldCheck}

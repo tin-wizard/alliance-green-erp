@@ -8,7 +8,10 @@
 import { eq } from 'drizzle-orm'
 import { describe, expect, test, vi } from 'vitest'
 
-vi.setConfig({ testTimeout: 90_000, hookTimeout: 90_000 })
+// 180 s, not 90: the lifecycle test takes ~18 s alone but shares one database
+// with the purchasing, RGA and job-runner suites, and the whole `pnpm test` run
+// legitimately queues behind them.
+vi.setConfig({ testTimeout: 180_000, hookTimeout: 180_000 })
 
 import { getConfig } from '@cls/core/env.server'
 import { ALL_PERMISSIONS, NotFoundError, ValidationError } from '@cls/core'

@@ -1,71 +1,109 @@
 /**
- * Sage 50 adapter boundary.
+ * Sage Accounting (Sage Business Cloud Accounting) adapter types.
  *
- * The legacy system reaches Sage through Sage 50's own embedded MySQL server:
- * `mysql_connect('localhost:13541', 'sageuser', …)`, then `USE simply`, then the
- * sentinel `SELECT lId FROM tvendor WHERE lId = 663 AND sName = 'SagePort'`.
- * The sentinel port is tried first (13541), then 13540, 13542, 13543, 13544.
- * See `green-system/MODULES.md` §11 and docs/adr/0005-sage-adapter.md.
+ * SERVER ONLY. Nothing here imports `node:net`, `mysql2` or the legacy Sage 50
+ * discovery code; the cloud move deleted that. The two interfaces that matter:
  *
- * Discovery and connection verification live here. Business reads and writes
- * (invoices, journals, inventory) belong to the Sage module that will consume
- * this adapter; they are deliberately absent.
+ * - `SageAdapter` — what the app asks about the connection (health, numbering).
+ * - `SageInvoiceGateway` (see `invoices.ts`) — what the posting worker calls.
  *
- * Nothing outside this package may import `node:net`/`mysql2` or read SAGE_*
- * env vars.
+ * `needs_reauth` is a state, not an exception: callers show "authorise the Sage
+ * connection", never "something went wrong".
  */
 
-export interface SageEndpoint {
-  host: string
-  port: number
-  /**
-   * True when the `tvendor` sentinel answered on this port, which is the only
-   * acceptance test the legacy system uses. False means only a TCP listener
-   * was found (no credentials configured), so the company is unconfirmed.
-   */
-  verified: boolean
-}
+export type SageConnectionState =
+  | 'disabled' // SAGE_ENABLED=false; no calls attempted
+  | 'disconnected' // enabled, never authorised
+  | 'needs_reauth' // refresh token dead or revoked: a human must authorise again
+  | 'verified' // token fresh, last probe succeeded
+  | 'degraded' // reachable but failing calls, or quota exhausted
+  | 'error' // last call failed in a way we cannot classify
 
-export interface SageConnectionInfo {
-  endpoint: SageEndpoint
-  database: string
-  serverVersion: string
-  connectedAt: Date
-}
+/** Kept as a union member because the dashboard used it for Sage 50. */
+export type SageHealthStatus = SageConnectionState | 'unverified'
 
-export type SageHealthStatus =
-  | 'disabled'
-  | 'unreachable'
-  | 'unverified'
-  | 'verified'
-  | 'error'
+export interface SageQuotaSnapshot {
+  used: number
+  limit: number
+  resetsAt: Date
+}
 
 export interface SageHealth {
   status: SageHealthStatus
   checkedAt: Date
-  endpoint: SageEndpoint | null
-  database: string
+  environment: 'sandbox' | 'production'
+  businessId: string | null
+  accessTokenExpiresAt: Date | null
+  refreshExpiresAt: Date | null
+  /** Whole days since the last successful refresh or keep-alive. */
+  tokenAgeDays: number | null
+  quota: SageQuotaSnapshot
   message: string
 }
 
-export interface SageAdapter {
-  readonly name: string
-  /** Ordered probe; returns the first port whose company answers the sentinel. */
-  discover(): Promise<SageEndpoint | null>
-  /** Opens and verifies a connection. Throws; never fakes success. */
-  connect(endpoint?: SageEndpoint): Promise<SageConnectionInfo>
-  disconnect(): Promise<void>
-  health(): Promise<SageHealth>
+export type SageDocumentType =
+  | 'sales_invoice'
+  | 'sales_credit_note'
+  | 'purchase_invoice'
+  | 'purchase_credit_note'
+  | 'journal'
+  | 'opening_balance'
+  | 'stock_movement'
+
+export interface PostingRequest {
+  docType: SageDocumentType
+  docId: string
+  payload: unknown
+}
+
+export interface PostingResult {
+  externalRef: string
+  apiId: string
+  status: 'created' | 'already_exists' | 'rejected' | 'unknown'
+  apiReference?: string
+  total?: string
 }
 
 /**
- * Legacy probe order. 13541 is tried first because that is where the production
- * company listens; the rest are fallbacks.
+ * The app-facing adapter. Only `health()` and the optional `numberInUse()`
+ * capability are part of it; postings go through `SageInvoiceGateway`.
  */
-export const DEFAULT_SAGE_PORTS = [13541, 13540, 13542, 13543, 13544] as const
-export const DEFAULT_SAGE_DATABASE = 'simply'
+export interface SageAdapter {
+  readonly name: string
+  health(): Promise<SageHealth>
+  /** True = number used, false = free, null = cannot verify. */
+  numberInUse?(id: number): Promise<boolean | null>
+}
 
-/** Marker row that identifies the CLS company inside a Sage MySQL server. */
-export const SAGE_SENTINEL_VENDOR_ID = 663
-export const SAGE_SENTINEL_VENDOR_NAME = 'SagePort'
-export const SAGE_SENTINEL_SQL = 'SELECT lId FROM tvendor WHERE lId = ? AND sName = ?'
+/** Connection state as the token service sees it, without a network call. */
+export interface ConnectionStatus {
+  state: SageConnectionState
+  businessId: string | null
+  accessTokenExpiresAt: Date | null
+  refreshExpiresAt: Date | null
+  daysSinceRefresh: number | null
+  message: string
+}
+
+/** Supplies bearer tokens to the HTTP client. Implemented by the token service. */
+export interface AccessTokenProvider {
+  getAccessToken(): Promise<string>
+  /** Called on 401/403 so the provider can refresh once, then demand reauth. */
+  invalidate(reason: string): Promise<void>
+  status(): Promise<ConnectionStatus>
+}
+
+export type FetchLike = (
+  input: string,
+  init?: {
+    method?: string
+    headers?: Record<string, string>
+    body?: string
+    signal?: AbortSignal
+  },
+) => Promise<{
+  status: number
+  headers: { get(name: string): string | null }
+  text(): Promise<string>
+  json(): Promise<unknown>
+}>

@@ -1,17 +1,17 @@
 /**
- * Sage-side work-order number collision source.
+ * Work-order number collision source.
  *
- * SERVER ONLY. The legacy `confirm_woid_not_used()` checks `tcustr.sSource` and
- * `tProject.sName` on the Sage connection (BUSINESS-RULES C3). `@cls/sage`
- * currently exposes discovery and health only — it deliberately has no business
- * reads — so this module looks for an optional capability and otherwise reports
- * "unverifiable" instead of pretending the check passed.
- *
- * When the Sage module adds a `numberInUse(id)` capability, this file starts
- * using it with no change to the allocator. Until then strict numbering refuses
- * and legacy-permissive numbering records a warning.
+ * SERVER ONLY. The legacy `confirm_woid_not_used()` checked `tcustr.sSource` and
+ * `tProject.sName` because it was writing into Sage 50 (BUSINESS-RULES C3). Since
+ * D18 the ledger's numbers are the ledger's; the number that matters is ours, so
+ * this delegates to the Sage module's `numberInUse`, which checks work orders,
+ * quotes and invoices. `null` still means "cannot verify" and preserves the
+ * allocator's existing behaviour when the database is unavailable.
  */
-import { getSageAdapter } from '@cls/sage'
+import {
+  describeNumberSource,
+  numberInUse,
+} from '../../sage/server/number-in-use.server'
 
 export interface SageNumberCollisionSource {
   /** True = used, false = free, null = cannot verify. */
@@ -19,33 +19,13 @@ export interface SageNumberCollisionSource {
   describe(): string
 }
 
-interface SageNumberCapability {
-  numberInUse?: (id: number) => Promise<boolean> | boolean
-}
-
 let override: SageNumberCollisionSource | undefined
 
 export function getSageNumberCollisionSource(): SageNumberCollisionSource {
   if (override) return override
-
-  let capability: SageNumberCapability | undefined
-  try {
-    capability = getSageAdapter() as unknown as SageNumberCapability
-  } catch {
-    capability = undefined
-  }
-
-  if (capability && typeof capability.numberInUse === 'function') {
-    return {
-      has: async (id) => capability.numberInUse!(id),
-      describe: () => 'Sage tcustr.sSource / tProject.sName via @cls/sage',
-    }
-  }
-
   return {
-    has: async () => null,
-    describe: () =>
-      '@cls/sage has no business-query capability yet (discovery/health only); Sage collision check unavailable',
+    has: (id) => numberInUse(id),
+    describe: () => describeNumberSource(),
   }
 }
 

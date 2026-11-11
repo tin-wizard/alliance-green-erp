@@ -1,8 +1,8 @@
 # Sage adapter scaffold — implementation specification
 
-**Status:** specified; **not yet applied to the repo.** The working tree is owned by the Quotes
-agent (Invoicing + the Playwright parallel-429 fix), so this document is the hand-off: it is written
-to be implemented in one PR when the orchestrator releases the tree.
+**Status:** **applied, 2026-11-11** — the scaffold is in the repository and `pnpm verify` covers it.
+What landed, and where it differs from this specification, is recorded in §13; everything below is
+kept as the specification the implementation is measured against.
 **Date:** 2026-11-11. **Owner:** Platform.
 **Implements:** `plan/modules/SAGE-CLOUD.md` S1-S3, `plan/modules/SAGE-RECONCILIATION.md`
 **Replaces:** `packages/sage/src/legacy-port-scan.ts`, the `mysql2` dependency, and the
@@ -389,3 +389,61 @@ new `apps/web/src/modules/sage/server/` directory.
 
 **Ready to start on the orchestrator's word.** Until then this spec and the reconciliation design are
 the deliverables; the repo stays with the Quotes agent.
+
+---
+
+## 13. What actually landed, and the three deviations
+
+The specification above was written before the Invoicing and RGA modules existed. Implementing it
+met them, and three things changed. Each change is a simplification that a later reader should not
+mistake for an omission.
+
+**1. `packages/sage` has no database dependency.** The spec put the outbox SQL, the token
+repository and the quota store in the package. They live in `apps/web/src/modules/sage/server/`
+instead, behind interfaces the package defines (`ConnectionRepository`, `DailyQuotaStore`,
+`PauseStore`, `AccessTokenProvider`). Reason: `@cls/db` depends on `@cls/core`, so a package that
+imports it from the protocol layer creates a cycle, and the protocol tests then need a database. The
+package is now pure and its 46 tests run in 133 ms.
+
+**2. The posting queue is Invoicing's, not a second one.** `app.sage_postings` has
+`queued | processing | sent | unknown | failed | cancelled`, drained by `/api/cron/sage-postings`
+(the route Invoicing built), and the worker calls `SageInvoiceGateway`. The richer state machine in
+§7 above was not built, because two queues over one table is a duplicate-document bug. What the spec
+wanted from it — search before create, attempt counts, never editing a sent row, a pause that is not
+a failure — is implemented in the adapter and the drain route. The drain returns `200` with
+`{ paused: reason }` when a pause condition is active and processes nothing.
+
+**3. Credit notes are a gateway method, not a document type the worker infers.** `SageInvoiceGateway`
+gained `postPurchaseCreditNote(payload: SageCreditNotePayload)`; the worker routes
+`docType = 'purchase_credit_note'` to it. Purchasing's `createSupplierCreditCore` is the only
+producer, and it emits `externalRef = cls:rga_credit:<id>` when the source is an RGA.
+
+What landed, file by file:
+
+| Area | Where | Proven by |
+|---|---|---|
+| Types, taxonomy, health states | `packages/sage/src/types.ts`, `errors.ts` | `adapter.test.ts` (health states, classification) |
+| Token custody | `packages/sage/src/crypto.ts` | `client.test.ts` (round-trip, AAD mismatch, fingerprint, key shape) |
+| Tokens, rotation, keep-alive, age | `packages/sage/src/auth/tokens.ts` + `stores.server.ts` (DB repo with advisory lock) | `client.test.ts` (refresh at 240 s, one refresh for two callers, rotation stored before use, rejected refresh → `needs_reauth`, 14/21-day thresholds, keep-alive sample) |
+| Two quotas | `packages/sage/src/quota.ts` + `dbQuotaStore` | `client.test.ts` (minute bucket, 90%/98% transitions, per-day reset) |
+| Automatic pauses | `packages/sage/src/pause.ts` + `dbPauseStore` | `client.test.ts`, `adapter.test.ts` |
+| HTTP client | `packages/sage/src/client/http.ts` | `adapter.test.ts` (401 → one refresh, 429 → quota, 5xx → retryable, 422 → permanent) |
+| Mappers | `packages/sage/src/mappers/` | `mappers.test.ts` (totals to the cent, rounding line, tax mismatch, credit note, payment allocations, journal balance) |
+| Adapter | `packages/sage/src/adapter.ts` | `adapter.test.ts` (one document on retry, timeout-after-commit, contact/tax/account refusals, product resolution) |
+| Fake API + harness | `packages/sage/src/testing/` | drives every test above, and the contract suite |
+| Gateway contract | `apps/web/src/modules/invoicing/server/gateway-contract.integration.test.ts` | the invoicing worker runs against **both** `FakeSageInvoiceGateway` and the real-shape `SageCloudAdapter`: post once, drain twice, fail-and-retry |
+| Schema | `packages/db/src/schema/app/sage.ts`, migration `0008` | applied; `sage_connections`, `sage_oauth_states`, `sage_quota_usage`, `sage_pause_state`, `sage_health_samples` |
+| Routes | `apps/web/src/routes/api/sage/oauth/{start,callback}.ts`, `api/cron/{sage-postings,sage-keepalive}.ts` | `cron-auth` rejection test (`503` unset, `403` mismatch), OAuth state single-use |
+| Env | `packages/core/src/env.server.ts` | legacy keys fail startup by name; production requires credentials; `SAGE_FAKE` refused in production |
+
+Still outstanding, deliberately: the six reconciliation checks and the `sage.probe` tenant capsule
+(`SAGE-RECONCILIATION.md`, PR 5 here), and every step that needs the tenant — the transfer ledger
+account ids, the first real invoice, and the cutover load. Those are the human's list in
+`SAGE-CLOUD.md` §1.5.
+
+### Test matrix status
+
+All rows of §11 are covered except the ones that belong to reconciliation: "cancel-before-post marks
+`skipped`" is Invoicing's `cancelSalesPostingCore` (unchanged, still covered by its own suite);
+`numberInUse` is implemented against our tables and its null-on-failure path is exercised by the
+work-order allocator's existing tests.

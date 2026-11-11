@@ -149,6 +149,43 @@ before:
 - **Silent expiry** — step 7 plus the daily keep-alive job; a failed keep-alive flips the state to
   `needs_reauth` the same day, which is a banner and an alert, not an error in a log.
 
+#### Build status, 2026-11-11
+
+The scaffold is in the repository; the checklist is now half code and half human. Ticked below with
+the evidence for each tick, so "what remains" is a short list rather than a reread.
+
+| # | Status | Evidence in the repo |
+|---|---|---|
+| 1 | **Remaining — Alliance** | Nothing to build. |
+| 2 | **Remaining — Alliance + Platform** | Nothing to build; the callback URL is coded at `/api/sage/oauth/callback`. |
+| 3 | **Remaining — Platform** | The env block and its validation exist (`packages/core/src/env.server.ts`); production refuses `SAGE_ENABLED=true` without client id, secret, redirect URI and token key. Nothing is stored yet. |
+| 4 | **Coded** | `SAGE_FAKE=true` is refused in production at startup; preview with `SAGE_ENABLED=false` reports `disabled` and makes zero calls. |
+| 5 | **Coded** | `GET /api/sage/oauth/start` — admin-only (`sage:write`), `503` when disabled or unconfigured, stores a hashed single-use state, redirects. |
+| 6 | **Remaining — Alliance** | The consent screen is Sage's; nothing to build. |
+| 7 | **Coded** | `GET /api/sage/oauth/callback` exchanges the code, seals both tokens, writes `sage_connections`, reads `/businesses`, and reports the outcome. Tested against the fake API. |
+| 8 | **Coded** | A multi-business callback stores `business_id = null`, refuses to guess, and exposes the choice via `selectBusiness`. Posting is blocked with `SAGE_BUSINESS_UNRESOLVED` until it is made. |
+| 9 | **Remaining** | The `sage.probe` job and capsule report are not built. It needs credentials; it is the first thing to run when they arrive. |
+| 10 | **Coded, unrun against a tenant** | The posting worker, search-before-create, mappers and the link write are built; the invoicing worker is proven against both the fake gateway and the real-shape adapter over an in-memory API. The first real invoice is a human step. |
+| 11 | **Remaining** | Daily reconciliation (`SAGE-RECONCILIATION.md`) is designed but not implemented; it lands with PR 5 of the scaffold plan. |
+
+Also true as of this pass, and each one is enforced in code rather than by convention:
+
+- the legacy `SAGE_HOST|PORTS|DATABASE|USER|PASSWORD|CONNECT_TIMEOUT_MS` variables now **fail startup
+  by name** with the replacement listed (`RETIRED_SAGE_KEYS` in `packages/core/src/env.server.ts`), so
+  a stale Vercel variable cannot silently do nothing;
+- `SAGE_CRON_SECRET` gates `/api/cron/sage-postings` (`503` unset, `403` mismatch) and
+  `/api/cron/sage-keepalive`; `JOB_RUNNER_SECRET` gates the job trigger route;
+- token age is a health assertion: `daysSinceRefresh` is reported on `/api/health`, warns at 14 days
+  and blocks posting at 21, with a daily `sage_health_samples` row written by the keep-alive route;
+- automatic pauses (quota, `needs_reauth`, three consecutive 5xx, 422 rate above 5%) are persisted in
+  `sage_pause_state`, so the drain says "paused" on a new serverless invocation instead of retrying
+  into the same wall.
+
+`SAGE_FAKE`, `SAGE_SALES_ACCOUNT_ID`, `SAGE_PURCHASE_ACCOUNT_ID` and `SAGE_ROUNDING_ACCOUNT_ID` were
+added to the environment table's neighbourhood in `.env.example`; the account ids are tenant inputs
+and are required only once real posting starts (a missing account is a named permanent refusal, not
+a guess).
+
 ### 1.6 Project costing: the dimension stays in this app
 
 This is decided, with one external fact to confirm.
