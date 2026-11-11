@@ -1,0 +1,541 @@
+{
+  "cases": [
+    {
+      "id": "tjx-f1-basic",
+      "note": "One line, no uplift.",
+      "input": {
+        "taxRate": "0.13",
+        "fixtures": [
+          { "quantity": "1", "parts": [{ "partNo": "WIN-100", "markup": "1", "ratioPerFixture": "1" }] }
+        ],
+        "specialParts": [],
+        "prices": { "WIN-100": "10.00" }
+      },
+      "expected": {
+        "parts": [
+          {
+            "partNo": "WIN-100",
+            "qtyWithMarkup": "1.000",
+            "qtyWithoutMarkup": "1.000",
+            "unitPrice": "10.00",
+            "lineWithMarkup": "10.00",
+            "lineWithoutMarkup": "10.00",
+            "taxWithMarkup": "1.30",
+            "taxWithoutMarkup": "1.30"
+          }
+        ],
+        "subtotal": "10.00",
+        "tax": "1.30",
+        "total": "11.30",
+        "withoutMarkupSubtotal": "10.00",
+        "withoutMarkupTax": "1.30",
+        "withoutMarkupTotal": "11.30"
+      }
+    },
+    {
+      "id": "tjx-f2-markup-ratio",
+      "note": "Both multipliers.",
+      "input": {
+        "taxRate": "0.13",
+        "fixtures": [
+          { "quantity": "2", "parts": [{ "partNo": "WIN-200", "markup": "1.5", "ratioPerFixture": "2" }] }
+        ],
+        "specialParts": [],
+        "prices": { "WIN-200": "10.00" }
+      },
+      "expected": {
+        "parts": [
+          {
+            "partNo": "WIN-200",
+            "qtyWithMarkup": "6.000",
+            "qtyWithoutMarkup": "4.000",
+            "unitPrice": "10.00",
+            "lineWithMarkup": "60.00",
+            "lineWithoutMarkup": "40.00",
+            "taxWithMarkup": "7.80",
+            "taxWithoutMarkup": "5.20"
+          }
+        ],
+        "subtotal": "60.00",
+        "tax": "7.80",
+        "total": "67.80",
+        "withoutMarkupSubtotal": "40.00",
+        "withoutMarkupTax": "5.20",
+        "withoutMarkupTotal": "45.20"
+      }
+    },
+    {
+      "id": "tjx-f3-aggregate-ceiling",
+      "note": "Legacy sums raw quantities across fixtures and ceils once; two 1.25 raw lines become 3.",
+      "input": {
+        "taxRate": "0.13",
+        "fixtures": [
+          { "quantity": "1", "parts": [{ "partNo": "WIN-300", "markup": "1", "ratioPerFixture": "1.25" }] },
+          { "quantity": "1", "parts": [{ "partNo": "WIN-300", "markup": "1", "ratioPerFixture": "1.25" }] }
+        ],
+        "specialParts": [],
+        "prices": { "WIN-300": "10.00" }
+      },
+      "expected": {
+        "parts": [
+          {
+            "partNo": "WIN-300",
+            "qtyWithMarkup": "3.000",
+            "qtyWithoutMarkup": "2.500",
+            "unitPrice": "10.00",
+            "lineWithMarkup": "30.00",
+            "lineWithoutMarkup": "25.00",
+            "taxWithMarkup": "3.90",
+            "taxWithoutMarkup": "3.25"
+          }
+        ],
+        "subtotal": "30.00",
+        "tax": "3.90",
+        "total": "33.90",
+        "withoutMarkupSubtotal": "25.00",
+        "withoutMarkupTax": "3.25",
+        "withoutMarkupTotal": "28.25"
+      }
+    },
+    {
+      "id": "tjx-f4-win150-markup",
+      "note": "WIN-150 exception: both triplets use F * M * R, while the with-markup quantity still ceils once at the end.",
+      "input": {
+        "taxRate": "0.13",
+        "fixtures": [
+          { "quantity": "2", "parts": [{ "partNo": "WIN-150", "markup": "1.5", "ratioPerFixture": "1.5" }] }
+        ],
+        "specialParts": [],
+        "prices": { "WIN-150": "100.00" }
+      },
+      "expected": {
+        "parts": [
+          {
+            "partNo": "WIN-150",
+            "qtyWithMarkup": "5.000",
+            "qtyWithoutMarkup": "4.500",
+            "unitPrice": "100.00",
+            "lineWithMarkup": "500.00",
+            "lineWithoutMarkup": "450.00",
+            "taxWithMarkup": "65.00",
+            "taxWithoutMarkup": "58.50"
+          }
+        ],
+        "subtotal": "500.00",
+        "tax": "65.00",
+        "total": "565.00",
+        "withoutMarkupSubtotal": "450.00",
+        "withoutMarkupTax": "58.50",
+        "withoutMarkupTotal": "508.50"
+      }
+    },
+    {
+      "id": "tjx-f5-win150-fractional",
+      "note": "WIN-150 fractional result: 1.75 raw, ceil to 2 with markup, preserve 1.75 without.",
+      "input": {
+        "taxRate": "0.13",
+        "fixtures": [
+          { "quantity": "1", "parts": [{ "partNo": "WIN-150", "markup": "1.4", "ratioPerFixture": "1.25" }] }
+        ],
+        "specialParts": [],
+        "prices": { "WIN-150": "100.00" }
+      },
+      "expected": {
+        "parts": [
+          {
+            "partNo": "WIN-150",
+            "qtyWithMarkup": "2.000",
+            "qtyWithoutMarkup": "1.750",
+            "unitPrice": "100.00",
+            "lineWithMarkup": "200.00",
+            "lineWithoutMarkup": "175.00",
+            "taxWithMarkup": "26.00",
+            "taxWithoutMarkup": "22.75"
+          }
+        ],
+        "subtotal": "200.00",
+        "tax": "26.00",
+        "total": "226.00",
+        "withoutMarkupSubtotal": "175.00",
+        "withoutMarkupTax": "22.75",
+        "withoutMarkupTotal": "197.75"
+      }
+    },
+    {
+      "id": "tjx-f6-price-override",
+      "note": "The quote price map wins; the calculator never reads a part master price.",
+      "input": {
+        "taxRate": "0.13",
+        "fixtures": [
+          { "quantity": "1", "parts": [{ "partNo": "WIN-400", "markup": "1", "ratioPerFixture": "1" }] }
+        ],
+        "specialParts": [],
+        "prices": { "WIN-400": "12.34" }
+      },
+      "expected": {
+        "parts": [
+          {
+            "partNo": "WIN-400",
+            "qtyWithMarkup": "1.000",
+            "qtyWithoutMarkup": "1.000",
+            "unitPrice": "12.34",
+            "lineWithMarkup": "12.34",
+            "lineWithoutMarkup": "12.34",
+            "taxWithMarkup": "1.60",
+            "taxWithoutMarkup": "1.60"
+          }
+        ],
+        "subtotal": "12.34",
+        "tax": "1.60",
+        "total": "13.94",
+        "withoutMarkupSubtotal": "12.34",
+        "withoutMarkupTax": "1.60",
+        "withoutMarkupTotal": "13.94"
+      }
+    },
+    {
+      "id": "tjx-f7-missing-price",
+      "note": "A missing price fails, naming the part.",
+      "input": {
+        "taxRate": "0.13",
+        "fixtures": [
+          { "quantity": "1", "parts": [{ "partNo": "WIN-999", "markup": "1", "ratioPerFixture": "1" }] }
+        ],
+        "specialParts": [],
+        "prices": {}
+      },
+      "expectedError": "WIN-999"
+    },
+    {
+      "id": "tjx-f8-special-parts",
+      "note": "Special parts add to both triplets.",
+      "input": {
+        "taxRate": "0.13",
+        "fixtures": [
+          { "quantity": "1", "parts": [{ "partNo": "WIN-500", "markup": "1", "ratioPerFixture": "1" }] }
+        ],
+        "specialParts": [{ "name": "Freight", "quantity": "1", "unitPrice": "5.00" }],
+        "prices": { "WIN-500": "20.00" }
+      },
+      "expected": {
+        "parts": [
+          {
+            "partNo": "WIN-500",
+            "qtyWithMarkup": "1.000",
+            "qtyWithoutMarkup": "1.000",
+            "unitPrice": "20.00",
+            "lineWithMarkup": "20.00",
+            "lineWithoutMarkup": "20.00",
+            "taxWithMarkup": "2.60",
+            "taxWithoutMarkup": "2.60"
+          }
+        ],
+        "specialParts": [
+          {
+            "name": "Freight",
+            "quantity": "1.000",
+            "unitPrice": "5.00",
+            "lineTotal": "5.00",
+            "tax": "0.65"
+          }
+        ],
+        "subtotal": "25.00",
+        "tax": "3.25",
+        "total": "28.25",
+        "withoutMarkupSubtotal": "25.00",
+        "withoutMarkupTax": "3.25",
+        "withoutMarkupTotal": "28.25"
+      }
+    },
+    {
+      "id": "tjx-f9-tax-5pct",
+      "note": "Five percent rate with a half-cent rounds half away from zero.",
+      "input": {
+        "taxRate": "0.05",
+        "fixtures": [
+          { "quantity": "1", "parts": [{ "partNo": "WIN-600", "markup": "1", "ratioPerFixture": "1" }] }
+        ],
+        "specialParts": [],
+        "prices": { "WIN-600": "19.99" }
+      },
+      "expected": {
+        "parts": [
+          {
+            "partNo": "WIN-600",
+            "qtyWithMarkup": "1.000",
+            "qtyWithoutMarkup": "1.000",
+            "unitPrice": "19.99",
+            "lineWithMarkup": "19.99",
+            "lineWithoutMarkup": "19.99",
+            "taxWithMarkup": "1.00",
+            "taxWithoutMarkup": "1.00"
+          }
+        ],
+        "subtotal": "19.99",
+        "tax": "1.00",
+        "total": "20.99",
+        "withoutMarkupSubtotal": "19.99",
+        "withoutMarkupTax": "1.00",
+        "withoutMarkupTotal": "20.99"
+      }
+    },
+    {
+      "id": "tjx-f10-zero-tax",
+      "note": "Zero rate.",
+      "input": {
+        "taxRate": "0",
+        "fixtures": [
+          { "quantity": "1", "parts": [{ "partNo": "WIN-700", "markup": "1", "ratioPerFixture": "1" }] }
+        ],
+        "specialParts": [],
+        "prices": { "WIN-700": "100.00" }
+      },
+      "expected": {
+        "parts": [
+          {
+            "partNo": "WIN-700",
+            "qtyWithMarkup": "1.000",
+            "qtyWithoutMarkup": "1.000",
+            "unitPrice": "100.00",
+            "lineWithMarkup": "100.00",
+            "lineWithoutMarkup": "100.00",
+            "taxWithMarkup": "0.00",
+            "taxWithoutMarkup": "0.00"
+          }
+        ],
+        "subtotal": "100.00",
+        "tax": "0.00",
+        "total": "100.00",
+        "withoutMarkupSubtotal": "100.00",
+        "withoutMarkupTax": "0.00",
+        "withoutMarkupTotal": "100.00"
+      }
+    },
+    {
+      "id": "tjx-f11-per-line-tax",
+      "note": "Two half-cent tax lines round separately to 0.01 each, then sum to 0.02.",
+      "input": {
+        "taxRate": "0.13",
+        "fixtures": [
+          { "quantity": "1", "parts": [{ "partNo": "WIN-801", "markup": "1", "ratioPerFixture": "1" }] },
+          { "quantity": "1", "parts": [{ "partNo": "WIN-802", "markup": "1", "ratioPerFixture": "1" }] }
+        ],
+        "specialParts": [],
+        "prices": { "WIN-801": "0.05", "WIN-802": "0.05" }
+      },
+      "expected": {
+        "parts": [
+          {
+            "partNo": "WIN-801",
+            "qtyWithMarkup": "1.000",
+            "qtyWithoutMarkup": "1.000",
+            "unitPrice": "0.05",
+            "lineWithMarkup": "0.05",
+            "lineWithoutMarkup": "0.05",
+            "taxWithMarkup": "0.01",
+            "taxWithoutMarkup": "0.01"
+          },
+          {
+            "partNo": "WIN-802",
+            "qtyWithMarkup": "1.000",
+            "qtyWithoutMarkup": "1.000",
+            "unitPrice": "0.05",
+            "lineWithMarkup": "0.05",
+            "lineWithoutMarkup": "0.05",
+            "taxWithMarkup": "0.01",
+            "taxWithoutMarkup": "0.01"
+          }
+        ],
+        "subtotal": "0.10",
+        "tax": "0.02",
+        "total": "0.12",
+        "withoutMarkupSubtotal": "0.10",
+        "withoutMarkupTax": "0.02",
+        "withoutMarkupTotal": "0.12"
+      }
+    },
+    {
+      "id": "tjx-f12-zero-markup",
+      "note": "Zero markup is rejected and names the part.",
+      "input": {
+        "taxRate": "0.13",
+        "fixtures": [
+          { "quantity": "1", "parts": [{ "partNo": "WIN-950", "markup": "0", "ratioPerFixture": "2" }] }
+        ],
+        "specialParts": [],
+        "prices": { "WIN-950": "10.00" }
+      },
+      "expectedError": "WIN-950"
+    },
+    {
+      "id": "tjx-f13-fractional-ratio",
+      "note": "Four-decimal ratio input produces a three-decimal quantity without markup.",
+      "input": {
+        "taxRate": "0.13",
+        "fixtures": [
+          { "quantity": "3", "parts": [{ "partNo": "WIN-900", "markup": "1.3333", "ratioPerFixture": "0.3333" }] }
+        ],
+        "specialParts": [],
+        "prices": { "WIN-900": "7.77" }
+      },
+      "expected": {
+        "parts": [
+          {
+            "partNo": "WIN-900",
+            "qtyWithMarkup": "2.000",
+            "qtyWithoutMarkup": "1.000",
+            "unitPrice": "7.77",
+            "lineWithMarkup": "15.54",
+            "lineWithoutMarkup": "7.77",
+            "taxWithMarkup": "2.02",
+            "taxWithoutMarkup": "1.01"
+          }
+        ],
+        "subtotal": "15.54",
+        "tax": "2.02",
+        "total": "17.56",
+        "withoutMarkupSubtotal": "7.77",
+        "withoutMarkupTax": "1.01",
+        "withoutMarkupTotal": "8.78"
+      }
+    },
+    {
+      "id": "tjx-f14-mixed-same-part",
+      "note": "Different multipliers on the same part aggregate into one quantity.",
+      "input": {
+        "taxRate": "0.13",
+        "fixtures": [
+          { "quantity": "2", "parts": [{ "partNo": "WIN-1000", "markup": "1", "ratioPerFixture": "1" }] },
+          { "quantity": "1", "parts": [{ "partNo": "WIN-1000", "markup": "2", "ratioPerFixture": "1" }] }
+        ],
+        "specialParts": [],
+        "prices": { "WIN-1000": "5.00" }
+      },
+      "expected": {
+        "parts": [
+          {
+            "partNo": "WIN-1000",
+            "qtyWithMarkup": "4.000",
+            "qtyWithoutMarkup": "3.000",
+            "unitPrice": "5.00",
+            "lineWithMarkup": "20.00",
+            "lineWithoutMarkup": "15.00",
+            "taxWithMarkup": "2.60",
+            "taxWithoutMarkup": "1.95"
+          }
+        ],
+        "subtotal": "20.00",
+        "tax": "2.60",
+        "total": "22.60",
+        "withoutMarkupSubtotal": "15.00",
+        "withoutMarkupTax": "1.95",
+        "withoutMarkupTotal": "16.95"
+      }
+    },
+    {
+      "id": "tjx-f15-five-decimal-rate",
+      "note": "0.14975 applied to 100.00 is 14.975, rounding up to 14.98.",
+      "input": {
+        "taxRate": "0.14975",
+        "fixtures": [
+          { "quantity": "1", "parts": [{ "partNo": "WIN-1200", "markup": "1", "ratioPerFixture": "1" }] }
+        ],
+        "specialParts": [],
+        "prices": { "WIN-1200": "100.00" }
+      },
+      "expected": {
+        "parts": [
+          {
+            "partNo": "WIN-1200",
+            "qtyWithMarkup": "1.000",
+            "qtyWithoutMarkup": "1.000",
+            "unitPrice": "100.00",
+            "lineWithMarkup": "100.00",
+            "lineWithoutMarkup": "100.00",
+            "taxWithMarkup": "14.98",
+            "taxWithoutMarkup": "14.98"
+          }
+        ],
+        "subtotal": "100.00",
+        "tax": "14.98",
+        "total": "114.98",
+        "withoutMarkupSubtotal": "100.00",
+        "withoutMarkupTax": "14.98",
+        "withoutMarkupTotal": "114.98"
+      }
+    },
+    {
+      "id": "tjx-f16-exact-large",
+      "note": "Large fractional fixture and ratio: no binary-float noise.",
+      "input": {
+        "taxRate": "0.13",
+        "fixtures": [
+          { "quantity": "123", "parts": [{ "partNo": "WIN-1100", "markup": "1.2345", "ratioPerFixture": "2.3456" }] }
+        ],
+        "specialParts": [],
+        "prices": { "WIN-1100": "19.99" }
+      },
+      "expected": {
+        "parts": [
+          {
+            "partNo": "WIN-1100",
+            "qtyWithMarkup": "357.000",
+            "qtyWithoutMarkup": "288.509",
+            "unitPrice": "19.99",
+            "lineWithMarkup": "7136.43",
+            "lineWithoutMarkup": "5767.29",
+            "taxWithMarkup": "927.74",
+            "taxWithoutMarkup": "749.75"
+          }
+        ],
+        "subtotal": "7136.43",
+        "tax": "927.74",
+        "total": "8064.17",
+        "withoutMarkupSubtotal": "5767.29",
+        "withoutMarkupTax": "749.75",
+        "withoutMarkupTotal": "6517.04"
+      }
+    },
+    {
+      "id": "tjx-f17-special-only",
+      "note": "Empty fixtures are allowed when special parts exist; both triplets are equal.",
+      "input": {
+        "taxRate": "0.13",
+        "fixtures": [],
+        "specialParts": [{ "name": "Credit", "quantity": "1", "unitPrice": "100.00" }],
+        "prices": {}
+      },
+      "expected": {
+        "parts": [],
+        "specialParts": [
+          {
+            "name": "Credit",
+            "quantity": "1.000",
+            "unitPrice": "100.00",
+            "lineTotal": "100.00",
+            "tax": "13.00"
+          }
+        ],
+        "subtotal": "100.00",
+        "tax": "13.00",
+        "total": "113.00",
+        "withoutMarkupSubtotal": "100.00",
+        "withoutMarkupTax": "13.00",
+        "withoutMarkupTotal": "113.00"
+      }
+    },
+    {
+      "id": "tjx-f18-invalid-zero-qty",
+      "note": "Zero fixture quantity is rejected and names the quantity.",
+      "input": {
+        "taxRate": "0.13",
+        "fixtures": [
+          { "quantity": "0", "parts": [{ "partNo": "WIN-1300", "markup": "1", "ratioPerFixture": "1" }] }
+        ],
+        "specialParts": [],
+        "prices": { "WIN-1300": "10.00" }
+      },
+      "expectedError": "quantity"
+    }
+  ]
+}

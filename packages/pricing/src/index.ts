@@ -17,6 +17,7 @@ export * from './sales'
 export * from './quote'
 export * from './purchase'
 export * from './purchase-order'
+export * from './tjx'
 export {
   calculateLocalInvoiceTotals,
   resolveLocalTaxProvince,
