@@ -19,6 +19,8 @@ import { Route as AppAdminAuditRouteImport } from './routes/_app/admin/audit'
 import { Route as AppAdminUsersRouteImport } from './routes/_app/admin/users'
 import { Route as AppMasterDataIndexRouteImport } from './routes/_app/master-data/index'
 import { Route as AppMasterDataImportRouteImport } from './routes/_app/master-data/import'
+import { Route as AppPurchasingIndexRouteImport } from './routes/_app/purchasing/index'
+import { Route as AppPurchasingNewRouteImport } from './routes/_app/purchasing/new'
 import { Route as AppQuotesIndexRouteImport } from './routes/_app/quotes/index'
 import { Route as AppQuotesNewRouteImport } from './routes/_app/quotes/new'
 import { Route as AppWorkOrdersIndexRouteImport } from './routes/_app/work-orders/index'
@@ -41,7 +43,10 @@ import { Route as AppMasterDataSubcontractorsNewRouteImport } from './routes/_ap
 import { Route as AppMasterDataSuppliersIndexRouteImport } from './routes/_app/master-data/suppliers/index'
 import { Route as AppMasterDataSuppliersIdRouteImport } from './routes/_app/master-data/suppliers/$id'
 import { Route as AppMasterDataSuppliersNewRouteImport } from './routes/_app/master-data/suppliers/new'
+import { Route as AppPortalSupplierIndexRouteImport } from './routes/_app/portal/supplier/index'
 import { Route as AppPortalTechIndexRouteImport } from './routes/_app/portal/tech/index'
+import { Route as AppPurchasingIdIndexRouteImport } from './routes/_app/purchasing/$id/index'
+import { Route as AppPurchasingIdEditRouteImport } from './routes/_app/purchasing/$id/edit'
 import { Route as AppQuotesIdIndexRouteImport } from './routes/_app/quotes/$id/index'
 import { Route as AppQuotesIdEditRouteImport } from './routes/_app/quotes/$id/edit'
 import { Route as AppWorkOrdersIdIndexRouteImport } from './routes/_app/work-orders/$id/index'
@@ -104,6 +109,16 @@ const AppMasterDataIndexRoute = AppMasterDataIndexRouteImport.update({
 const AppMasterDataImportRoute = AppMasterDataImportRouteImport.update({
   id: '/master-data/import',
   path: '/master-data/import',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPurchasingIndexRoute = AppPurchasingIndexRouteImport.update({
+  id: '/purchasing/',
+  path: '/purchasing/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPurchasingNewRoute = AppPurchasingNewRouteImport.update({
+  id: '/purchasing/new',
+  path: '/purchasing/new',
   getParentRoute: () => AppRoute,
 } as any)
 const AppQuotesIndexRoute = AppQuotesIndexRouteImport.update({
@@ -227,9 +242,24 @@ const AppMasterDataSuppliersNewRoute =
     path: '/master-data/suppliers/new',
     getParentRoute: () => AppRoute,
   } as any)
+const AppPortalSupplierIndexRoute = AppPortalSupplierIndexRouteImport.update({
+  id: '/portal/supplier/',
+  path: '/portal/supplier/',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppPortalTechIndexRoute = AppPortalTechIndexRouteImport.update({
   id: '/portal/tech/',
   path: '/portal/tech/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPurchasingIdIndexRoute = AppPurchasingIdIndexRouteImport.update({
+  id: '/purchasing/$id/',
+  path: '/purchasing/$id/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPurchasingIdEditRoute = AppPurchasingIdEditRouteImport.update({
+  id: '/purchasing/$id/edit',
+  path: '/purchasing/$id/edit',
   getParentRoute: () => AppRoute,
 } as any)
 const AppQuotesIdIndexRoute = AppQuotesIdIndexRouteImport.update({
@@ -322,10 +352,12 @@ export interface FileRoutesByFullPath {
   '/admin/audit': typeof AppAdminAuditRoute
   '/admin/users': typeof AppAdminUsersRoute
   '/master-data/import': typeof AppMasterDataImportRoute
+  '/purchasing/new': typeof AppPurchasingNewRoute
   '/quotes/new': typeof AppQuotesNewRoute
   '/work-orders/new': typeof AppWorkOrdersNewRoute
   '/api/cron/compliance-expiry': typeof ApiCronComplianceExpiryRoute
   '/master-data/': typeof AppMasterDataIndexRoute
+  '/purchasing/': typeof AppPurchasingIndexRoute
   '/quotes/': typeof AppQuotesIndexRoute
   '/work-orders/': typeof AppWorkOrdersIndexRoute
   '/maintenance/work-orders/new': typeof AppMaintenanceWorkOrdersNewRoute
@@ -339,6 +371,7 @@ export interface FileRoutesByFullPath {
   '/master-data/subcontractors/new': typeof AppMasterDataSubcontractorsNewRoute
   '/master-data/suppliers/$id': typeof AppMasterDataSuppliersIdRoute
   '/master-data/suppliers/new': typeof AppMasterDataSuppliersNewRoute
+  '/purchasing/$id/edit': typeof AppPurchasingIdEditRoute
   '/quotes/$id/edit': typeof AppQuotesIdEditRoute
   '/work-orders/$id/revisions': typeof AppWorkOrdersIdRevisionsRoute
   '/api/master-data/documents/$id': typeof ApiMasterDataDocumentsIdRoute
@@ -348,7 +381,9 @@ export interface FileRoutesByFullPath {
   '/master-data/sites/': typeof AppMasterDataSitesIndexRoute
   '/master-data/subcontractors/': typeof AppMasterDataSubcontractorsIndexRoute
   '/master-data/suppliers/': typeof AppMasterDataSuppliersIndexRoute
+  '/portal/supplier/': typeof AppPortalSupplierIndexRoute
   '/portal/tech/': typeof AppPortalTechIndexRoute
+  '/purchasing/$id/': typeof AppPurchasingIdIndexRoute
   '/quotes/$id/': typeof AppQuotesIdIndexRoute
   '/work-orders/$id/': typeof AppWorkOrdersIdIndexRoute
   '/master-data/customers/edit/$id': typeof AppMasterDataCustomersEditIdRoute
@@ -370,10 +405,12 @@ export interface FileRoutesByTo {
   '/admin/audit': typeof AppAdminAuditRoute
   '/admin/users': typeof AppAdminUsersRoute
   '/master-data/import': typeof AppMasterDataImportRoute
+  '/purchasing/new': typeof AppPurchasingNewRoute
   '/quotes/new': typeof AppQuotesNewRoute
   '/work-orders/new': typeof AppWorkOrdersNewRoute
   '/api/cron/compliance-expiry': typeof ApiCronComplianceExpiryRoute
   '/master-data': typeof AppMasterDataIndexRoute
+  '/purchasing': typeof AppPurchasingIndexRoute
   '/quotes': typeof AppQuotesIndexRoute
   '/work-orders': typeof AppWorkOrdersIndexRoute
   '/maintenance/work-orders/new': typeof AppMaintenanceWorkOrdersNewRoute
@@ -387,6 +424,7 @@ export interface FileRoutesByTo {
   '/master-data/subcontractors/new': typeof AppMasterDataSubcontractorsNewRoute
   '/master-data/suppliers/$id': typeof AppMasterDataSuppliersIdRoute
   '/master-data/suppliers/new': typeof AppMasterDataSuppliersNewRoute
+  '/purchasing/$id/edit': typeof AppPurchasingIdEditRoute
   '/quotes/$id/edit': typeof AppQuotesIdEditRoute
   '/work-orders/$id/revisions': typeof AppWorkOrdersIdRevisionsRoute
   '/api/master-data/documents/$id': typeof ApiMasterDataDocumentsIdRoute
@@ -396,7 +434,9 @@ export interface FileRoutesByTo {
   '/master-data/sites': typeof AppMasterDataSitesIndexRoute
   '/master-data/subcontractors': typeof AppMasterDataSubcontractorsIndexRoute
   '/master-data/suppliers': typeof AppMasterDataSuppliersIndexRoute
+  '/portal/supplier': typeof AppPortalSupplierIndexRoute
   '/portal/tech': typeof AppPortalTechIndexRoute
+  '/purchasing/$id': typeof AppPurchasingIdIndexRoute
   '/quotes/$id': typeof AppQuotesIdIndexRoute
   '/work-orders/$id': typeof AppWorkOrdersIdIndexRoute
   '/master-data/customers/edit/$id': typeof AppMasterDataCustomersEditIdRoute
@@ -420,10 +460,12 @@ export interface FileRoutesById {
   '/_app/admin/audit': typeof AppAdminAuditRoute
   '/_app/admin/users': typeof AppAdminUsersRoute
   '/_app/master-data/import': typeof AppMasterDataImportRoute
+  '/_app/purchasing/new': typeof AppPurchasingNewRoute
   '/_app/quotes/new': typeof AppQuotesNewRoute
   '/_app/work-orders/new': typeof AppWorkOrdersNewRoute
   '/api/cron/compliance-expiry': typeof ApiCronComplianceExpiryRoute
   '/_app/master-data/': typeof AppMasterDataIndexRoute
+  '/_app/purchasing/': typeof AppPurchasingIndexRoute
   '/_app/quotes/': typeof AppQuotesIndexRoute
   '/_app/work-orders/': typeof AppWorkOrdersIndexRoute
   '/_app/maintenance/work-orders/new': typeof AppMaintenanceWorkOrdersNewRoute
@@ -437,6 +479,7 @@ export interface FileRoutesById {
   '/_app/master-data/subcontractors/new': typeof AppMasterDataSubcontractorsNewRoute
   '/_app/master-data/suppliers/$id': typeof AppMasterDataSuppliersIdRoute
   '/_app/master-data/suppliers/new': typeof AppMasterDataSuppliersNewRoute
+  '/_app/purchasing/$id/edit': typeof AppPurchasingIdEditRoute
   '/_app/quotes/$id/edit': typeof AppQuotesIdEditRoute
   '/_app/work-orders/$id/revisions': typeof AppWorkOrdersIdRevisionsRoute
   '/api/master-data/documents/$id': typeof ApiMasterDataDocumentsIdRoute
@@ -446,7 +489,9 @@ export interface FileRoutesById {
   '/_app/master-data/sites/': typeof AppMasterDataSitesIndexRoute
   '/_app/master-data/subcontractors/': typeof AppMasterDataSubcontractorsIndexRoute
   '/_app/master-data/suppliers/': typeof AppMasterDataSuppliersIndexRoute
+  '/_app/portal/supplier/': typeof AppPortalSupplierIndexRoute
   '/_app/portal/tech/': typeof AppPortalTechIndexRoute
+  '/_app/purchasing/$id/': typeof AppPurchasingIdIndexRoute
   '/_app/quotes/$id/': typeof AppQuotesIdIndexRoute
   '/_app/work-orders/$id/': typeof AppWorkOrdersIdIndexRoute
   '/_app/master-data/customers/edit/$id': typeof AppMasterDataCustomersEditIdRoute
@@ -470,10 +515,12 @@ export interface FileRouteTypes {
     | '/admin/audit'
     | '/admin/users'
     | '/master-data/import'
+    | '/purchasing/new'
     | '/quotes/new'
     | '/work-orders/new'
     | '/api/cron/compliance-expiry'
     | '/master-data/'
+    | '/purchasing/'
     | '/quotes/'
     | '/work-orders/'
     | '/maintenance/work-orders/new'
@@ -487,6 +534,7 @@ export interface FileRouteTypes {
     | '/master-data/subcontractors/new'
     | '/master-data/suppliers/$id'
     | '/master-data/suppliers/new'
+    | '/purchasing/$id/edit'
     | '/quotes/$id/edit'
     | '/work-orders/$id/revisions'
     | '/api/master-data/documents/$id'
@@ -496,7 +544,9 @@ export interface FileRouteTypes {
     | '/master-data/sites/'
     | '/master-data/subcontractors/'
     | '/master-data/suppliers/'
+    | '/portal/supplier/'
     | '/portal/tech/'
+    | '/purchasing/$id/'
     | '/quotes/$id/'
     | '/work-orders/$id/'
     | '/master-data/customers/edit/$id'
@@ -518,10 +568,12 @@ export interface FileRouteTypes {
     | '/admin/audit'
     | '/admin/users'
     | '/master-data/import'
+    | '/purchasing/new'
     | '/quotes/new'
     | '/work-orders/new'
     | '/api/cron/compliance-expiry'
     | '/master-data'
+    | '/purchasing'
     | '/quotes'
     | '/work-orders'
     | '/maintenance/work-orders/new'
@@ -535,6 +587,7 @@ export interface FileRouteTypes {
     | '/master-data/subcontractors/new'
     | '/master-data/suppliers/$id'
     | '/master-data/suppliers/new'
+    | '/purchasing/$id/edit'
     | '/quotes/$id/edit'
     | '/work-orders/$id/revisions'
     | '/api/master-data/documents/$id'
@@ -544,7 +597,9 @@ export interface FileRouteTypes {
     | '/master-data/sites'
     | '/master-data/subcontractors'
     | '/master-data/suppliers'
+    | '/portal/supplier'
     | '/portal/tech'
+    | '/purchasing/$id'
     | '/quotes/$id'
     | '/work-orders/$id'
     | '/master-data/customers/edit/$id'
@@ -567,10 +622,12 @@ export interface FileRouteTypes {
     | '/_app/admin/audit'
     | '/_app/admin/users'
     | '/_app/master-data/import'
+    | '/_app/purchasing/new'
     | '/_app/quotes/new'
     | '/_app/work-orders/new'
     | '/api/cron/compliance-expiry'
     | '/_app/master-data/'
+    | '/_app/purchasing/'
     | '/_app/quotes/'
     | '/_app/work-orders/'
     | '/_app/maintenance/work-orders/new'
@@ -584,6 +641,7 @@ export interface FileRouteTypes {
     | '/_app/master-data/subcontractors/new'
     | '/_app/master-data/suppliers/$id'
     | '/_app/master-data/suppliers/new'
+    | '/_app/purchasing/$id/edit'
     | '/_app/quotes/$id/edit'
     | '/_app/work-orders/$id/revisions'
     | '/api/master-data/documents/$id'
@@ -593,7 +651,9 @@ export interface FileRouteTypes {
     | '/_app/master-data/sites/'
     | '/_app/master-data/subcontractors/'
     | '/_app/master-data/suppliers/'
+    | '/_app/portal/supplier/'
     | '/_app/portal/tech/'
+    | '/_app/purchasing/$id/'
     | '/_app/quotes/$id/'
     | '/_app/work-orders/$id/'
     | '/_app/master-data/customers/edit/$id'
@@ -687,6 +747,20 @@ declare module '@tanstack/react-router' {
       path: '/master-data/import'
       fullPath: '/master-data/import'
       preLoaderRoute: typeof AppMasterDataImportRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/purchasing/': {
+      id: '/_app/purchasing/'
+      path: '/purchasing'
+      fullPath: '/purchasing/'
+      preLoaderRoute: typeof AppPurchasingIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/purchasing/new': {
+      id: '/_app/purchasing/new'
+      path: '/purchasing/new'
+      fullPath: '/purchasing/new'
+      preLoaderRoute: typeof AppPurchasingNewRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/quotes/': {
@@ -843,11 +917,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMasterDataSuppliersNewRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/portal/supplier/': {
+      id: '/_app/portal/supplier/'
+      path: '/portal/supplier'
+      fullPath: '/portal/supplier/'
+      preLoaderRoute: typeof AppPortalSupplierIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/portal/tech/': {
       id: '/_app/portal/tech/'
       path: '/portal/tech'
       fullPath: '/portal/tech/'
       preLoaderRoute: typeof AppPortalTechIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/purchasing/$id/': {
+      id: '/_app/purchasing/$id/'
+      path: '/purchasing/$id'
+      fullPath: '/purchasing/$id/'
+      preLoaderRoute: typeof AppPurchasingIdIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/purchasing/$id/edit': {
+      id: '/_app/purchasing/$id/edit'
+      path: '/purchasing/$id/edit'
+      fullPath: '/purchasing/$id/edit'
+      preLoaderRoute: typeof AppPurchasingIdEditRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/quotes/$id/': {
@@ -956,9 +1051,11 @@ interface AppRouteChildren {
   AppAdminAuditRoute: typeof AppAdminAuditRoute
   AppAdminUsersRoute: typeof AppAdminUsersRoute
   AppMasterDataImportRoute: typeof AppMasterDataImportRoute
+  AppPurchasingNewRoute: typeof AppPurchasingNewRoute
   AppQuotesNewRoute: typeof AppQuotesNewRoute
   AppWorkOrdersNewRoute: typeof AppWorkOrdersNewRoute
   AppMasterDataIndexRoute: typeof AppMasterDataIndexRoute
+  AppPurchasingIndexRoute: typeof AppPurchasingIndexRoute
   AppQuotesIndexRoute: typeof AppQuotesIndexRoute
   AppWorkOrdersIndexRoute: typeof AppWorkOrdersIndexRoute
   AppMaintenanceWorkOrdersNewRoute: typeof AppMaintenanceWorkOrdersNewRoute
@@ -972,6 +1069,7 @@ interface AppRouteChildren {
   AppMasterDataSubcontractorsNewRoute: typeof AppMasterDataSubcontractorsNewRoute
   AppMasterDataSuppliersIdRoute: typeof AppMasterDataSuppliersIdRoute
   AppMasterDataSuppliersNewRoute: typeof AppMasterDataSuppliersNewRoute
+  AppPurchasingIdEditRoute: typeof AppPurchasingIdEditRoute
   AppQuotesIdEditRoute: typeof AppQuotesIdEditRoute
   AppWorkOrdersIdRevisionsRoute: typeof AppWorkOrdersIdRevisionsRoute
   AppMaintenanceWorkOrdersIndexRoute: typeof AppMaintenanceWorkOrdersIndexRoute
@@ -980,7 +1078,9 @@ interface AppRouteChildren {
   AppMasterDataSitesIndexRoute: typeof AppMasterDataSitesIndexRoute
   AppMasterDataSubcontractorsIndexRoute: typeof AppMasterDataSubcontractorsIndexRoute
   AppMasterDataSuppliersIndexRoute: typeof AppMasterDataSuppliersIndexRoute
+  AppPortalSupplierIndexRoute: typeof AppPortalSupplierIndexRoute
   AppPortalTechIndexRoute: typeof AppPortalTechIndexRoute
+  AppPurchasingIdIndexRoute: typeof AppPurchasingIdIndexRoute
   AppQuotesIdIndexRoute: typeof AppQuotesIdIndexRoute
   AppWorkOrdersIdIndexRoute: typeof AppWorkOrdersIdIndexRoute
   AppMasterDataCustomersEditIdRoute: typeof AppMasterDataCustomersEditIdRoute
@@ -999,9 +1099,11 @@ const AppRouteChildren: AppRouteChildren = {
   AppAdminAuditRoute: AppAdminAuditRoute,
   AppAdminUsersRoute: AppAdminUsersRoute,
   AppMasterDataImportRoute: AppMasterDataImportRoute,
+  AppPurchasingNewRoute: AppPurchasingNewRoute,
   AppQuotesNewRoute: AppQuotesNewRoute,
   AppWorkOrdersNewRoute: AppWorkOrdersNewRoute,
   AppMasterDataIndexRoute: AppMasterDataIndexRoute,
+  AppPurchasingIndexRoute: AppPurchasingIndexRoute,
   AppQuotesIndexRoute: AppQuotesIndexRoute,
   AppWorkOrdersIndexRoute: AppWorkOrdersIndexRoute,
   AppMaintenanceWorkOrdersNewRoute: AppMaintenanceWorkOrdersNewRoute,
@@ -1015,6 +1117,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppMasterDataSubcontractorsNewRoute: AppMasterDataSubcontractorsNewRoute,
   AppMasterDataSuppliersIdRoute: AppMasterDataSuppliersIdRoute,
   AppMasterDataSuppliersNewRoute: AppMasterDataSuppliersNewRoute,
+  AppPurchasingIdEditRoute: AppPurchasingIdEditRoute,
   AppQuotesIdEditRoute: AppQuotesIdEditRoute,
   AppWorkOrdersIdRevisionsRoute: AppWorkOrdersIdRevisionsRoute,
   AppMaintenanceWorkOrdersIndexRoute: AppMaintenanceWorkOrdersIndexRoute,
@@ -1023,7 +1126,9 @@ const AppRouteChildren: AppRouteChildren = {
   AppMasterDataSitesIndexRoute: AppMasterDataSitesIndexRoute,
   AppMasterDataSubcontractorsIndexRoute: AppMasterDataSubcontractorsIndexRoute,
   AppMasterDataSuppliersIndexRoute: AppMasterDataSuppliersIndexRoute,
+  AppPortalSupplierIndexRoute: AppPortalSupplierIndexRoute,
   AppPortalTechIndexRoute: AppPortalTechIndexRoute,
+  AppPurchasingIdIndexRoute: AppPurchasingIdIndexRoute,
   AppQuotesIdIndexRoute: AppQuotesIdIndexRoute,
   AppWorkOrdersIdIndexRoute: AppWorkOrdersIdIndexRoute,
   AppMasterDataCustomersEditIdRoute: AppMasterDataCustomersEditIdRoute,

@@ -22,8 +22,10 @@
     "db:generate:schema": "node scripts/generate-legacy-schema.mjs",
     "db:migrate": "pnpm --filter @cls/db migrate",
     "db:seed": "pnpm --filter @cls/db seed",
+    "db:backfill:purchasing": "pnpm --filter @cls/db exec tsx ../../scripts/backfill-purchasing.ts",
     "db:studio": "pnpm --filter @cls/db studio",
-    "verify": "pnpm typecheck && pnpm lint && pnpm test && pnpm build"
+    "check:boundaries": "node scripts/check-boundaries.mjs",
+    "verify": "pnpm typecheck && pnpm lint && pnpm check:boundaries && pnpm test && pnpm build"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",

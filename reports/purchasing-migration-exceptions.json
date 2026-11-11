@@ -1,0 +1,25 @@
+{
+  "generatedAt": "2026-11-11T12:50:42.208Z",
+  "mode": "dry-run",
+  "legacy": {
+    "headers": 0,
+    "partLines": 0,
+    "specialPartLines": 0,
+    "invoices": 0,
+    "preorders": 0,
+    "rfqs": 0,
+    "supplierQuotes": 0
+  },
+  "deliberateCorrection": "PO tax uses the purchase tax table. Historical totals for BC/MB/QC/SK that used sales-style rates are listed under historicalTaxDifferences and are not restored.",
+  "exceptions": {
+    "receivedGreaterThanOrdered": [],
+    "invoiceQuantityGreaterThanReceived": [],
+    "stockFlagWithoutReceipt": [],
+    "receiptWithoutStockFlag": [],
+    "invoicedStatusWithoutInvoice": [],
+    "duplicateSupplierInvoiceNumbers": [],
+    "orphanSupplierReferences": [],
+    "historicalTaxDifferences": [],
+    "missingSyntheticReceipt": []
+  }
+}

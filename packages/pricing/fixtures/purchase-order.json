@@ -1,0 +1,69 @@
+{
+  "cases": [
+    {
+      "id": "po-on-standard",
+      "note": "Ontario HST, parts plus special parts",
+      "taxProvince": "ON",
+      "parts": [{ "qty": "10", "price": "12.50" }],
+      "specialParts": [{ "name": "Emergency ballast", "qty": "2", "price": "40.00" }],
+      "expected": { "subtotal": "205.00", "tax": "26.65", "total": "231.65" }
+    },
+    {
+      "id": "po-bc-pst",
+      "note": "BC uses the purchase table (GST+PST), not the legacy 5% PO screen",
+      "taxProvince": "BC",
+      "parts": [{ "qty": "3", "price": "100.00" }],
+      "expected": { "subtotal": "300.00", "tax": "36.00", "total": "336.00" }
+    },
+    {
+      "id": "po-qc-qst",
+      "note": "Quebec combined rate",
+      "taxProvince": "QC",
+      "parts": [{ "qty": "1", "price": "100.00" }],
+      "expected": { "subtotal": "100.00", "tax": "14.98", "total": "114.98" }
+    },
+    {
+      "id": "po-rate-override",
+      "note": "Applied rate overrides the province",
+      "taxProvince": "ON",
+      "appliedTaxRate": "0.05",
+      "parts": [{ "qty": "1", "price": "100.00" }],
+      "expected": { "subtotal": "100.00", "tax": "5.00", "total": "105.00" }
+    },
+    {
+      "id": "po-credit-negative",
+      "note": "Credit PO with a negative line",
+      "taxProvince": "ON",
+      "parts": [{ "qty": "-5", "price": "20.00" }],
+      "specialParts": [{ "name": "Returned fixture", "qty": "1", "price": "30.00" }],
+      "expected": { "subtotal": "-70.00", "tax": "-9.10", "total": "-79.10" }
+    },
+    {
+      "id": "po-special-sentinel",
+      "note": "Special quantity at or below -99999 is skipped",
+      "taxProvince": "ON",
+      "parts": [{ "qty": "1", "price": "10.00" }],
+      "specialParts": [{ "name": "Sentinel", "qty": "-100000", "price": "99.00" }],
+      "expected": { "subtotal": "10.00", "tax": "1.30", "total": "11.30" }
+    },
+    {
+      "id": "po-per-line-tax",
+      "note": "Tax accumulates and rounds per line",
+      "taxProvince": "ON",
+      "parts": [
+        { "qty": "1", "price": "0.05" },
+        { "qty": "1", "price": "0.05" },
+        { "qty": "1", "price": "0.05" }
+      ],
+      "expected": { "subtotal": "0.15", "tax": "0.03", "total": "0.18" }
+    },
+    {
+      "id": "po-blank-special",
+      "note": "Blank special names are dropped",
+      "taxProvince": "ON",
+      "parts": [{ "qty": "1", "price": "10.00" }],
+      "specialParts": [{ "name": "   ", "qty": "1", "price": "99.00" }],
+      "expected": { "subtotal": "10.00", "tax": "1.30", "total": "11.30" }
+    }
+  ]
+}

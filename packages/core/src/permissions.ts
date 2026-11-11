@@ -106,16 +106,16 @@ export const PERMISSIONS = [
     module: 'purchasing',
     label: 'Approve a purchase order',
     description:
-      'Reserved for the purchasing module: approve a specific PO. Replaces the legacy per-username PO approval checks.',
-    defaultRoles: [],
+      'Approve or challenge a purchase order. Replaces the legacy per-username PO approval checks. Granted to every admin by default.',
+    defaultRoles: ['admin'],
   },
   {
     key: 'po.issue',
     module: 'purchasing',
     label: 'Issue a purchase order',
     description:
-      'Reserved for the purchasing module: issue a PO to a supplier. Replaces the legacy per-username PO issue checks.',
-    defaultRoles: [],
+      'Issue an approved purchase order to its supplier. Replaces the legacy per-username PO issue checks. Granted to every admin by default.',
+    defaultRoles: ['admin'],
   },
   {
     key: 'inventory:read',
