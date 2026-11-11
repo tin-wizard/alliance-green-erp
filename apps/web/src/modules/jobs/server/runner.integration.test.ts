@@ -19,6 +19,10 @@ import { afterAll, afterEach, beforeEach, describe, expect, test, vi } from 'vit
 
 vi.setConfig({ testTimeout: 90_000, hookTimeout: 90_000 })
 
+// The scheduler lock is global to the database, so a running app instance would
+// block this file. Tests take their own key; production uses the default.
+vi.stubEnv('JOB_SCHEDULER_LOCK_KEY', 'cls:scheduler:test')
+
 import { getConfig } from '@cls/core/env.server'
 import {
   businessDateFor,
@@ -163,6 +167,7 @@ afterEach(() => {
 
 afterAll(async () => {
   await clearTestRows()
+  vi.unstubAllEnvs()
 })
 
 describe.skipIf(!READY)('job runner', () => {
@@ -263,7 +268,7 @@ describe.skipIf(!READY)('job runner', () => {
       let held = false
       for (let attempt = 0; attempt < 20 && !held; attempt += 1) {
         const rows =
-          (await holder`select pg_try_advisory_lock(hashtext('cls:scheduler')) as locked`) as unknown as Array<{
+          (await holder`select pg_try_advisory_lock(hashtext('cls:scheduler:test')) as locked`) as unknown as Array<{
             locked: boolean
           }>
         held = rows[0]?.locked === true

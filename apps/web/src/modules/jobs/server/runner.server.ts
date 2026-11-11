@@ -47,8 +47,17 @@ import {
   type RunDecision,
 } from '@cls/core/jobs'
 
-/** The scheduler lock: one environment ticks at a time (ADR 0012 §1). */
-const SCHEDULER_LOCK = 'cls:scheduler'
+/**
+ * The scheduler lock key: one environment ticks at a time (ADR 0012 §1).
+ *
+ * Overridable because the lock is global to the *database*, not to a process: an
+ * idle app instance anywhere on the shared dev branch blocks every tick and
+ * every test that needs one. Production leaves this unset and gets one key.
+ */
+function schedulerLockKey(): string {
+  const configured = process.env.JOB_SCHEDULER_LOCK_KEY?.trim()
+  return configured && configured.length > 0 ? configured : 'cls:scheduler'
+}
 
 /** Per-job lock, so a manual trigger and a tick cannot double-run (§3, §5). */
 function jobLock(key: string): string {
@@ -215,7 +224,7 @@ async function withSchedulerLock<T>(
 ): Promise<{ acquired: true; value: T } | { acquired: false }> {
   const reserved = await getSchedulerConnection().reserve()
   try {
-    const taken = await reserved`select pg_try_advisory_lock(hashtext(${SCHEDULER_LOCK})) as locked`
+    const taken = await reserved`select pg_try_advisory_lock(hashtext(${schedulerLockKey()})) as locked`
     if (!lockGranted(taken)) return { acquired: false }
     return { acquired: true, value: await work() }
   } finally {
