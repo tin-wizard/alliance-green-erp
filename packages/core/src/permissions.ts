@@ -147,6 +147,14 @@ export const PERMISSIONS = [
     defaultRoles: ['admin'],
   },
   {
+    key: 'inventory:sub_stock',
+    module: 'inventory',
+    label: 'Subcontractor stock portal',
+    description:
+      'See the subcontractor stock page and stock messages. parts.subignore hides a part from this view.',
+    defaultRoles: ['admin', 'subcontractor'],
+  },
+  {
     key: 'invoice:read',
     module: 'invoice',
     label: 'View invoices',

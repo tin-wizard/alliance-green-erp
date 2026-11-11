@@ -243,15 +243,12 @@ export const supplierContacts = app.table(
   (table) => [index('supplier_contacts_supplier_idx').on(table.supplierId)],
 )
 
-export const partGroups = app.table(
-  'part_groups',
-  {
-    id: integer('id').primaryKey(),
-    name: text('name').notNull(),
-    sortOrder: integer('sort_order'),
-    isWinner: boolean('is_winner').notNull().default(false),
-  },
-)
+export const partGroups = app.table('part_groups', {
+  id: integer('id').primaryKey(),
+  name: text('name').notNull(),
+  sortOrder: integer('sort_order'),
+  isWinner: boolean('is_winner').notNull().default(false),
+})
 
 export const parts = app.table(
   'parts',
@@ -265,6 +262,17 @@ export const parts = app.table(
     /** Read-only here; price writes live in the price-management screen. */
     cost: numeric('cost', { precision: 12, scale: 2 }),
     sellPrice: numeric('sell_price', { precision: 12, scale: 2 }),
+    /** Inventory owns these price writes; Master Data only reads them. */
+    installPrice: numeric('install_price', { precision: 12, scale: 2 }),
+    recyclePrice: numeric('recycle_price', { precision: 12, scale: 2 }),
+    /** Authoritative stock counters; the ledger may disagree (E4). */
+    purchasedQuantity: numeric('purchased_quantity', { precision: 12, scale: 2 })
+      .notNull()
+      .default('0'),
+    currentQuantity: numeric('current_quantity', { precision: 12, scale: 2 })
+      .notNull()
+      .default('0'),
+    soldQuantity: numeric('sold_quantity', { precision: 12, scale: 2 }).notNull().default('0'),
     sageItemId: integer('sage_item_id'),
     activeInSage: boolean('active_in_sage').notNull().default(true),
     /** Hidden from the subcontractor portal. */

@@ -96,16 +96,37 @@ export async function capturePartsCore(
   session: AuthSessionView,
 ): Promise<{ inserted: number }> {
   await beginCapture(tx, session, input.workOrderId)
-  await tx.insert(workOrderParts).values(
-    input.lines.map((line) => ({
-      workOrderId: input.workOrderId,
-      partNo: line.partNo,
-      description: line.description ?? null,
-      qty: line.qty,
-      price: line.price,
-      createdBy: session.user.id,
-    })),
-  )
+  const insertedLines = await tx
+    .insert(workOrderParts)
+    .values(
+      input.lines.map((line) => ({
+        workOrderId: input.workOrderId,
+        partNo: line.partNo,
+        description: line.description ?? null,
+        qty: line.qty,
+        price: line.price,
+        createdBy: session.user.id,
+      })),
+    )
+    .returning({ id: workOrderParts.id })
+
+  const { postWorkOrderPartSale } = await import('../../inventory/server/stock.server')
+  for (const [index, line] of input.lines.entries()) {
+    const lineId = insertedLines[index]?.id
+    if (!lineId) continue
+    await postWorkOrderPartSale(
+      tx,
+      {
+        workOrderId: input.workOrderId,
+        workOrderLineId: lineId,
+        partNo: line.partNo,
+        qty: line.qty,
+        price: line.price,
+        note: line.description ?? null,
+      },
+      session,
+    )
+  }
   await touch(tx, input.workOrderId, session.user.id)
   await recalculateWorkOrderTax(tx, input.workOrderId)
   await auditWorkOrder(tx, session, 'workorder.capture_parts', input.workOrderId, {
@@ -196,7 +217,9 @@ export async function captureLocalHoursCore(
     })),
   )
 
-  const techIds = [...new Set(input.lines.map((line) => line.techUserId).filter(Boolean))] as string[]
+  const techIds = [
+    ...new Set(input.lines.map((line) => line.techUserId).filter(Boolean)),
+  ] as string[]
   for (const techUserId of techIds) {
     await tx
       .insert(localWorkOrderTechs)

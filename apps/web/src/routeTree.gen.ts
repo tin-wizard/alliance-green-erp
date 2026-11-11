@@ -17,6 +17,10 @@ import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiReadyRouteImport } from './routes/api/ready'
 import { Route as AppAdminAuditRouteImport } from './routes/_app/admin/audit'
 import { Route as AppAdminUsersRouteImport } from './routes/_app/admin/users'
+import { Route as AppInventoryIndexRouteImport } from './routes/_app/inventory/index'
+import { Route as AppInventoryAdjustmentsRouteImport } from './routes/_app/inventory/adjustments'
+import { Route as AppInventoryMovementsRouteImport } from './routes/_app/inventory/movements'
+import { Route as AppInventoryPricesRouteImport } from './routes/_app/inventory/prices'
 import { Route as AppMasterDataIndexRouteImport } from './routes/_app/master-data/index'
 import { Route as AppMasterDataImportRouteImport } from './routes/_app/master-data/import'
 import { Route as AppPurchasingIndexRouteImport } from './routes/_app/purchasing/index'
@@ -43,6 +47,7 @@ import { Route as AppMasterDataSubcontractorsNewRouteImport } from './routes/_ap
 import { Route as AppMasterDataSuppliersIndexRouteImport } from './routes/_app/master-data/suppliers/index'
 import { Route as AppMasterDataSuppliersIdRouteImport } from './routes/_app/master-data/suppliers/$id'
 import { Route as AppMasterDataSuppliersNewRouteImport } from './routes/_app/master-data/suppliers/new'
+import { Route as AppPortalSubStockRouteImport } from './routes/_app/portal/sub/stock'
 import { Route as AppPortalSupplierIndexRouteImport } from './routes/_app/portal/supplier/index'
 import { Route as AppPortalTechIndexRouteImport } from './routes/_app/portal/tech/index'
 import { Route as AppPurchasingIdIndexRouteImport } from './routes/_app/purchasing/$id/index'
@@ -99,6 +104,26 @@ const AppAdminAuditRoute = AppAdminAuditRouteImport.update({
 const AppAdminUsersRoute = AppAdminUsersRouteImport.update({
   id: '/admin/users',
   path: '/admin/users',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppInventoryIndexRoute = AppInventoryIndexRouteImport.update({
+  id: '/inventory/',
+  path: '/inventory/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppInventoryAdjustmentsRoute = AppInventoryAdjustmentsRouteImport.update({
+  id: '/inventory/adjustments',
+  path: '/inventory/adjustments',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppInventoryMovementsRoute = AppInventoryMovementsRouteImport.update({
+  id: '/inventory/movements',
+  path: '/inventory/movements',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppInventoryPricesRoute = AppInventoryPricesRouteImport.update({
+  id: '/inventory/prices',
+  path: '/inventory/prices',
   getParentRoute: () => AppRoute,
 } as any)
 const AppMasterDataIndexRoute = AppMasterDataIndexRouteImport.update({
@@ -242,6 +267,11 @@ const AppMasterDataSuppliersNewRoute =
     path: '/master-data/suppliers/new',
     getParentRoute: () => AppRoute,
   } as any)
+const AppPortalSubStockRoute = AppPortalSubStockRouteImport.update({
+  id: '/portal/sub/stock',
+  path: '/portal/sub/stock',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppPortalSupplierIndexRoute = AppPortalSupplierIndexRouteImport.update({
   id: '/portal/supplier/',
   path: '/portal/supplier/',
@@ -351,11 +381,15 @@ export interface FileRoutesByFullPath {
   '/api/ready': typeof ApiReadyRoute
   '/admin/audit': typeof AppAdminAuditRoute
   '/admin/users': typeof AppAdminUsersRoute
+  '/inventory/adjustments': typeof AppInventoryAdjustmentsRoute
+  '/inventory/movements': typeof AppInventoryMovementsRoute
+  '/inventory/prices': typeof AppInventoryPricesRoute
   '/master-data/import': typeof AppMasterDataImportRoute
   '/purchasing/new': typeof AppPurchasingNewRoute
   '/quotes/new': typeof AppQuotesNewRoute
   '/work-orders/new': typeof AppWorkOrdersNewRoute
   '/api/cron/compliance-expiry': typeof ApiCronComplianceExpiryRoute
+  '/inventory/': typeof AppInventoryIndexRoute
   '/master-data/': typeof AppMasterDataIndexRoute
   '/purchasing/': typeof AppPurchasingIndexRoute
   '/quotes/': typeof AppQuotesIndexRoute
@@ -371,6 +405,7 @@ export interface FileRoutesByFullPath {
   '/master-data/subcontractors/new': typeof AppMasterDataSubcontractorsNewRoute
   '/master-data/suppliers/$id': typeof AppMasterDataSuppliersIdRoute
   '/master-data/suppliers/new': typeof AppMasterDataSuppliersNewRoute
+  '/portal/sub/stock': typeof AppPortalSubStockRoute
   '/purchasing/$id/edit': typeof AppPurchasingIdEditRoute
   '/quotes/$id/edit': typeof AppQuotesIdEditRoute
   '/work-orders/$id/revisions': typeof AppWorkOrdersIdRevisionsRoute
@@ -404,11 +439,15 @@ export interface FileRoutesByTo {
   '/': typeof AppIndexRoute
   '/admin/audit': typeof AppAdminAuditRoute
   '/admin/users': typeof AppAdminUsersRoute
+  '/inventory/adjustments': typeof AppInventoryAdjustmentsRoute
+  '/inventory/movements': typeof AppInventoryMovementsRoute
+  '/inventory/prices': typeof AppInventoryPricesRoute
   '/master-data/import': typeof AppMasterDataImportRoute
   '/purchasing/new': typeof AppPurchasingNewRoute
   '/quotes/new': typeof AppQuotesNewRoute
   '/work-orders/new': typeof AppWorkOrdersNewRoute
   '/api/cron/compliance-expiry': typeof ApiCronComplianceExpiryRoute
+  '/inventory': typeof AppInventoryIndexRoute
   '/master-data': typeof AppMasterDataIndexRoute
   '/purchasing': typeof AppPurchasingIndexRoute
   '/quotes': typeof AppQuotesIndexRoute
@@ -424,6 +463,7 @@ export interface FileRoutesByTo {
   '/master-data/subcontractors/new': typeof AppMasterDataSubcontractorsNewRoute
   '/master-data/suppliers/$id': typeof AppMasterDataSuppliersIdRoute
   '/master-data/suppliers/new': typeof AppMasterDataSuppliersNewRoute
+  '/portal/sub/stock': typeof AppPortalSubStockRoute
   '/purchasing/$id/edit': typeof AppPurchasingIdEditRoute
   '/quotes/$id/edit': typeof AppQuotesIdEditRoute
   '/work-orders/$id/revisions': typeof AppWorkOrdersIdRevisionsRoute
@@ -459,11 +499,15 @@ export interface FileRoutesById {
   '/_app/': typeof AppIndexRoute
   '/_app/admin/audit': typeof AppAdminAuditRoute
   '/_app/admin/users': typeof AppAdminUsersRoute
+  '/_app/inventory/adjustments': typeof AppInventoryAdjustmentsRoute
+  '/_app/inventory/movements': typeof AppInventoryMovementsRoute
+  '/_app/inventory/prices': typeof AppInventoryPricesRoute
   '/_app/master-data/import': typeof AppMasterDataImportRoute
   '/_app/purchasing/new': typeof AppPurchasingNewRoute
   '/_app/quotes/new': typeof AppQuotesNewRoute
   '/_app/work-orders/new': typeof AppWorkOrdersNewRoute
   '/api/cron/compliance-expiry': typeof ApiCronComplianceExpiryRoute
+  '/_app/inventory/': typeof AppInventoryIndexRoute
   '/_app/master-data/': typeof AppMasterDataIndexRoute
   '/_app/purchasing/': typeof AppPurchasingIndexRoute
   '/_app/quotes/': typeof AppQuotesIndexRoute
@@ -479,6 +523,7 @@ export interface FileRoutesById {
   '/_app/master-data/subcontractors/new': typeof AppMasterDataSubcontractorsNewRoute
   '/_app/master-data/suppliers/$id': typeof AppMasterDataSuppliersIdRoute
   '/_app/master-data/suppliers/new': typeof AppMasterDataSuppliersNewRoute
+  '/_app/portal/sub/stock': typeof AppPortalSubStockRoute
   '/_app/purchasing/$id/edit': typeof AppPurchasingIdEditRoute
   '/_app/quotes/$id/edit': typeof AppQuotesIdEditRoute
   '/_app/work-orders/$id/revisions': typeof AppWorkOrdersIdRevisionsRoute
@@ -514,11 +559,15 @@ export interface FileRouteTypes {
     | '/api/ready'
     | '/admin/audit'
     | '/admin/users'
+    | '/inventory/adjustments'
+    | '/inventory/movements'
+    | '/inventory/prices'
     | '/master-data/import'
     | '/purchasing/new'
     | '/quotes/new'
     | '/work-orders/new'
     | '/api/cron/compliance-expiry'
+    | '/inventory/'
     | '/master-data/'
     | '/purchasing/'
     | '/quotes/'
@@ -534,6 +583,7 @@ export interface FileRouteTypes {
     | '/master-data/subcontractors/new'
     | '/master-data/suppliers/$id'
     | '/master-data/suppliers/new'
+    | '/portal/sub/stock'
     | '/purchasing/$id/edit'
     | '/quotes/$id/edit'
     | '/work-orders/$id/revisions'
@@ -567,11 +617,15 @@ export interface FileRouteTypes {
     | '/'
     | '/admin/audit'
     | '/admin/users'
+    | '/inventory/adjustments'
+    | '/inventory/movements'
+    | '/inventory/prices'
     | '/master-data/import'
     | '/purchasing/new'
     | '/quotes/new'
     | '/work-orders/new'
     | '/api/cron/compliance-expiry'
+    | '/inventory'
     | '/master-data'
     | '/purchasing'
     | '/quotes'
@@ -587,6 +641,7 @@ export interface FileRouteTypes {
     | '/master-data/subcontractors/new'
     | '/master-data/suppliers/$id'
     | '/master-data/suppliers/new'
+    | '/portal/sub/stock'
     | '/purchasing/$id/edit'
     | '/quotes/$id/edit'
     | '/work-orders/$id/revisions'
@@ -621,11 +676,15 @@ export interface FileRouteTypes {
     | '/_app/'
     | '/_app/admin/audit'
     | '/_app/admin/users'
+    | '/_app/inventory/adjustments'
+    | '/_app/inventory/movements'
+    | '/_app/inventory/prices'
     | '/_app/master-data/import'
     | '/_app/purchasing/new'
     | '/_app/quotes/new'
     | '/_app/work-orders/new'
     | '/api/cron/compliance-expiry'
+    | '/_app/inventory/'
     | '/_app/master-data/'
     | '/_app/purchasing/'
     | '/_app/quotes/'
@@ -641,6 +700,7 @@ export interface FileRouteTypes {
     | '/_app/master-data/subcontractors/new'
     | '/_app/master-data/suppliers/$id'
     | '/_app/master-data/suppliers/new'
+    | '/_app/portal/sub/stock'
     | '/_app/purchasing/$id/edit'
     | '/_app/quotes/$id/edit'
     | '/_app/work-orders/$id/revisions'
@@ -733,6 +793,34 @@ declare module '@tanstack/react-router' {
       path: '/admin/users'
       fullPath: '/admin/users'
       preLoaderRoute: typeof AppAdminUsersRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/inventory/': {
+      id: '/_app/inventory/'
+      path: '/inventory'
+      fullPath: '/inventory/'
+      preLoaderRoute: typeof AppInventoryIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/inventory/adjustments': {
+      id: '/_app/inventory/adjustments'
+      path: '/inventory/adjustments'
+      fullPath: '/inventory/adjustments'
+      preLoaderRoute: typeof AppInventoryAdjustmentsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/inventory/movements': {
+      id: '/_app/inventory/movements'
+      path: '/inventory/movements'
+      fullPath: '/inventory/movements'
+      preLoaderRoute: typeof AppInventoryMovementsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/inventory/prices': {
+      id: '/_app/inventory/prices'
+      path: '/inventory/prices'
+      fullPath: '/inventory/prices'
+      preLoaderRoute: typeof AppInventoryPricesRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/master-data/': {
@@ -917,6 +1005,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMasterDataSuppliersNewRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/portal/sub/stock': {
+      id: '/_app/portal/sub/stock'
+      path: '/portal/sub/stock'
+      fullPath: '/portal/sub/stock'
+      preLoaderRoute: typeof AppPortalSubStockRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/portal/supplier/': {
       id: '/_app/portal/supplier/'
       path: '/portal/supplier'
@@ -1050,10 +1145,14 @@ interface AppRouteChildren {
   AppIndexRoute: typeof AppIndexRoute
   AppAdminAuditRoute: typeof AppAdminAuditRoute
   AppAdminUsersRoute: typeof AppAdminUsersRoute
+  AppInventoryAdjustmentsRoute: typeof AppInventoryAdjustmentsRoute
+  AppInventoryMovementsRoute: typeof AppInventoryMovementsRoute
+  AppInventoryPricesRoute: typeof AppInventoryPricesRoute
   AppMasterDataImportRoute: typeof AppMasterDataImportRoute
   AppPurchasingNewRoute: typeof AppPurchasingNewRoute
   AppQuotesNewRoute: typeof AppQuotesNewRoute
   AppWorkOrdersNewRoute: typeof AppWorkOrdersNewRoute
+  AppInventoryIndexRoute: typeof AppInventoryIndexRoute
   AppMasterDataIndexRoute: typeof AppMasterDataIndexRoute
   AppPurchasingIndexRoute: typeof AppPurchasingIndexRoute
   AppQuotesIndexRoute: typeof AppQuotesIndexRoute
@@ -1069,6 +1168,7 @@ interface AppRouteChildren {
   AppMasterDataSubcontractorsNewRoute: typeof AppMasterDataSubcontractorsNewRoute
   AppMasterDataSuppliersIdRoute: typeof AppMasterDataSuppliersIdRoute
   AppMasterDataSuppliersNewRoute: typeof AppMasterDataSuppliersNewRoute
+  AppPortalSubStockRoute: typeof AppPortalSubStockRoute
   AppPurchasingIdEditRoute: typeof AppPurchasingIdEditRoute
   AppQuotesIdEditRoute: typeof AppQuotesIdEditRoute
   AppWorkOrdersIdRevisionsRoute: typeof AppWorkOrdersIdRevisionsRoute
@@ -1098,10 +1198,14 @@ const AppRouteChildren: AppRouteChildren = {
   AppIndexRoute: AppIndexRoute,
   AppAdminAuditRoute: AppAdminAuditRoute,
   AppAdminUsersRoute: AppAdminUsersRoute,
+  AppInventoryAdjustmentsRoute: AppInventoryAdjustmentsRoute,
+  AppInventoryMovementsRoute: AppInventoryMovementsRoute,
+  AppInventoryPricesRoute: AppInventoryPricesRoute,
   AppMasterDataImportRoute: AppMasterDataImportRoute,
   AppPurchasingNewRoute: AppPurchasingNewRoute,
   AppQuotesNewRoute: AppQuotesNewRoute,
   AppWorkOrdersNewRoute: AppWorkOrdersNewRoute,
+  AppInventoryIndexRoute: AppInventoryIndexRoute,
   AppMasterDataIndexRoute: AppMasterDataIndexRoute,
   AppPurchasingIndexRoute: AppPurchasingIndexRoute,
   AppQuotesIndexRoute: AppQuotesIndexRoute,
@@ -1117,6 +1221,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppMasterDataSubcontractorsNewRoute: AppMasterDataSubcontractorsNewRoute,
   AppMasterDataSuppliersIdRoute: AppMasterDataSuppliersIdRoute,
   AppMasterDataSuppliersNewRoute: AppMasterDataSuppliersNewRoute,
+  AppPortalSubStockRoute: AppPortalSubStockRoute,
   AppPurchasingIdEditRoute: AppPurchasingIdEditRoute,
   AppQuotesIdEditRoute: AppQuotesIdEditRoute,
   AppWorkOrdersIdRevisionsRoute: AppWorkOrdersIdRevisionsRoute,
