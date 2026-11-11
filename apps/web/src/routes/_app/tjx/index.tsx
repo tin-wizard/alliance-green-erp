@@ -49,7 +49,7 @@ function TjxLandingPage() {
         </h1>
         <p className="mt-1 max-w-[72ch] text-[13.5px] text-fg-secondary">
           Fixture quotes for TJX banners, priced by room and fixture with separate markup and cost
-          views. Start with the masters below; quote entry arrives with the next milestone.
+          views. Start from the masters below, or open the quote list.
         </p>
       </div>
 
@@ -77,9 +77,17 @@ function TjxLandingPage() {
       </div>
 
       <Card title="Quotes">
-        <p className="px-1 py-6 text-center text-[13px] text-fg-muted">
-          Quote entry is the next milestone. The masters above are ready for it.
-        </p>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-[13px] text-fg-secondary">
+            Create a quote from the default room template and price it by room, fixture and part.
+          </p>
+          <Link
+            to="/tjx/quotes"
+            className="inline-flex h-9 items-center rounded-[4px] border border-[var(--action-primary-bg)] bg-[var(--action-primary-bg)] px-3.5 text-[12.5px] font-medium text-[var(--action-primary-fg)] hover:bg-[var(--action-primary-bg-hover)]"
+          >
+            Open TJX quotes
+          </Link>
+        </div>
       </Card>
     </div>
   )
