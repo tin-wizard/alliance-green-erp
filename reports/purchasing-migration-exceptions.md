@@ -1,6 +1,6 @@
 # Purchasing migration exception report
 
-Generated 2026-11-11T12:50:42.208Z (dry-run).
+Generated 2026-11-11T13:19:50.854Z (apply).
 
 PO tax uses the purchase tax table. Historical totals for BC/MB/QC/SK that used sales-style rates are listed under historicalTaxDifferences and are not restored.
 
@@ -55,6 +55,12 @@ Count: 0
 None.
 
 ## missingSyntheticReceipt
+
+Count: 0
+
+None.
+
+## orphanSourcingReferences
 
 Count: 0
 

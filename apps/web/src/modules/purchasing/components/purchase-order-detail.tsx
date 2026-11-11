@@ -35,7 +35,7 @@ export function PurchaseOrderDetailView({ id }: { id: number }) {
   const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString().slice(0, 10))
   const [reason, setReason] = useState('')
   const [message, setMessage] = useState<string | null>(null)
-  const [receiptKey] = useState(() => `receipt-${crypto.randomUUID()}`)
+  const [receiptKey, setReceiptKey] = useState(() => `receipt-${crypto.randomUUID()}`)
 
   const refresh = async (note: string) => {
     setMessage(note)
@@ -81,6 +81,9 @@ export function PurchaseOrderDetailView({ id }: { id: number }) {
     },
     onSuccess: async (result) => {
       setReceiptQtys({})
+      // A new receipt needs a new key; the old key stays a retry key for the
+      // receipt that already posted.
+      setReceiptKey(`receipt-${crypto.randomUUID()}`)
       await refresh(`Receipt ${result.receiptId} recorded; ${result.stockLinesPosted} stock line(s) posted.`)
     },
   })

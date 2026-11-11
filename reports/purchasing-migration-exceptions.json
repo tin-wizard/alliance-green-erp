@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-11-11T12:50:42.208Z",
-  "mode": "dry-run",
+  "generatedAt": "2026-11-11T13:19:50.854Z",
+  "mode": "apply",
   "legacy": {
     "headers": 0,
     "partLines": 0,
@@ -20,6 +20,7 @@
     "duplicateSupplierInvoiceNumbers": [],
     "orphanSupplierReferences": [],
     "historicalTaxDifferences": [],
-    "missingSyntheticReceipt": []
+    "missingSyntheticReceipt": [],
+    "orphanSourcingReferences": []
   }
 }

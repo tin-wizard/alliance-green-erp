@@ -83,6 +83,9 @@ type LegacyPo = {
   from_subcontractorid: number | null
   is_approved: number | null
   status_changed_date: string | null
+  pre_poid: number | null
+  req_qoid: number | null
+  sup_qoid: number | null
 }
 
 function dec(value: unknown): string {
@@ -119,7 +122,8 @@ const headers = await sql<LegacyPo[]>`
          trackingid, securitycode, is_submitted, date_created::text, date_completed::text,
          stock_updated, revision_no, shipment_type::text, is_alliance_stocktransfer_po,
          transfer_came_from_poid, transferring_from_type::text,
-         from_customerid, from_subcontractorid, is_approved, status_changed_date::text
+         from_customerid, from_subcontractorid, is_approved, status_changed_date::text,
+         pre_poid, req_qoid, sup_qoid
   from public.purchaseorder
   order by id`
 
@@ -246,6 +250,119 @@ for (const line of invoicePartSums) {
   }
 }
 
+
+type LegacyPreorder = {
+  id: number
+  cust_qoid: number | null
+  report: string | null
+  status: number | null
+  priority: number | null
+  notes: string | null
+  is_without_quote: number | null
+  workordernumber: string | null
+  date_received: string | null
+  date_created: string | null
+}
+type LegacyPreorderLine = {
+  id: number
+  pre_poid: number
+  partno: string
+  name: string | null
+  qty: number
+  price: string | null
+  supplier_id: number | null
+  item_purchase_type: string | null
+  item_purchase_type_number: string | null
+}
+type LegacyRfq = {
+  id: number
+  poid: number | null
+  report: string | null
+  status: number | null
+  priority: number | null
+  notes: string | null
+  date_created: string | null
+}
+type LegacyRfqLine = {
+  id: number
+  req_qoid: number
+  partno: string
+  qty: number
+  price: string | null
+}
+type LegacyRfqSupplier = {
+  id: number
+  req_qoid: number | null
+  supplier_id: number | null
+  supplier_response_status: string | null
+  quotes_counter: number | null
+  resubmission_request: number | null
+  msg_notes: string | null
+}
+type LegacySupplierQuote = {
+  id: number
+  req_qoid: number | null
+  supplier_id: number | null
+  status: number | null
+  notes: string | null
+  exp_delivery_date: string | null
+  date_created: string | null
+  processed_as_order: number | null
+}
+type LegacySupplierQuotePart = {
+  id: number
+  sup_qoid: number | null
+  req_qoid: number
+  partno: string
+  qty: number
+  price: string | null
+  additional_note: string | null
+}
+
+const preorders = await sql<LegacyPreorder[]>`
+  select id, cust_qoid, report, status, priority, notes, is_without_quote,
+         workordernumber, date_received::text, date_created::text
+  from public.po_preorder order by id`
+const preorderParts = await sql<LegacyPreorderLine[]>`
+  select id, pre_poid, partno, null::text as name, qty, price::text, supplier_id,
+         item_purchase_type::text, item_purchase_type_number
+  from public.po_preorder_parts order by id`
+const preorderSpecials = await sql<LegacyPreorderLine[]>`
+  select id, pre_poid, null::text as partno, name, qty, price::text, supplier_id,
+         item_purchase_type::text, item_purchase_type_number
+  from public.po_preorder_soparts order by id`
+const preorderSuppliers = await sql<
+  Array<{
+    id: number
+    pre_poid: number | null
+    supplier_id: number | null
+    supplier_response_status: string | null
+    msg_notes: string | null
+  }>
+>`
+  select id, pre_poid, supplier_id, supplier_response_status::text, msg_notes
+  from public.po_preorder_suppliers order by id`
+const rfqs = await sql<LegacyRfq[]>`
+  select id, poid, report, status, priority, notes, date_created::text
+  from public.po_quote order by id`
+const rfqLines = await sql<LegacyRfqLine[]>`
+  select id, req_qoid, partno, qty, price::text
+  from public.po_quote_requested_parts order by id`
+const rfqSuppliers = await sql<LegacyRfqSupplier[]>`
+  select id, req_qoid, supplier_id, supplier_response_status::text,
+         quotes_counter, resubmission_request, msg_notes
+  from public.po_quote_suppliers order by id`
+const supplierQuotes = await sql<LegacySupplierQuote[]>`
+  select id, req_qoid, supplier_id, status, notes, exp_delivery_date::text,
+         date_created::text, processed_as_order
+  from public.po_supplier_quote order by id`
+const supplierQuoteLines = await sql<LegacySupplierQuotePart[]>`
+  select id, sup_qoid, req_qoid, partno, qty, price::text, additional_note
+  from public.po_supplier_quote_parts order by id`
+
+const preorderIdSet = new Set(preorders.map((row) => row.id))
+const rfqIdSet = new Set(rfqs.map((row) => row.id))
+
 const invoicePoIds = new Set(invoices.map((row) => row.poid))
 
 for (const header of headers) {
@@ -313,7 +430,8 @@ for (const header of headers) {
         expected_delivery, supplier_notes, notes, fob, pay_terms, ship_via,
         tracking_id, security_code, tax_code, applied_tax_rate, subtotal, tax, total,
         approval_requested_at, approved_at, is_approved, submitted_at,
-        cancelled_at, stock_posted_at, work_order_number, is_transfer,
+        cancelled_at, stock_posted_at, work_order_number, preorder_id, rfq_id,
+        supplier_quote_id, is_transfer,
         transfer_from_po_id, transfer_from_type, transfer_from_customer_id,
         transfer_from_subcontractor_id, revision_no, version, created_at, updated_at
       ) values (
@@ -333,7 +451,8 @@ for (const header of headers) {
         ${header.is_approved === 1}, ${header.is_submitted === 1 ? header.date_created : null},
         ${mappedStatus(header.status) === 10 ? header.status_changed_date : null},
         ${header.stock_updated === 1 ? header.date_completed ?? header.date_created : null},
-        null, ${header.is_alliance_stocktransfer_po === 1 || header.transfer_came_from_poid !== null},
+        null, ${header.pre_poid}, ${header.req_qoid}, ${header.sup_qoid},
+        ${header.is_alliance_stocktransfer_po === 1 || header.transfer_came_from_poid !== null},
         ${header.transfer_came_from_poid}, ${header.transferring_from_type},
         ${header.from_customerid}, ${header.from_subcontractorid},
         ${header.revision_no ?? 0}, 1,
@@ -428,6 +547,174 @@ for (const invoice of invoices) {
       ${invoice.date_created ?? new Date().toISOString()}
     )
     on conflict (supplier_id, supplier_invoice_number) do nothing`
+}
+
+exceptions.orphanSourcingReferences = []
+
+if (apply) {
+  for (const row of preorders) {
+    await sql`
+      insert into app.purchase_order_preorders (
+        id, status, source_quote_id, report, priority_id, notes, is_without_quote,
+        work_order_number, date_received, created_at
+      ) values (
+        ${row.id}, ${row.status === 2 ? 2 : 1}, ${row.cust_qoid}, ${row.report},
+        ${row.priority}, ${row.notes}, ${row.is_without_quote === 1},
+        ${row.workordernumber && /^\d+$/.test(row.workordernumber) ? Number(row.workordernumber) : null},
+        ${row.date_received}, ${row.date_created ?? new Date().toISOString()}
+      )
+      on conflict (id) do nothing`
+  }
+  for (const line of preorderParts) {
+    if (!preorderIdSet.has(line.pre_poid)) {
+      exceptions.orphanSourcingReferences!.push({ table: 'po_preorder_parts', id: line.id })
+      continue
+    }
+    await sql`
+      insert into app.purchase_order_preorder_parts (
+        id, preorder_id, part_no, qty, price, item_purchase_type,
+        item_purchase_type_number, supplier_id, sort_order
+      ) values (
+        ${line.id}, ${line.pre_poid}, ${line.partno}, ${line.qty}, ${dec(line.price)},
+        ${line.item_purchase_type}, ${line.item_purchase_type_number},
+        ${line.supplier_id}, ${line.id}
+      )
+      on conflict (id) do nothing`
+  }
+  for (const line of preorderSpecials) {
+    if (!preorderIdSet.has(line.pre_poid)) {
+      exceptions.orphanSourcingReferences!.push({ table: 'po_preorder_soparts', id: line.id })
+      continue
+    }
+    await sql`
+      insert into app.purchase_order_preorder_special_parts (
+        id, preorder_id, name, qty, price, item_purchase_type,
+        item_purchase_type_number, supplier_id, sort_order
+      ) values (
+        ${line.id}, ${line.pre_poid}, ${line.name ?? ''}, ${line.qty}, ${dec(line.price)},
+        ${line.item_purchase_type}, ${line.item_purchase_type_number},
+        ${line.supplier_id}, ${line.id}
+      )
+      on conflict (id) do nothing`
+  }
+  for (const row of preorderSuppliers) {
+    if (row.pre_poid === null || !preorderIdSet.has(row.pre_poid) || row.supplier_id === null) {
+      exceptions.orphanSourcingReferences!.push({ table: 'po_preorder_suppliers', id: row.id })
+      continue
+    }
+    await sql`
+      insert into app.purchase_order_preorder_suppliers (
+        id, preorder_id, supplier_id, response_status, notes
+      ) values (
+        ${row.id}, ${row.pre_poid}, ${row.supplier_id},
+        ${['waiting', 'accepted', 'decline'].includes(row.supplier_response_status ?? '')
+          ? row.supplier_response_status
+          : 'waiting'},
+        ${row.msg_notes}
+      )
+      on conflict (id) do nothing`
+  }
+
+  for (const rfq of rfqs) {
+    await sql`
+      insert into app.purchase_order_rfqs (
+        id, status, source_quote_id, report, priority_id, notes, created_at
+      ) values (
+        ${rfq.id}, ${rfq.status && rfq.status >= 1 && rfq.status <= 5 ? rfq.status : 1},
+        ${rfq.poid}, ${rfq.report}, ${rfq.priority}, ${rfq.notes},
+        ${rfq.date_created ?? new Date().toISOString()}
+      )
+      on conflict (id) do nothing`
+  }
+  for (const line of rfqLines) {
+    if (!rfqIdSet.has(line.req_qoid)) {
+      exceptions.orphanSourcingReferences!.push({ table: 'po_quote_requested_parts', id: line.id })
+      continue
+    }
+    await sql`
+      insert into app.purchase_order_rfq_lines (
+        id, rfq_id, part_no, qty, target_price, sort_order
+      ) values (
+        ${line.id}, ${line.req_qoid}, ${line.partno}, ${line.qty}, ${dec(line.price)}, ${line.id}
+      )
+      on conflict (id) do nothing`
+  }
+  for (const row of rfqSuppliers) {
+    if (row.req_qoid === null || !rfqIdSet.has(row.req_qoid) || row.supplier_id === null) {
+      exceptions.orphanSourcingReferences!.push({ table: 'po_quote_suppliers', id: row.id })
+      continue
+    }
+    await sql`
+      insert into app.purchase_order_rfq_suppliers (
+        id, rfq_id, supplier_id, response_status, quotes_counter,
+        resubmission_request, notes
+      ) values (
+        ${row.id}, ${row.req_qoid}, ${row.supplier_id},
+        ${['waiting', 'accepted', 'decline'].includes(row.supplier_response_status ?? '')
+          ? row.supplier_response_status
+          : 'waiting'},
+        ${row.quotes_counter ?? 0}, ${row.resubmission_request === 1}, ${row.msg_notes}
+      )
+      on conflict (id) do nothing`
+  }
+
+  const rfqLineByPart = new Map(rfqLines.map((line) => [`${line.req_qoid}:${line.partno}`, line.id]))
+  for (const quote of supplierQuotes) {
+    if (quote.req_qoid === null || !rfqIdSet.has(quote.req_qoid) || quote.supplier_id === null) {
+      exceptions.orphanSourcingReferences!.push({ table: 'po_supplier_quote', id: quote.id })
+      continue
+    }
+    await sql`
+      insert into app.purchase_order_supplier_quotes (
+        id, rfq_id, supplier_id, status, expected_delivery, notes,
+        processed_as_order, submitted_at, created_at
+      ) values (
+        ${quote.id}, ${quote.req_qoid}, ${quote.supplier_id},
+        ${quote.status === 4 || quote.status === 5 ? quote.status : 3},
+        ${quote.exp_delivery_date}, ${quote.notes}, ${quote.processed_as_order === 1},
+        ${quote.date_created ?? new Date().toISOString()},
+        ${quote.date_created ?? new Date().toISOString()}
+      )
+      on conflict (id) do nothing`
+  }
+  for (const line of supplierQuoteLines) {
+    if (line.sup_qoid === null) {
+      exceptions.orphanSourcingReferences!.push({ table: 'po_supplier_quote_parts', id: line.id })
+      continue
+    }
+    const rfqLineId = rfqLineByPart.get(`${line.req_qoid}:${line.partno}`)
+    if (!rfqLineId) {
+      exceptions.orphanSourcingReferences!.push({
+        table: 'po_supplier_quote_parts',
+        id: line.id,
+        rfqId: line.req_qoid,
+        partNo: line.partno,
+      })
+      continue
+    }
+    await sql`
+      insert into app.purchase_order_supplier_quote_lines (
+        id, supplier_quote_id, rfq_line_id, part_no, qty, price, note
+      ) values (
+        ${line.id}, ${line.sup_qoid}, ${rfqLineId}, ${line.partno},
+        ${line.qty}, ${dec(line.price)}, ${line.additional_note}
+      )
+      on conflict (id) do nothing`
+  }
+
+  for (const table of [
+    'purchase_order_preorders',
+    'purchase_order_preorder_parts',
+    'purchase_order_preorder_special_parts',
+    'purchase_order_preorder_suppliers',
+    'purchase_order_rfqs',
+    'purchase_order_rfq_lines',
+    'purchase_order_rfq_suppliers',
+    'purchase_order_supplier_quotes',
+    'purchase_order_supplier_quote_lines',
+  ]) {
+    await sql`select setval(pg_get_serial_sequence(${`app.${table}`}, 'id'), greatest((select coalesce(max(id), 1) from ${sql(`app.${table}`)}), 1))`
+  }
 }
 
 const legacyCounts = await sql<

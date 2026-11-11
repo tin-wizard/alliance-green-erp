@@ -87,12 +87,17 @@ test.describe('purchasing', () => {
       // Issue, receive in full, invoice, close.
       await page.getByRole('button', { name: 'Issue to supplier' }).click()
       await expect(page.getByTestId('po-status')).toHaveText('Submitted')
+
+      // Partial receipt, then the remaining quantity.
+      await page.getByLabel(/Receive quantity for/).fill('1.00')
+      await page.getByRole('button', { name: 'Post receipt' }).click()
+      await expect(page.getByTestId('po-status')).toHaveText('Partial delivery')
       await page.getByRole('button', { name: 'Post receipt' }).click()
       await expect(page.getByTestId('po-status')).toHaveText('Received')
       const movements = await sql!`
-        select id, qty from app.inventory_movements where po_id = ${poId}`
-      expect(movements).toHaveLength(1)
-      expect(movements[0]!.qty).toBe('2.00')
+        select id, qty from app.inventory_movements where po_id = ${poId} order by id`
+      expect(movements).toHaveLength(2)
+      expect(movements.map((row) => row.qty)).toEqual(['1.00', '1.00'])
 
       await page.getByLabel('Supplier invoice number').fill(`E2E-INV-${suffix}`)
       await page.getByRole('button', { name: 'Record invoice' }).click()

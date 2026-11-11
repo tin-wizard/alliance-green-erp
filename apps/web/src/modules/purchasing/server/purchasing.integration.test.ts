@@ -390,6 +390,61 @@ describe.skipIf(!databaseConfigured())('purchasing', () => {
     })
   })
 
+  test('a price variance is recorded and blocks closing until an issuer accepts it with a reason', async () => {
+    await inRollback(async (tx) => {
+      await seedReference(tx)
+      const created = await createDraft(tx)
+      const issued = await approveAndIssue(tx, created.id, 1)
+      const detail = await getPurchaseOrderDetail(adminA, created.id, tx)
+      await receivePurchaseOrderCore(
+        tx,
+        {
+          id: created.id,
+          version: issued.version,
+          idempotencyKey: 'receipt-variance-01',
+          lines: detail.lines.map((line) => ({ partLineId: line.id, qty: line.qty })),
+        },
+        adminA,
+      )
+
+      const invoice = await createPurchaseOrderInvoiceCore(
+        tx,
+        {
+          id: created.id,
+          supplierInvoiceNumber: 'INV-VARIANCE-01',
+          invoiceDate: '2026-11-11',
+          taxCode: 'ON',
+          lines: [
+            { partLineId: detail.lines[0]!.id, qty: detail.lines[0]!.qty, unitPrice: '11.00' },
+            { partLineId: detail.lines[1]!.id, qty: detail.lines[1]!.qty, unitPrice: detail.lines[1]!.price },
+          ],
+        },
+        adminA,
+      )
+      expect(invoice.status).toBe('draft')
+      expect(invoice.variance).toBe('2.00')
+
+      await expect(
+        closePurchaseOrderInvoiceCore(tx, { id: created.id, invoiceId: invoice.invoiceId }, adminA),
+      ).rejects.toBeInstanceOf(ValidationError)
+      const closed = await closePurchaseOrderInvoiceCore(
+        tx,
+        {
+          id: created.id,
+          invoiceId: invoice.invoiceId,
+          acceptVarianceReason: 'Supplier price increase approved by purchasing',
+        },
+        adminA,
+      )
+      expect(closed.status).toBe(11)
+      const [stored] = await tx
+        .select()
+        .from(purchaseOrderInvoices)
+        .where(eq(purchaseOrderInvoices.id, invoice.invoiceId))
+      expect(stored?.acceptedVarianceReason).toBe('Supplier price increase approved by purchasing')
+    })
+  })
+
   test('over-receipt with approval records the excess, and cancelling after receipt keeps stock', async () => {
     await inRollback(async (tx) => {
       await seedReference(tx)
