@@ -40,6 +40,7 @@ import { Route as AppWorkOrdersNewRouteImport } from './routes/_app/work-orders/
 import { Route as ApiCronComplianceExpiryRouteImport } from './routes/api/cron/compliance-expiry'
 import { Route as ApiCronSageKeepaliveRouteImport } from './routes/api/cron/sage-keepalive'
 import { Route as ApiCronSagePostingsRouteImport } from './routes/api/cron/sage-postings'
+import { Route as ApiSageProbeRouteImport } from './routes/api/sage/probe'
 import { Route as AppMaintenanceWorkOrdersIndexRouteImport } from './routes/_app/maintenance/work-orders/index'
 import { Route as AppMaintenanceWorkOrdersNewRouteImport } from './routes/_app/maintenance/work-orders/new'
 import { Route as AppMasterDataCustomersIndexRouteImport } from './routes/_app/master-data/customers/index'
@@ -236,6 +237,11 @@ const ApiCronSageKeepaliveRoute = ApiCronSageKeepaliveRouteImport.update({
 const ApiCronSagePostingsRoute = ApiCronSagePostingsRouteImport.update({
   id: '/api/cron/sage-postings',
   path: '/api/cron/sage-postings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSageProbeRoute = ApiSageProbeRouteImport.update({
+  id: '/api/sage/probe',
+  path: '/api/sage/probe',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppMaintenanceWorkOrdersIndexRoute =
@@ -494,6 +500,7 @@ export interface FileRoutesByFullPath {
   '/api/cron/compliance-expiry': typeof ApiCronComplianceExpiryRoute
   '/api/cron/sage-keepalive': typeof ApiCronSageKeepaliveRoute
   '/api/cron/sage-postings': typeof ApiCronSagePostingsRoute
+  '/api/sage/probe': typeof ApiSageProbeRoute
   '/inventory/': typeof AppInventoryIndexRoute
   '/invoicing/': typeof AppInvoicingIndexRoute
   '/master-data/': typeof AppMasterDataIndexRoute
@@ -568,6 +575,7 @@ export interface FileRoutesByTo {
   '/api/cron/compliance-expiry': typeof ApiCronComplianceExpiryRoute
   '/api/cron/sage-keepalive': typeof ApiCronSageKeepaliveRoute
   '/api/cron/sage-postings': typeof ApiCronSagePostingsRoute
+  '/api/sage/probe': typeof ApiSageProbeRoute
   '/inventory': typeof AppInventoryIndexRoute
   '/invoicing': typeof AppInvoicingIndexRoute
   '/master-data': typeof AppMasterDataIndexRoute
@@ -643,6 +651,7 @@ export interface FileRoutesById {
   '/api/cron/compliance-expiry': typeof ApiCronComplianceExpiryRoute
   '/api/cron/sage-keepalive': typeof ApiCronSageKeepaliveRoute
   '/api/cron/sage-postings': typeof ApiCronSagePostingsRoute
+  '/api/sage/probe': typeof ApiSageProbeRoute
   '/_app/inventory/': typeof AppInventoryIndexRoute
   '/_app/invoicing/': typeof AppInvoicingIndexRoute
   '/_app/master-data/': typeof AppMasterDataIndexRoute
@@ -719,6 +728,7 @@ export interface FileRouteTypes {
     | '/api/cron/compliance-expiry'
     | '/api/cron/sage-keepalive'
     | '/api/cron/sage-postings'
+    | '/api/sage/probe'
     | '/inventory/'
     | '/invoicing/'
     | '/master-data/'
@@ -793,6 +803,7 @@ export interface FileRouteTypes {
     | '/api/cron/compliance-expiry'
     | '/api/cron/sage-keepalive'
     | '/api/cron/sage-postings'
+    | '/api/sage/probe'
     | '/inventory'
     | '/invoicing'
     | '/master-data'
@@ -867,6 +878,7 @@ export interface FileRouteTypes {
     | '/api/cron/compliance-expiry'
     | '/api/cron/sage-keepalive'
     | '/api/cron/sage-postings'
+    | '/api/sage/probe'
     | '/_app/inventory/'
     | '/_app/invoicing/'
     | '/_app/master-data/'
@@ -928,6 +940,7 @@ export interface RootRouteChildren {
   ApiCronComplianceExpiryRoute: typeof ApiCronComplianceExpiryRoute
   ApiCronSageKeepaliveRoute: typeof ApiCronSageKeepaliveRoute
   ApiCronSagePostingsRoute: typeof ApiCronSagePostingsRoute
+  ApiSageProbeRoute: typeof ApiSageProbeRoute
   ApiInternalJobsKeyRoute: typeof ApiInternalJobsKeyRoute
   ApiMasterDataDocumentsIdRoute: typeof ApiMasterDataDocumentsIdRoute
   ApiSageOauthCallbackRoute: typeof ApiSageOauthCallbackRoute
@@ -1151,6 +1164,13 @@ declare module '@tanstack/react-router' {
       path: '/api/cron/sage-postings'
       fullPath: '/api/cron/sage-postings'
       preLoaderRoute: typeof ApiCronSagePostingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/sage/probe': {
+      id: '/api/sage/probe'
+      path: '/api/sage/probe'
+      fullPath: '/api/sage/probe'
+      preLoaderRoute: typeof ApiSageProbeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app/maintenance/work-orders/': {
@@ -1599,6 +1619,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiCronComplianceExpiryRoute: ApiCronComplianceExpiryRoute,
   ApiCronSageKeepaliveRoute: ApiCronSageKeepaliveRoute,
   ApiCronSagePostingsRoute: ApiCronSagePostingsRoute,
+  ApiSageProbeRoute: ApiSageProbeRoute,
   ApiInternalJobsKeyRoute: ApiInternalJobsKeyRoute,
   ApiMasterDataDocumentsIdRoute: ApiMasterDataDocumentsIdRoute,
   ApiSageOauthCallbackRoute: ApiSageOauthCallbackRoute,

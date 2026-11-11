@@ -43,6 +43,8 @@ export interface SageResponse {
   status: number
   body: string
   json: unknown
+  /** Exposed so the tenant probe can read quota headers without a second client. */
+  headers: { get(name: string): string | null }
 }
 
 function defaultFetch(): FetchLike {
@@ -125,7 +127,7 @@ export class SageHttp {
       this.#options.onRateLimited?.()
     }
     if (response.status >= 200 && response.status < 300) {
-      return { status: response.status, body: text, json: safeJson(text) }
+      return { status: response.status, body: text, json: safeJson(text), headers: response.headers }
     }
     throw classifyResponse(response.status, text, response.headers)
   }

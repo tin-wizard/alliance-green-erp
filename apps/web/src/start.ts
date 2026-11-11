@@ -59,10 +59,14 @@ const csrfMiddleware = createCsrfMiddleware({
 const jobsScheduler = createMiddleware().server(async ({ next }) => {
   // Domain handlers attach before the ticker starts. Each registration is
   // idempotent, so a second request is a no-op.
-  void import('./modules/rga/server/job.server').then(({ registerRgaNotificationsJob }) =>
-    registerRgaNotificationsJob(),
-  )
-  void import('./modules/jobs/server/ticker.server').then(({ startScheduler }) => startScheduler())
+  void Promise.all([
+    import('./modules/rga/server/job.server').then(({ registerRgaNotificationsJob }) =>
+      registerRgaNotificationsJob(),
+    ),
+    import('./modules/sage/server/jobs.server').then(({ registerSageJobs }) => registerSageJobs()),
+  ])
+    .then(() => import('./modules/jobs/server/ticker.server'))
+    .then(({ startScheduler }) => startScheduler())
   return next()
 })
 

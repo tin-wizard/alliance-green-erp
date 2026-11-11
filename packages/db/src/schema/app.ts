@@ -35,6 +35,7 @@ export * from './app/purchasing'
 export * from './app/inventory'
 export * from './app/invoicing'
 export * from './app/sage'
+export * from './app/sage-reconciliation'
 export * from './app/rga'
 export * from './app/jobs'
 

@@ -41,6 +41,7 @@ export function sageCredentialsPresent(): boolean {
 }
 
 let tokenService: TokenService | undefined
+let http: SageHttp | undefined
 let quotaGovernor: QuotaGovernor | undefined
 let pauseGovernor: PauseGovernor | undefined
 let adapter: SageCloudAdapter | FakeSageAdapter | UnconfiguredSageAdapter | undefined
@@ -116,11 +117,16 @@ export function getSageHealthAdapter(): SageCloudAdapter | FakeSageAdapter | Unc
   return adapter
 }
 
-function buildCloudAdapter(): SageCloudAdapter {
+/**
+ * One HTTP client for everything: posting, the probe and reconciliation. It
+ * carries the quota governor, so a probe call and a posting call draw on the same
+ * daily counter and the same minute bucket.
+ */
+export function getSageHttp(): SageHttp {
+  if (http) return http
   const config = sageConfig()
   const tokens = getTokenService()
-  const pause = getPauseGovernor()
-  const http = new SageHttp({
+  http = new SageHttp({
     apiBaseUrl: config.apiBaseUrl,
     businessId: () => tokens.status().then((status) => status.businessId),
     getAccessToken: () => tokens.getAccessToken(),
@@ -128,8 +134,15 @@ function buildCloudAdapter(): SageCloudAdapter {
     quota: getQuotaGovernor(),
     onRateLimited: () => getQuotaGovernor().noteRateLimited(),
   })
+  return http
+}
+
+function buildCloudAdapter(): SageCloudAdapter {
+  const config = sageConfig()
+  const tokens = getTokenService()
+  const pause = getPauseGovernor()
   return new SageCloudAdapter({
-    http,
+    http: getSageHttp(),
     tokens,
     quota: getQuotaGovernor(),
     pause,
@@ -186,6 +199,7 @@ export function installSagePostingGateway(): SageInvoiceGateway {
 
 /** Test seam: forget every singleton so the next call re-reads the config. */
 export function resetSageRuntimeForTests(): void {
+  http = undefined
   tokenService = undefined
   quotaGovernor = undefined
   pauseGovernor = undefined

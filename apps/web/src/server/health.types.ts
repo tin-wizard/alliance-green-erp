@@ -27,6 +27,15 @@ export interface HealthReport {
       tokenAgeDays: number | null
       quota: { used: number; limit: number; resetsAt: string }
       message: string
+      /**
+       * The last reconciliation run. Absent when Sage is off. `stale` after 26
+       * hours, which is one missed daily run.
+       */
+      reconciliation?: {
+        status: 'ok' | 'stale' | 'never' | 'error'
+        lastRunAt: string | null
+        message: string
+      }
     }
     auth: ServiceHealth
     storage: StorageHealth

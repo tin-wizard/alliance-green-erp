@@ -74,6 +74,38 @@ export {
   type SagePurchaseInvoicePayload,
   type SageSalesInvoicePayload,
 } from './invoices'
+export {
+  checkAmounts,
+  checkBalances,
+  checkExternalChanges,
+  checkLinkIntegrity,
+  checkQueueHealth,
+  checkTaxPeriods,
+  type ContactBalance,
+  type DocumentComparison,
+  type ExternalEvent,
+  type LinkRow,
+  type PostingRow,
+  type TaxPeriodComparison,
+} from './reconcile/checks'
+export {
+  findingFor,
+  severityFor,
+  type CheckResult,
+  type Finding,
+  type FindingCode,
+  type FindingOwner,
+  type FindingSeverity,
+  type SeverityContext,
+} from './reconcile/types'
+export { summariseRun, type RunStatus, type RunSummary } from './reconcile/summary'
+export {
+  probeTenant,
+  type ProbeCapsule,
+  type ProbeCheck,
+  type ProbeCheckStatus,
+  type ProbeReader,
+} from './probe'
 export { createFakeSageApi, fakeApiId, type FakeSageApi, type FakeFault } from './testing/fake-api'
 // Test seam: the real adapter wired to the in-memory API, for contract tests.
 export { buildHarness } from './testing/harness'

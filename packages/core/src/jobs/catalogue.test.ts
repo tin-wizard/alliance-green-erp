@@ -15,6 +15,13 @@ const ADR_KEYS = [
   'pricing.expire-price-locks',
   'work-orders.extract-signoff',
   'sage.post-pending',
+  // Sage operational jobs: the ADR names the postings push; these four keep the
+  // connection alive and the books checked, and the probe runs once on consent.
+  'sage.keepalive',
+  'sage.quota-guard',
+  'sage.poll-external',
+  'sage.reconcile',
+  'sage.probe',
   'purchasing.po-followup-reminders',
   'purchasing.rga-notifications',
   'compliance.document-expiry',
@@ -47,6 +54,7 @@ function context(): JobContext {
 
 describe('JOB_CATALOGUE', () => {
   test('covers every job in the ADR, and nothing else', () => {
+    // Nothing else means: no schedule exists that is not accounted for here.
     expect(JOB_CATALOGUE.map((job) => job.key)).toEqual(ADR_KEYS)
   })
 
@@ -67,6 +75,8 @@ describe('JOB_CATALOGUE', () => {
       'pricing.expire-price-locks',
       'work-orders.extract-signoff',
       'sage.post-pending',
+      'sage.quota-guard',
+      'sage.poll-external',
     ]
     for (const job of JOB_CATALOGUE) {
       expect(job.catchUp).toBe(frequent.includes(job.key) ? 'never' : 'once')
@@ -95,13 +105,20 @@ describe('registerCatalogueJobs', () => {
     ).toEqual([...ADR_KEYS].sort())
   })
 
-  test('only the RGA job ships with a handler; the rest still await theirs', () => {
+  test('the RGA and Sage plans ship with a handler; the rest still await theirs', () => {
     resetRegistryForTests()
     registerCatalogueJobs()
     // The RGA module registers its handler at app start, not in this pure test,
     // so the catalogue's own claim is the published status.
     const registered = JOB_CATALOGUE.filter((job) => job.status === 'registered').map((job) => job.key)
-    expect(registered).toEqual(['purchasing.rga-notifications'])
+    expect(registered).toEqual([
+      'sage.keepalive',
+      'sage.quota-guard',
+      'sage.poll-external',
+      'sage.reconcile',
+      'sage.probe',
+      'purchasing.rga-notifications',
+    ])
     expect(JOB_CATALOGUE.filter((job) => hasHandler(job.key))).toEqual([])
   })
 

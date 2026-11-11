@@ -18,6 +18,9 @@ export interface FakeSageApiOptions {
   contacts?: { id: string; name: string }[]
   taxRates?: { id: string; percentage: number }[]
   products?: { id: string; itemCode: string }[]
+  /** Off by default: a Canadian tenant without stock items is a real case. */
+  stockItems?: number
+  ledgerAccounts?: { id: string; name: string; type: string }[]
 }
 
 export interface FakeSageApi {
@@ -94,7 +97,35 @@ export function createFakeSageApi(options: FakeSageApiOptions = {}): FakeSageApi
       }
 
       if (path === 'businesses') {
-        return respond(200, { $items: [{ id: 'business_1', name: 'Alliance Lighting' }] })
+        return respond(
+          200,
+          { $items: [{ id: 'business_1', name: 'Alliance Lighting' }] },
+          { 'x-ratelimit-remaining': '2497', 'x-ratelimit-limit': '2500', 'x-ratelimit-reset': '900' },
+        )
+      }
+
+      if (path === 'ledger_accounts') {
+        const accounts = options.ledgerAccounts ?? [
+          { id: 'account_sales', name: 'Sales', type: 'Sales' },
+          { id: 'account_purchases', name: 'Purchases', type: 'Purchases' },
+          { id: 'account_rounding', name: 'Rounding', type: 'Other Income' },
+        ]
+        return respond(200, {
+          $items: accounts.map((account) => ({
+            id: account.id,
+            name: account.name,
+            ledger_account_type: { displayed_as: account.type },
+          })),
+          $total: accounts.length,
+        })
+      }
+
+      if (path === 'stock_items') {
+        const total = options.stockItems ?? 0
+        return respond(200, {
+          $items: Array.from({ length: Math.min(total, 1) }, (_, index) => ({ id: `stock_${index + 1}` })),
+          $total: total,
+        })
       }
 
       if (!accessValid || (init?.headers?.authorization ?? '') !== `Bearer ${accessToken}`) {
@@ -122,6 +153,7 @@ export function createFakeSageApi(options: FakeSageApiOptions = {}): FakeSageApi
       if (path === 'products') {
         return respond(200, {
           $items: products.map((product) => ({ id: product.id, item_code: product.itemCode })),
+          $total: products.length,
         })
       }
 

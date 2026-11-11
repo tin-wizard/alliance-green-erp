@@ -92,6 +92,80 @@ export const JOB_CATALOGUE: readonly JobDefinition[] = [
     status: 'awaiting-handler',
   }),
   defineJob({
+    key: 'sage.keepalive',
+    // 03:00 Toronto, after the nightly backup window and before the 06:00 run.
+    schedule: '0 3 * * *',
+    timezone: TORONTO,
+    timeoutMs: 2 * MINUTE,
+    maxAttempts: 3,
+    catchUp: 'once',
+    concurrency: 1,
+    catchUpWindowMs: 6 * HOUR,
+    staleAfterMs: 26 * HOUR,
+    description: 'Refresh the Sage token before it ages, and record a health sample.',
+    status: 'registered',
+  }),
+  defineJob({
+    key: 'sage.quota-guard',
+    // Every ten minutes: cheap, and it is the check that keeps a month-end
+    // posting day from spending the whole daily allowance before 10:00.
+    schedule: '*/10 * * * *',
+    timezone: TORONTO,
+    timeoutMs: MINUTE,
+    maxAttempts: 1,
+    catchUp: 'never',
+    concurrency: 1,
+    catchUpWindowMs: 0,
+    staleAfterMs: 20 * MINUTE,
+    description: 'Read the quota state and pause posting classes that must not spend.',
+    status: 'registered',
+  }),
+  defineJob({
+    key: 'sage.poll-external',
+    // Daytime only: nothing changes in the books at 03:00 that we need within
+    // half an hour. 06:00-20:00 keeps the change feed inside working hours.
+    schedule: '*/30 6-20 * * *',
+    timezone: TORONTO,
+    timeoutMs: 3 * MINUTE,
+    maxAttempts: 3,
+    catchUp: 'never',
+    concurrency: 1,
+    catchUpWindowMs: 0,
+    staleAfterMs: 45 * MINUTE,
+    description: 'Poll updated_or_created_since and deleted_since, classify, and advance watermarks.',
+    status: 'registered',
+  }),
+  defineJob({
+    key: 'sage.reconcile',
+    // 06:00, before the 07:00 follow-ups, so the day starts with yesterday's verdict.
+    schedule: '0 6 * * *',
+    timezone: TORONTO,
+    timeoutMs: 10 * MINUTE,
+    maxAttempts: 2,
+    catchUp: 'once',
+    concurrency: 1,
+    catchUpWindowMs: 6 * HOUR,
+    staleAfterMs: 26 * HOUR,
+    description: 'Run the six reconciliation checks and record one run row plus findings.',
+    status: 'registered',
+  }),
+  defineJob({
+    key: 'sage.probe',
+    // The probe is normally triggered once, by hand, straight after consent. The
+    // weekly schedule exists so tenant drift (a new tax rate, a stock item
+    // appearing) is noticed later without anyone remembering to look.
+    schedule: '0 4 * * 0',
+    timezone: TORONTO,
+    timeoutMs: 5 * MINUTE,
+    maxAttempts: 2,
+    catchUp: 'once',
+    concurrency: 1,
+    catchUpWindowMs: 24 * HOUR,
+    staleAfterMs: 8 * 24 * HOUR,
+    description: 'Probe the tenant: businesses, tax rates, accounts, stock, quota headers. Read only.',
+    status: 'registered',
+  }),
+  defineJob({
     key: 'purchasing.po-followup-reminders',
     schedule: '0 7 * * 1-5',
     timezone: TORONTO,
