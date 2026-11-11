@@ -66,8 +66,10 @@ packages/sage/src/
     mappers/
       sales-invoice.ts
       purchase-invoice.ts
+      credit-note.ts        // allocated artefact, never a negative invoice
+      contact-payment.ts    // receipt or vendor payment, with inline allocated_artefacts
       journal.ts
-      opening-balance.ts
+      opening-balance.ts    // account-level opening journals only, not paid state
       stock-movement.ts
   reconcile/
     run.ts            the six checks (per SAGE-RECONCILIATION.md)

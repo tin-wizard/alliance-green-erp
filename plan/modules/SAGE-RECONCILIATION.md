@@ -315,22 +315,35 @@ in a dashboard otherwise.
 
 ## 8. Cutover mode
 
-The same checks run before the switch, with a different baseline and no postings of ours yet.
+The same checks run before the switch, with a different baseline and no postings of ours yet. Since
+D21 the cutover is not an opening-balance exercise: historical documents are posted, then receipts
+and allocations are reconstructed from the live Sage 50 file (`plan/modules/SAGE50-MIGRATION.md`
+§4.5). So cutover mode runs twice — once after the document pass, once after the allocation pass —
+and each run compares against the same signed baseline.
 
 1. **Capture the legacy baseline.** Signed Sage 50 reports: aged receivables and payables by contact,
    trial balance, tax collected by code and period. Stored with the snapshot id, the date, and the
-   person who pulled them.
-2. **Load contacts and opening balances.** Each load is a posting of kind `opening_balance` with
-   `external_ref = cutover:<snapshotId>:<contactId>` and `migrated = true` where the API exposes it.
-   Load twice in the sandbox; the second run must change nothing.
-3. **Compare totals.** Sum of loaded opening balances per contact versus the aged report, to the
-   cent. Sum of the trial balance positions versus the opening journals. Any difference fails the
-   cutover, and the report names the contact and the amount.
-4. **Decide open documents.** If the client chooses to reissue open invoices and bills (§1.2 item 2
-   of `SAGE-CLOUD.md`), each gets `external_ref = cutover-open:<legacyDocId>`, and the sum of
-   reissued open items plus written-off items must equal the signed aged total. If the client
-   chooses archive-only, no documents are reissued and the check is the balance comparison alone.
-5. **Freeze and switch.** After the legacy posting path stops, run the daily checks with
+   person who pulled them. Taken **after** the three live-file VERIFY queries
+   (`SAGE50-MIGRATION.md` §12) have been run and recorded, because the answer changes how the aged
+   figures are read.
+2. **Assert counts and totals per document batch.** Each converted document carries
+   `external_ref = s50:sales_invoice:<id>` (or the purchase equivalent). Per month: count and total
+   versus the extract, every difference traceable to an exception id. Re-running a batch in the
+   sandbox must change nothing.
+3. **Compare balances after the document pass.** Aged receivables and payables by contact versus the
+   signed report, to the cent. The expected state at this point is that **documents exist and nothing
+   is paid**, so the only differences are the ones the source ageing implies; if the source shows
+   settled invoices, this run fails until step 4 has run.
+4. **Compare balances after the allocation pass — the real test.** For each invoice the source shows
+   settled: `GET /sales_invoices/{id}?show_payments_allocations=true` reports an allocation, the
+   outstanding amount is zero, and the sum of allocations equals the source amount. Then the aged
+   report must match the signed baseline to the cent, and unallocated cash must be zero or owned by
+   a named person.
+5. **Classify the tax divergences.** The legacy's own arithmetic is not reproducible (13% hard-coded
+   on local lines, `ttaxdtl` always 13%, the purchase rate split, one cent correction —
+   `SAGE50-MIGRATION.md` §6.5). Those differences are **recorded and signed as a divergence total**,
+   not raised as blockers and not silently repaired. Any *other* tax difference is a blocker.
+6. **Freeze and switch.** After the legacy posting path stops, run the daily checks with
    `mode=cutover` until the first real invoice posts, then `mode=daily`.
 
 The cutover report is the artefact the finance owner signs; the migration harness's parity report and
@@ -362,5 +375,10 @@ still agrees).
 - A deleted invoice produces `DELETED_IN_SAGE` and does not re-post.
 - A run with a blocker reports `failed`; a run with only decided warnings reports `passed`.
 - The daily job stays inside its quota class on a simulated 400-document day.
-- The cutover mode loads opening balances twice into the sandbox with zero net change and a zero-cent
-  difference against the baseline file.
+- The cutover mode runs twice on a sandbox conversion: once after the document pass, showing
+  documents and no allocations, and once after the allocation pass with a zero-cent difference
+  against the baseline file.
+- A converted invoice that the source ageing shows settled, but which has no allocation, fails the
+  post-allocation cutover run by its own id.
+- A document carrying one of the tolerated legacy tax quirks appears in the divergence total and does
+  not block; a second, unexplained tax difference on the same document does.
