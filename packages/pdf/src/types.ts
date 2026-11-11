@@ -13,7 +13,7 @@ export const PDF_SCHEMA_VERSION = 1 as const
 /** Version of the layout/renderer contract, recorded with generated documents. */
 export const PDF_RENDERER_VERSION = '0.1.0' as const
 
-export const DOCUMENT_KINDS = ['quote', 'packing-slip'] as const
+export const DOCUMENT_KINDS = ['quote', 'packing-slip', 'invoice'] as const
 
 export type DocumentKind = (typeof DOCUMENT_KINDS)[number]
 
@@ -108,7 +108,24 @@ export const packingSlipDocumentDataSchema = z.strictObject({
 export type PackingSlipLine = z.infer<typeof packingSlipLineSchema>
 export type PackingSlipDocumentData = z.infer<typeof packingSlipDocumentDataSchema>
 
-export type DocumentData = QuoteDocumentData | PackingSlipDocumentData
+export const invoiceDocumentDataSchema = z.strictObject({
+  schemaVersion: z.literal(PDF_SCHEMA_VERSION),
+  kind: z.literal('invoice'),
+  number: nonEmptyText('Invoice number'),
+  issuedOn: z.iso.date(),
+  dueDate: z.iso.date().optional(),
+  workOrderNumber: optionalText('Work order number'),
+  customer: addressBlockDataSchema,
+  shipTo: addressBlockDataSchema.optional(),
+  lines: z.array(quoteLineSchema).min(1, 'An invoice needs at least one line'),
+  totals: quoteTotalsSchema,
+  notes: noteListSchema,
+  terms: noteListSchema,
+})
+
+export type InvoiceDocumentData = z.infer<typeof invoiceDocumentDataSchema>
+
+export type DocumentData = QuoteDocumentData | PackingSlipDocumentData | InvoiceDocumentData
 
 /** The DTO a given document kind accepts, e.g. `DocumentDataFor<'quote'>`. */
 export type DocumentDataFor<TKind extends DocumentKind> = Extract<

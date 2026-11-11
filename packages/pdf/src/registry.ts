@@ -4,13 +4,16 @@
  */
 import type { ComponentType } from 'react'
 import type { z } from 'zod'
+import { InvoiceDocument } from './documents/invoice'
 import { PackingSlipDocument } from './documents/packing-slip'
 import { QuoteDocument } from './documents/quote'
 import { LETTER_PAGE, type PageSpec } from './theme'
 import {
+  invoiceDocumentDataSchema,
   packingSlipDocumentDataSchema,
   quoteDocumentDataSchema,
   type DocumentData,
+  type InvoiceDocumentData,
   type PackingSlipDocumentData,
   type QuoteDocumentData,
 } from './types'
@@ -27,6 +30,7 @@ export interface PdfDocumentDefinition<TData extends DocumentData = DocumentData
 export interface PdfDocumentRegistry {
   readonly quote: PdfDocumentDefinition<QuoteDocumentData>
   readonly 'packing-slip': PdfDocumentDefinition<PackingSlipDocumentData>
+  readonly invoice: PdfDocumentDefinition<InvoiceDocumentData>
 }
 
 export const PDF_REGISTRY: PdfDocumentRegistry = {
@@ -42,6 +46,13 @@ export const PDF_REGISTRY: PdfDocumentRegistry = {
     title: 'Packing slip',
     schema: packingSlipDocumentDataSchema,
     component: PackingSlipDocument,
+    page: LETTER_PAGE,
+  },
+  invoice: {
+    kind: 'invoice',
+    title: 'Invoice',
+    schema: invoiceDocumentDataSchema,
+    component: InvoiceDocument,
     page: LETTER_PAGE,
   },
 }

@@ -3,6 +3,17 @@ import { LegacyPortScanAdapter } from './legacy-port-scan'
 import type { SageAdapter } from './types'
 
 export * from './types'
+export {
+  FakeSageInvoiceGateway,
+  getSageInvoiceGateway,
+  resetSageInvoiceGateway,
+  setSageInvoiceGateway,
+  type SageInvoiceGateway,
+  type SageInvoiceLine,
+  type SagePostingOutcome,
+  type SagePurchaseInvoicePayload,
+  type SageSalesInvoicePayload,
+} from './invoices'
 export { LegacyPortScanAdapter, probePort, type LegacyPortScanOptions } from './legacy-port-scan'
 
 let adapter: SageAdapter | undefined

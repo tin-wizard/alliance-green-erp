@@ -35,6 +35,7 @@ import {
   setTriageFn,
   transitionWorkOrderFn,
 } from '../server/work-orders.functions'
+import { findInvoiceForWorkOrderFn } from '../../invoicing/server/invoicing.functions'
 import type {
   TriageFlag,
   WorkOrderDetail,
@@ -905,6 +906,11 @@ function InvoiceReadyTab({
     queryKey: ['invoice-ready', detail.id],
     queryFn: () => getInvoiceReadySnapshotFn({ data: { id: detail.id } }),
   })
+  const invoice = useQuery({
+    queryKey: ['work-order-invoice', detail.id],
+    queryFn: () => findInvoiceForWorkOrderFn({ data: { workOrderId: detail.id } }),
+    enabled: portal === 'office',
+  })
 
   if (snapshot.isPending) {
     return <div className="h-[240px] animate-pulse rounded-[6px] border border-hair bg-subtle" />
@@ -916,6 +922,28 @@ function InvoiceReadyTab({
 
   return (
     <div className="space-y-5">
+      {invoice.data ? (
+        <Card title="Invoice">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-[13px] text-fg">
+                <Link to="/invoicing/$id" params={{ id: String(invoice.data.id) }} className="text-brand underline">
+                  {invoice.data.invoiceNumber}
+                </Link>{' '}
+                · <span className="capitalize">{invoice.data.status.replace('_', ' ')}</span>
+              </p>
+              {invoice.data.rejectionReason ? (
+                <p className="mt-1 text-[12px] text-danger">
+                  Rejected: {invoice.data.rejectionReason}
+                </p>
+              ) : null}
+            </div>
+            <Link to="/invoicing/$id" params={{ id: String(invoice.data.id) }} className="text-[13px] text-brand underline">
+              Open invoice
+            </Link>
+          </div>
+        </Card>
+      ) : null}
       <Card title="Invoice-ready snapshot">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Item label="Calc type" value={data.calcType} />

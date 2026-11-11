@@ -21,6 +21,10 @@ import { Route as AppInventoryIndexRouteImport } from './routes/_app/inventory/i
 import { Route as AppInventoryAdjustmentsRouteImport } from './routes/_app/inventory/adjustments'
 import { Route as AppInventoryMovementsRouteImport } from './routes/_app/inventory/movements'
 import { Route as AppInventoryPricesRouteImport } from './routes/_app/inventory/prices'
+import { Route as AppInvoicingIndexRouteImport } from './routes/_app/invoicing/index'
+import { Route as AppInvoicingIdRouteImport } from './routes/_app/invoicing/$id'
+import { Route as AppInvoicingNewRouteImport } from './routes/_app/invoicing/new'
+import { Route as AppInvoicingSubcontractorRouteImport } from './routes/_app/invoicing/subcontractor'
 import { Route as AppMasterDataIndexRouteImport } from './routes/_app/master-data/index'
 import { Route as AppMasterDataImportRouteImport } from './routes/_app/master-data/import'
 import { Route as AppPurchasingIndexRouteImport } from './routes/_app/purchasing/index'
@@ -30,6 +34,7 @@ import { Route as AppQuotesNewRouteImport } from './routes/_app/quotes/new'
 import { Route as AppWorkOrdersIndexRouteImport } from './routes/_app/work-orders/index'
 import { Route as AppWorkOrdersNewRouteImport } from './routes/_app/work-orders/new'
 import { Route as ApiCronComplianceExpiryRouteImport } from './routes/api/cron/compliance-expiry'
+import { Route as ApiCronSagePostingsRouteImport } from './routes/api/cron/sage-postings'
 import { Route as AppMaintenanceWorkOrdersIndexRouteImport } from './routes/_app/maintenance/work-orders/index'
 import { Route as AppMaintenanceWorkOrdersNewRouteImport } from './routes/_app/maintenance/work-orders/new'
 import { Route as AppMasterDataCustomersIndexRouteImport } from './routes/_app/master-data/customers/index'
@@ -47,6 +52,7 @@ import { Route as AppMasterDataSubcontractorsNewRouteImport } from './routes/_ap
 import { Route as AppMasterDataSuppliersIndexRouteImport } from './routes/_app/master-data/suppliers/index'
 import { Route as AppMasterDataSuppliersIdRouteImport } from './routes/_app/master-data/suppliers/$id'
 import { Route as AppMasterDataSuppliersNewRouteImport } from './routes/_app/master-data/suppliers/new'
+import { Route as AppPortalSubInvoicesRouteImport } from './routes/_app/portal/sub/invoices'
 import { Route as AppPortalSubStockRouteImport } from './routes/_app/portal/sub/stock'
 import { Route as AppPortalSupplierIndexRouteImport } from './routes/_app/portal/supplier/index'
 import { Route as AppPortalTechIndexRouteImport } from './routes/_app/portal/tech/index'
@@ -63,6 +69,8 @@ import { Route as AppMasterDataPartsEditIdRouteImport } from './routes/_app/mast
 import { Route as AppMasterDataSitesEditIdRouteImport } from './routes/_app/master-data/sites/edit/$id'
 import { Route as AppMasterDataSubcontractorsEditIdRouteImport } from './routes/_app/master-data/subcontractors/edit/$id'
 import { Route as AppMasterDataSuppliersEditIdRouteImport } from './routes/_app/master-data/suppliers/edit/$id'
+import { Route as AppPortalSubInvoicesIndexRouteImport } from './routes/_app/portal/sub/invoices/index'
+import { Route as AppPortalSubInvoicesIdRouteImport } from './routes/_app/portal/sub/invoices.$id'
 import { Route as AppPortalSubWorkOrdersIndexRouteImport } from './routes/_app/portal/sub/work-orders/index'
 import { Route as AppPortalTechIdIndexRouteImport } from './routes/_app/portal/tech/$id/index'
 import { Route as AppPortalSubWorkOrdersIdIndexRouteImport } from './routes/_app/portal/sub/work-orders/$id/index'
@@ -126,6 +134,27 @@ const AppInventoryPricesRoute = AppInventoryPricesRouteImport.update({
   path: '/inventory/prices',
   getParentRoute: () => AppRoute,
 } as any)
+const AppInvoicingIndexRoute = AppInvoicingIndexRouteImport.update({
+  id: '/invoicing/',
+  path: '/invoicing/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppInvoicingIdRoute = AppInvoicingIdRouteImport.update({
+  id: '/invoicing/$id',
+  path: '/invoicing/$id',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppInvoicingNewRoute = AppInvoicingNewRouteImport.update({
+  id: '/invoicing/new',
+  path: '/invoicing/new',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppInvoicingSubcontractorRoute =
+  AppInvoicingSubcontractorRouteImport.update({
+    id: '/invoicing/subcontractor',
+    path: '/invoicing/subcontractor',
+    getParentRoute: () => AppRoute,
+  } as any)
 const AppMasterDataIndexRoute = AppMasterDataIndexRouteImport.update({
   id: '/master-data/',
   path: '/master-data/',
@@ -169,6 +198,11 @@ const AppWorkOrdersNewRoute = AppWorkOrdersNewRouteImport.update({
 const ApiCronComplianceExpiryRoute = ApiCronComplianceExpiryRouteImport.update({
   id: '/api/cron/compliance-expiry',
   path: '/api/cron/compliance-expiry',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCronSagePostingsRoute = ApiCronSagePostingsRouteImport.update({
+  id: '/api/cron/sage-postings',
+  path: '/api/cron/sage-postings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppMaintenanceWorkOrdersIndexRoute =
@@ -267,6 +301,11 @@ const AppMasterDataSuppliersNewRoute =
     path: '/master-data/suppliers/new',
     getParentRoute: () => AppRoute,
   } as any)
+const AppPortalSubInvoicesRoute = AppPortalSubInvoicesRouteImport.update({
+  id: '/portal/sub/invoices',
+  path: '/portal/sub/invoices',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppPortalSubStockRoute = AppPortalSubStockRouteImport.update({
   id: '/portal/sub/stock',
   path: '/portal/sub/stock',
@@ -355,6 +394,17 @@ const AppMasterDataSuppliersEditIdRoute =
     path: '/master-data/suppliers/edit/$id',
     getParentRoute: () => AppRoute,
   } as any)
+const AppPortalSubInvoicesIndexRoute =
+  AppPortalSubInvoicesIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AppPortalSubInvoicesRoute,
+  } as any)
+const AppPortalSubInvoicesIdRoute = AppPortalSubInvoicesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AppPortalSubInvoicesRoute,
+} as any)
 const AppPortalSubWorkOrdersIndexRoute =
   AppPortalSubWorkOrdersIndexRouteImport.update({
     id: '/portal/sub/work-orders/',
@@ -384,12 +434,17 @@ export interface FileRoutesByFullPath {
   '/inventory/adjustments': typeof AppInventoryAdjustmentsRoute
   '/inventory/movements': typeof AppInventoryMovementsRoute
   '/inventory/prices': typeof AppInventoryPricesRoute
+  '/invoicing/$id': typeof AppInvoicingIdRoute
+  '/invoicing/new': typeof AppInvoicingNewRoute
+  '/invoicing/subcontractor': typeof AppInvoicingSubcontractorRoute
   '/master-data/import': typeof AppMasterDataImportRoute
   '/purchasing/new': typeof AppPurchasingNewRoute
   '/quotes/new': typeof AppQuotesNewRoute
   '/work-orders/new': typeof AppWorkOrdersNewRoute
   '/api/cron/compliance-expiry': typeof ApiCronComplianceExpiryRoute
+  '/api/cron/sage-postings': typeof ApiCronSagePostingsRoute
   '/inventory/': typeof AppInventoryIndexRoute
+  '/invoicing/': typeof AppInvoicingIndexRoute
   '/master-data/': typeof AppMasterDataIndexRoute
   '/purchasing/': typeof AppPurchasingIndexRoute
   '/quotes/': typeof AppQuotesIndexRoute
@@ -405,6 +460,7 @@ export interface FileRoutesByFullPath {
   '/master-data/subcontractors/new': typeof AppMasterDataSubcontractorsNewRoute
   '/master-data/suppliers/$id': typeof AppMasterDataSuppliersIdRoute
   '/master-data/suppliers/new': typeof AppMasterDataSuppliersNewRoute
+  '/portal/sub/invoices': typeof AppPortalSubInvoicesRouteWithChildren
   '/portal/sub/stock': typeof AppPortalSubStockRoute
   '/purchasing/$id/edit': typeof AppPurchasingIdEditRoute
   '/quotes/$id/edit': typeof AppQuotesIdEditRoute
@@ -426,7 +482,9 @@ export interface FileRoutesByFullPath {
   '/master-data/sites/edit/$id': typeof AppMasterDataSitesEditIdRoute
   '/master-data/subcontractors/edit/$id': typeof AppMasterDataSubcontractorsEditIdRoute
   '/master-data/suppliers/edit/$id': typeof AppMasterDataSuppliersEditIdRoute
+  '/portal/sub/invoices/$id': typeof AppPortalSubInvoicesIdRoute
   '/maintenance/work-orders/$id/': typeof AppMaintenanceWorkOrdersIdIndexRoute
+  '/portal/sub/invoices/': typeof AppPortalSubInvoicesIndexRoute
   '/portal/sub/work-orders/': typeof AppPortalSubWorkOrdersIndexRoute
   '/portal/tech/$id/': typeof AppPortalTechIdIndexRoute
   '/portal/sub/work-orders/$id/': typeof AppPortalSubWorkOrdersIdIndexRoute
@@ -442,12 +500,17 @@ export interface FileRoutesByTo {
   '/inventory/adjustments': typeof AppInventoryAdjustmentsRoute
   '/inventory/movements': typeof AppInventoryMovementsRoute
   '/inventory/prices': typeof AppInventoryPricesRoute
+  '/invoicing/$id': typeof AppInvoicingIdRoute
+  '/invoicing/new': typeof AppInvoicingNewRoute
+  '/invoicing/subcontractor': typeof AppInvoicingSubcontractorRoute
   '/master-data/import': typeof AppMasterDataImportRoute
   '/purchasing/new': typeof AppPurchasingNewRoute
   '/quotes/new': typeof AppQuotesNewRoute
   '/work-orders/new': typeof AppWorkOrdersNewRoute
   '/api/cron/compliance-expiry': typeof ApiCronComplianceExpiryRoute
+  '/api/cron/sage-postings': typeof ApiCronSagePostingsRoute
   '/inventory': typeof AppInventoryIndexRoute
+  '/invoicing': typeof AppInvoicingIndexRoute
   '/master-data': typeof AppMasterDataIndexRoute
   '/purchasing': typeof AppPurchasingIndexRoute
   '/quotes': typeof AppQuotesIndexRoute
@@ -484,7 +547,9 @@ export interface FileRoutesByTo {
   '/master-data/sites/edit/$id': typeof AppMasterDataSitesEditIdRoute
   '/master-data/subcontractors/edit/$id': typeof AppMasterDataSubcontractorsEditIdRoute
   '/master-data/suppliers/edit/$id': typeof AppMasterDataSuppliersEditIdRoute
+  '/portal/sub/invoices/$id': typeof AppPortalSubInvoicesIdRoute
   '/maintenance/work-orders/$id': typeof AppMaintenanceWorkOrdersIdIndexRoute
+  '/portal/sub/invoices': typeof AppPortalSubInvoicesIndexRoute
   '/portal/sub/work-orders': typeof AppPortalSubWorkOrdersIndexRoute
   '/portal/tech/$id': typeof AppPortalTechIdIndexRoute
   '/portal/sub/work-orders/$id': typeof AppPortalSubWorkOrdersIdIndexRoute
@@ -502,12 +567,17 @@ export interface FileRoutesById {
   '/_app/inventory/adjustments': typeof AppInventoryAdjustmentsRoute
   '/_app/inventory/movements': typeof AppInventoryMovementsRoute
   '/_app/inventory/prices': typeof AppInventoryPricesRoute
+  '/_app/invoicing/$id': typeof AppInvoicingIdRoute
+  '/_app/invoicing/new': typeof AppInvoicingNewRoute
+  '/_app/invoicing/subcontractor': typeof AppInvoicingSubcontractorRoute
   '/_app/master-data/import': typeof AppMasterDataImportRoute
   '/_app/purchasing/new': typeof AppPurchasingNewRoute
   '/_app/quotes/new': typeof AppQuotesNewRoute
   '/_app/work-orders/new': typeof AppWorkOrdersNewRoute
   '/api/cron/compliance-expiry': typeof ApiCronComplianceExpiryRoute
+  '/api/cron/sage-postings': typeof ApiCronSagePostingsRoute
   '/_app/inventory/': typeof AppInventoryIndexRoute
+  '/_app/invoicing/': typeof AppInvoicingIndexRoute
   '/_app/master-data/': typeof AppMasterDataIndexRoute
   '/_app/purchasing/': typeof AppPurchasingIndexRoute
   '/_app/quotes/': typeof AppQuotesIndexRoute
@@ -523,6 +593,7 @@ export interface FileRoutesById {
   '/_app/master-data/subcontractors/new': typeof AppMasterDataSubcontractorsNewRoute
   '/_app/master-data/suppliers/$id': typeof AppMasterDataSuppliersIdRoute
   '/_app/master-data/suppliers/new': typeof AppMasterDataSuppliersNewRoute
+  '/_app/portal/sub/invoices': typeof AppPortalSubInvoicesRouteWithChildren
   '/_app/portal/sub/stock': typeof AppPortalSubStockRoute
   '/_app/purchasing/$id/edit': typeof AppPurchasingIdEditRoute
   '/_app/quotes/$id/edit': typeof AppQuotesIdEditRoute
@@ -544,7 +615,9 @@ export interface FileRoutesById {
   '/_app/master-data/sites/edit/$id': typeof AppMasterDataSitesEditIdRoute
   '/_app/master-data/subcontractors/edit/$id': typeof AppMasterDataSubcontractorsEditIdRoute
   '/_app/master-data/suppliers/edit/$id': typeof AppMasterDataSuppliersEditIdRoute
+  '/_app/portal/sub/invoices/$id': typeof AppPortalSubInvoicesIdRoute
   '/_app/maintenance/work-orders/$id/': typeof AppMaintenanceWorkOrdersIdIndexRoute
+  '/_app/portal/sub/invoices/': typeof AppPortalSubInvoicesIndexRoute
   '/_app/portal/sub/work-orders/': typeof AppPortalSubWorkOrdersIndexRoute
   '/_app/portal/tech/$id/': typeof AppPortalTechIdIndexRoute
   '/_app/portal/sub/work-orders/$id/': typeof AppPortalSubWorkOrdersIdIndexRoute
@@ -562,12 +635,17 @@ export interface FileRouteTypes {
     | '/inventory/adjustments'
     | '/inventory/movements'
     | '/inventory/prices'
+    | '/invoicing/$id'
+    | '/invoicing/new'
+    | '/invoicing/subcontractor'
     | '/master-data/import'
     | '/purchasing/new'
     | '/quotes/new'
     | '/work-orders/new'
     | '/api/cron/compliance-expiry'
+    | '/api/cron/sage-postings'
     | '/inventory/'
+    | '/invoicing/'
     | '/master-data/'
     | '/purchasing/'
     | '/quotes/'
@@ -583,6 +661,7 @@ export interface FileRouteTypes {
     | '/master-data/subcontractors/new'
     | '/master-data/suppliers/$id'
     | '/master-data/suppliers/new'
+    | '/portal/sub/invoices'
     | '/portal/sub/stock'
     | '/purchasing/$id/edit'
     | '/quotes/$id/edit'
@@ -604,7 +683,9 @@ export interface FileRouteTypes {
     | '/master-data/sites/edit/$id'
     | '/master-data/subcontractors/edit/$id'
     | '/master-data/suppliers/edit/$id'
+    | '/portal/sub/invoices/$id'
     | '/maintenance/work-orders/$id/'
+    | '/portal/sub/invoices/'
     | '/portal/sub/work-orders/'
     | '/portal/tech/$id/'
     | '/portal/sub/work-orders/$id/'
@@ -620,12 +701,17 @@ export interface FileRouteTypes {
     | '/inventory/adjustments'
     | '/inventory/movements'
     | '/inventory/prices'
+    | '/invoicing/$id'
+    | '/invoicing/new'
+    | '/invoicing/subcontractor'
     | '/master-data/import'
     | '/purchasing/new'
     | '/quotes/new'
     | '/work-orders/new'
     | '/api/cron/compliance-expiry'
+    | '/api/cron/sage-postings'
     | '/inventory'
+    | '/invoicing'
     | '/master-data'
     | '/purchasing'
     | '/quotes'
@@ -662,7 +748,9 @@ export interface FileRouteTypes {
     | '/master-data/sites/edit/$id'
     | '/master-data/subcontractors/edit/$id'
     | '/master-data/suppliers/edit/$id'
+    | '/portal/sub/invoices/$id'
     | '/maintenance/work-orders/$id'
+    | '/portal/sub/invoices'
     | '/portal/sub/work-orders'
     | '/portal/tech/$id'
     | '/portal/sub/work-orders/$id'
@@ -679,12 +767,17 @@ export interface FileRouteTypes {
     | '/_app/inventory/adjustments'
     | '/_app/inventory/movements'
     | '/_app/inventory/prices'
+    | '/_app/invoicing/$id'
+    | '/_app/invoicing/new'
+    | '/_app/invoicing/subcontractor'
     | '/_app/master-data/import'
     | '/_app/purchasing/new'
     | '/_app/quotes/new'
     | '/_app/work-orders/new'
     | '/api/cron/compliance-expiry'
+    | '/api/cron/sage-postings'
     | '/_app/inventory/'
+    | '/_app/invoicing/'
     | '/_app/master-data/'
     | '/_app/purchasing/'
     | '/_app/quotes/'
@@ -700,6 +793,7 @@ export interface FileRouteTypes {
     | '/_app/master-data/subcontractors/new'
     | '/_app/master-data/suppliers/$id'
     | '/_app/master-data/suppliers/new'
+    | '/_app/portal/sub/invoices'
     | '/_app/portal/sub/stock'
     | '/_app/purchasing/$id/edit'
     | '/_app/quotes/$id/edit'
@@ -721,7 +815,9 @@ export interface FileRouteTypes {
     | '/_app/master-data/sites/edit/$id'
     | '/_app/master-data/subcontractors/edit/$id'
     | '/_app/master-data/suppliers/edit/$id'
+    | '/_app/portal/sub/invoices/$id'
     | '/_app/maintenance/work-orders/$id/'
+    | '/_app/portal/sub/invoices/'
     | '/_app/portal/sub/work-orders/'
     | '/_app/portal/tech/$id/'
     | '/_app/portal/sub/work-orders/$id/'
@@ -734,6 +830,7 @@ export interface RootRouteChildren {
   ApiHealthRoute: typeof ApiHealthRoute
   ApiReadyRoute: typeof ApiReadyRoute
   ApiCronComplianceExpiryRoute: typeof ApiCronComplianceExpiryRoute
+  ApiCronSagePostingsRoute: typeof ApiCronSagePostingsRoute
   ApiMasterDataDocumentsIdRoute: typeof ApiMasterDataDocumentsIdRoute
 }
 
@@ -823,6 +920,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppInventoryPricesRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/invoicing/': {
+      id: '/_app/invoicing/'
+      path: '/invoicing'
+      fullPath: '/invoicing/'
+      preLoaderRoute: typeof AppInvoicingIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/invoicing/$id': {
+      id: '/_app/invoicing/$id'
+      path: '/invoicing/$id'
+      fullPath: '/invoicing/$id'
+      preLoaderRoute: typeof AppInvoicingIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/invoicing/new': {
+      id: '/_app/invoicing/new'
+      path: '/invoicing/new'
+      fullPath: '/invoicing/new'
+      preLoaderRoute: typeof AppInvoicingNewRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/invoicing/subcontractor': {
+      id: '/_app/invoicing/subcontractor'
+      path: '/invoicing/subcontractor'
+      fullPath: '/invoicing/subcontractor'
+      preLoaderRoute: typeof AppInvoicingSubcontractorRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/master-data/': {
       id: '/_app/master-data/'
       path: '/master-data'
@@ -884,6 +1009,13 @@ declare module '@tanstack/react-router' {
       path: '/api/cron/compliance-expiry'
       fullPath: '/api/cron/compliance-expiry'
       preLoaderRoute: typeof ApiCronComplianceExpiryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/cron/sage-postings': {
+      id: '/api/cron/sage-postings'
+      path: '/api/cron/sage-postings'
+      fullPath: '/api/cron/sage-postings'
+      preLoaderRoute: typeof ApiCronSagePostingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app/maintenance/work-orders/': {
@@ -1005,6 +1137,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMasterDataSuppliersNewRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/portal/sub/invoices': {
+      id: '/_app/portal/sub/invoices'
+      path: '/portal/sub/invoices'
+      fullPath: '/portal/sub/invoices'
+      preLoaderRoute: typeof AppPortalSubInvoicesRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/portal/sub/stock': {
       id: '/_app/portal/sub/stock'
       path: '/portal/sub/stock'
@@ -1117,6 +1256,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMasterDataSuppliersEditIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/portal/sub/invoices/': {
+      id: '/_app/portal/sub/invoices/'
+      path: '/'
+      fullPath: '/portal/sub/invoices/'
+      preLoaderRoute: typeof AppPortalSubInvoicesIndexRouteImport
+      parentRoute: typeof AppPortalSubInvoicesRoute
+    }
+    '/_app/portal/sub/invoices/$id': {
+      id: '/_app/portal/sub/invoices/$id'
+      path: '/$id'
+      fullPath: '/portal/sub/invoices/$id'
+      preLoaderRoute: typeof AppPortalSubInvoicesIdRouteImport
+      parentRoute: typeof AppPortalSubInvoicesRoute
+    }
     '/_app/portal/sub/work-orders/': {
       id: '/_app/portal/sub/work-orders/'
       path: '/portal/sub/work-orders'
@@ -1141,6 +1294,19 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AppPortalSubInvoicesRouteChildren {
+  AppPortalSubInvoicesIdRoute: typeof AppPortalSubInvoicesIdRoute
+  AppPortalSubInvoicesIndexRoute: typeof AppPortalSubInvoicesIndexRoute
+}
+
+const AppPortalSubInvoicesRouteChildren: AppPortalSubInvoicesRouteChildren = {
+  AppPortalSubInvoicesIdRoute: AppPortalSubInvoicesIdRoute,
+  AppPortalSubInvoicesIndexRoute: AppPortalSubInvoicesIndexRoute,
+}
+
+const AppPortalSubInvoicesRouteWithChildren =
+  AppPortalSubInvoicesRoute._addFileChildren(AppPortalSubInvoicesRouteChildren)
+
 interface AppRouteChildren {
   AppIndexRoute: typeof AppIndexRoute
   AppAdminAuditRoute: typeof AppAdminAuditRoute
@@ -1148,11 +1314,15 @@ interface AppRouteChildren {
   AppInventoryAdjustmentsRoute: typeof AppInventoryAdjustmentsRoute
   AppInventoryMovementsRoute: typeof AppInventoryMovementsRoute
   AppInventoryPricesRoute: typeof AppInventoryPricesRoute
+  AppInvoicingIdRoute: typeof AppInvoicingIdRoute
+  AppInvoicingNewRoute: typeof AppInvoicingNewRoute
+  AppInvoicingSubcontractorRoute: typeof AppInvoicingSubcontractorRoute
   AppMasterDataImportRoute: typeof AppMasterDataImportRoute
   AppPurchasingNewRoute: typeof AppPurchasingNewRoute
   AppQuotesNewRoute: typeof AppQuotesNewRoute
   AppWorkOrdersNewRoute: typeof AppWorkOrdersNewRoute
   AppInventoryIndexRoute: typeof AppInventoryIndexRoute
+  AppInvoicingIndexRoute: typeof AppInvoicingIndexRoute
   AppMasterDataIndexRoute: typeof AppMasterDataIndexRoute
   AppPurchasingIndexRoute: typeof AppPurchasingIndexRoute
   AppQuotesIndexRoute: typeof AppQuotesIndexRoute
@@ -1168,6 +1338,7 @@ interface AppRouteChildren {
   AppMasterDataSubcontractorsNewRoute: typeof AppMasterDataSubcontractorsNewRoute
   AppMasterDataSuppliersIdRoute: typeof AppMasterDataSuppliersIdRoute
   AppMasterDataSuppliersNewRoute: typeof AppMasterDataSuppliersNewRoute
+  AppPortalSubInvoicesRoute: typeof AppPortalSubInvoicesRouteWithChildren
   AppPortalSubStockRoute: typeof AppPortalSubStockRoute
   AppPurchasingIdEditRoute: typeof AppPurchasingIdEditRoute
   AppQuotesIdEditRoute: typeof AppQuotesIdEditRoute
@@ -1201,11 +1372,15 @@ const AppRouteChildren: AppRouteChildren = {
   AppInventoryAdjustmentsRoute: AppInventoryAdjustmentsRoute,
   AppInventoryMovementsRoute: AppInventoryMovementsRoute,
   AppInventoryPricesRoute: AppInventoryPricesRoute,
+  AppInvoicingIdRoute: AppInvoicingIdRoute,
+  AppInvoicingNewRoute: AppInvoicingNewRoute,
+  AppInvoicingSubcontractorRoute: AppInvoicingSubcontractorRoute,
   AppMasterDataImportRoute: AppMasterDataImportRoute,
   AppPurchasingNewRoute: AppPurchasingNewRoute,
   AppQuotesNewRoute: AppQuotesNewRoute,
   AppWorkOrdersNewRoute: AppWorkOrdersNewRoute,
   AppInventoryIndexRoute: AppInventoryIndexRoute,
+  AppInvoicingIndexRoute: AppInvoicingIndexRoute,
   AppMasterDataIndexRoute: AppMasterDataIndexRoute,
   AppPurchasingIndexRoute: AppPurchasingIndexRoute,
   AppQuotesIndexRoute: AppQuotesIndexRoute,
@@ -1221,6 +1396,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppMasterDataSubcontractorsNewRoute: AppMasterDataSubcontractorsNewRoute,
   AppMasterDataSuppliersIdRoute: AppMasterDataSuppliersIdRoute,
   AppMasterDataSuppliersNewRoute: AppMasterDataSuppliersNewRoute,
+  AppPortalSubInvoicesRoute: AppPortalSubInvoicesRouteWithChildren,
   AppPortalSubStockRoute: AppPortalSubStockRoute,
   AppPurchasingIdEditRoute: AppPurchasingIdEditRoute,
   AppQuotesIdEditRoute: AppQuotesIdEditRoute,
@@ -1257,6 +1433,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiHealthRoute: ApiHealthRoute,
   ApiReadyRoute: ApiReadyRoute,
   ApiCronComplianceExpiryRoute: ApiCronComplianceExpiryRoute,
+  ApiCronSagePostingsRoute: ApiCronSagePostingsRoute,
   ApiMasterDataDocumentsIdRoute: ApiMasterDataDocumentsIdRoute,
 }
 export const routeTree = rootRouteImport
