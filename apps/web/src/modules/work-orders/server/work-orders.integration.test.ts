@@ -20,12 +20,16 @@ import { getConfig } from '@cls/core/env.server'
 import { ALL_PERMISSIONS, ConflictError, ForbiddenError, NotFoundError, ValidationError } from '@cls/core'
 import { getDb, type Db, type Tx } from '@cls/db'
 import {
+  customers,
   legacyCustomer,
   legacySites,
   legacySubcontractor,
   legacySubcontractorWsibInsuranceDocuments,
   legacyWoPriority,
   legacyWoServtype,
+  sites,
+  subcontractorDocuments,
+  subcontractors,
   workOrderNumberSeries,
   workOrderRevisions,
   workOrders,
@@ -169,6 +173,63 @@ async function seedReference(tx: Tx): Promise<void> {
       documentName: 'WSIB certificate',
       isExpired: 0,
       expirationDate: '2099-01-01',
+    })
+
+  // The frozen lookup adapter reads the forward `app` master-data tables.
+  // Keep the legacy rows above for list.server's interim joins and mirror the
+  // same ids here so the adapter has an equivalent fixture.
+  await tx
+    .insert(customers)
+    .values({ id: 990001, name: 'Integration Customer' })
+    .onConflictDoNothing()
+  await tx
+    .insert(sites)
+    .values({
+      id: 990001,
+      customerId: 990001,
+      name: 'Integration Site',
+      street: '1 Test Way',
+      city: 'Toronto',
+      province: 'ON',
+      postalCode: 'M5V 0A1',
+    })
+    .onConflictDoNothing()
+  await tx
+    .insert(subcontractors)
+    .values([
+      {
+        id: 990001,
+        name: 'Subcontractor A',
+        street: '2 Test Way',
+        city: 'Toronto',
+        province: 'ON',
+        postalCode: 'M5V 0A2',
+        contactName: 'A Contact',
+        contactNumber: '416-555-0001',
+        contactEmail: 'a@example.test',
+      },
+      {
+        id: 990002,
+        name: 'Subcontractor B',
+        street: '3 Test Way',
+        city: 'Toronto',
+        province: 'ON',
+        postalCode: 'M5V 0A3',
+        contactName: 'B Contact',
+        contactNumber: '416-555-0002',
+        contactEmail: 'b@example.test',
+      },
+    ])
+    .onConflictDoNothing()
+  await tx
+    .insert(subcontractorDocuments)
+    .values({
+      subcontractorId: 990001,
+      kind: 'wsib',
+      documentType: 'WSIB',
+      documentName: 'WSIB certificate',
+      isExpired: false,
+      expiresOn: '2099-01-01',
     })
 }
 

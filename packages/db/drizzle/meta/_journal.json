@@ -15,6 +15,13 @@
       "when": 1794392138121,
       "tag": "0001_woozy_mojo",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794395019225,
+      "tag": "0002_boring_surge",
+      "breakpoints": true
     }
   ]
 }

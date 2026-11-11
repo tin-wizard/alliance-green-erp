@@ -28,6 +28,7 @@ export { app }
 
 // Module slices. Each module owns one file; this index only re-exports.
 export * from './app/workorder'
+export * from './app/masterdata'
 
 export const userRoleEnum = app.enum('user_role', [
   'admin',

@@ -48,6 +48,26 @@ async function seedReference(): Promise<void> {
     where not exists (
       select 1 from public.subcontractor_wsib_insurance_documents where subid = ${SUB_ID}
     )`
+
+  // The Work Orders lookup adapter reads the forward `app` tables, so the same
+  // reference records must exist there. Legacy rows stay for list/detail joins.
+  await sql!`
+    insert into app.customers (id, name) values (${CUSTOMER_ID}, 'E2E Customer')
+    on conflict (id) do nothing`
+  await sql!`
+    insert into app.sites (id, customer_id, name, street, city, province, postal_code)
+    values (${SITE_ID}, ${CUSTOMER_ID}, 'E2E Site', '1 E2E Way', 'Toronto', 'ON', 'M5V 0A1')
+    on conflict (id) do nothing`
+  await sql!`
+    insert into app.subcontractors (id, name, street, city, province, postal_code, contact_name, contact_number, contact_email)
+    values (${SUB_ID}, 'E2E Subcontractor', '2 E2E Way', 'Toronto', 'ON', 'M5V 0A2', 'E2E Contact', '416-555-0100', 'e2e@example.invalid')
+    on conflict (id) do nothing`
+  await sql!`
+    insert into app.subcontractor_documents (subcontractor_id, kind, document_type, expires_on, is_expired)
+    select ${SUB_ID}, 'wsib', 'WSIB', '2099-01-01', false
+    where not exists (
+      select 1 from app.subcontractor_documents where subcontractor_id = ${SUB_ID}
+    )`
 }
 
 async function cleanupReference(workOrderIds: number[], emails: string[]): Promise<void> {
@@ -60,6 +80,10 @@ async function cleanupReference(workOrderIds: number[], emails: string[]): Promi
   for (const email of emails) {
     await sql!`delete from app.users where email = ${email}`
   }
+  await sql!`delete from app.subcontractor_documents where subcontractor_id = ${SUB_ID}`
+  await sql!`delete from app.subcontractors where id = ${SUB_ID}`
+  await sql!`delete from app.sites where id = ${SITE_ID}`
+  await sql!`delete from app.customers where id = ${CUSTOMER_ID}`
   await sql!`delete from public.subcontractor_wsib_insurance_documents where subid = ${SUB_ID}`
   await sql!`delete from public.subcontractor where id = ${SUB_ID}`
   await sql!`delete from public.sites where id = ${SITE_ID}`

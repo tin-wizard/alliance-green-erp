@@ -218,6 +218,10 @@ consulted for authorization.
 | `pma.certificate.download` | compliance | – | – | – | – |
 | `customer:read` | customer | yes | yes | yes | – |
 | `customer:write` | customer | yes | – | – | – |
+| `subcontractor:read` | customer | yes | yes | – | – |
+| `subcontractor:write` | customer | yes | – | – | – |
+| `supplier:read` | purchasing | yes | – | – | – |
+| `supplier:write` | purchasing | yes | – | – | – |
 | `subcontractor.rates.download` | customer | – | – | – | – |
 | `reports:read` | reports | yes | yes | – | – |
 | `report.download_rates` | reports | – | – | – | – |

@@ -226,6 +226,38 @@ export const PERMISSIONS = [
     defaultRoles: ['admin'],
   },
   {
+    key: 'subcontractor:read',
+    module: 'customer',
+    label: 'View subcontractors',
+    description:
+      'Find and view subcontractor profiles, contacts, labour rates and compliance state. New capability: the legacy system had no subcontractor permission table.',
+    defaultRoles: ['admin', 'technician'],
+  },
+  {
+    key: 'subcontractor:write',
+    module: 'customer',
+    label: 'Edit subcontractors',
+    description:
+      'Create and change subcontractor profiles, contacts and labour rates. New capability, not a replaced legacy key.',
+    defaultRoles: ['admin'],
+  },
+  {
+    key: 'supplier:read',
+    module: 'purchasing',
+    label: 'View suppliers',
+    description:
+      'Find and view suppliers, the Sage vendor link and PO flags. New capability: the legacy system had no supplier permission table.',
+    defaultRoles: ['admin'],
+  },
+  {
+    key: 'supplier:write',
+    module: 'purchasing',
+    label: 'Edit suppliers',
+    description:
+      'Create and change supplier profiles and PO flags. New capability; never granted to the supplier role.',
+    defaultRoles: ['admin'],
+  },
+  {
     key: 'reports:read',
     module: 'reports',
     label: 'View reports',
