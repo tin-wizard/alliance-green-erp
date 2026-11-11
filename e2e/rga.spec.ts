@@ -60,6 +60,18 @@ test.describe('rgas', () => {
       await sql!`
         insert into app.purchase_order_parts (po_id, part_no, description, qty, qty_received, price, sort_order)
         values (${poId}, ${partNo}, 'E2E returned fixture', 5, 5, 10.00, 1)`
+      await sql!`
+        with inv as (
+          insert into app.purchase_order_invoices
+            (po_id, supplier_id, supplier_invoice_number, invoice_date, subtotal, tax, total, status)
+          values (${poId}, ${supplierId}, ${`E2E-RGA-INV-${suffix}`}, '2026-02-01', 50.00, 6.50, 56.50, 'posted')
+          returning id
+        )
+        insert into app.purchase_order_invoice_lines
+          (invoice_id, part_line_id, qty, unit_price, line_total, tax_amount, variance, sort_order)
+        select inv.id, p.id, 5, 10.00, 50.00, 6.50, 0.00, 0
+        from inv, app.purchase_order_parts p
+        where p.po_id = ${poId} and p.part_no = ${partNo}`
 
       const adminAuth = await createThrowaway(adminEmail, password)
       const otherAuth = await createThrowaway(otherEmail, password)

@@ -13,6 +13,7 @@ import { and, eq } from 'drizzle-orm'
 import { ValidationError } from '@cls/core'
 import type { Tx } from '@cls/db'
 import {
+  purchaseOrderParts,
   purchaseOrders,
   rgaCreditLines,
   rgaCredits,
@@ -91,6 +92,12 @@ export async function recordRgaCreditCore(
     .where(eq(suppliers.id, row.supplierId))
     .limit(1)
 
+  const poParts = await tx
+    .select({ id: purchaseOrderParts.id, partNo: purchaseOrderParts.partNo })
+    .from(purchaseOrderParts)
+    .where(eq(purchaseOrderParts.poId, row.poId))
+  const poPartByNumber = new Map(poParts.map((part) => [part.partNo.toLowerCase(), part.id]))
+
   const parts = await tx.select().from(rgaParts).where(eq(rgaParts.rgaId, row.id))
   const specials = await tx
     .select()
@@ -113,7 +120,8 @@ export async function recordRgaCreditCore(
       qty: line.returnQty,
       unitPrice: line.price,
       amount: lineAmount(line.returnQty, line.price),
-      partId: line.poPartId,
+      partId:
+        line.poPartId ?? poPartByNumber.get(line.partNo.trim().toLowerCase()) ?? null,
     })),
     ...specials.map((line, index) => ({
       kind: 'special' as const,
