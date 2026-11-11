@@ -116,31 +116,148 @@ Two mapping rules that decide quality:
 
 ---
 
-## 4. The quota arithmetic, and the three ways to execute the load
+## 4. The quota arithmetic, and the four ways to execute the load
 
-An order of 40,000 sales documents at two to three calls each (search then create, lookups cached) is
-80,000-120,000 requests. Purchase invoices, payments and stock add more. At the documented 2,500
-requests per day per company:
+The quota is the schedule. Sage Accounting allows **2,500 requests per day per company**, shared with
+every other application on the tenant — including whatever the accountant uses. There is no bulk
+endpoint, no partial-success response and no way to buy more calls inside the API. Everything below
+follows from that number.
 
-| Transport | Duration | When to choose it |
-|---|---:|---|
-| **API load by us** | 32-48 days of posting, plus verification | Default if Sage offers no assistance. Must be resumable, scheduled and quota-budgeted |
-| **Sage-assisted migration** | Days to weeks, negotiated | Ask first. If Sage will import the company data, our job becomes verification and the risk drops sharply |
-| **Hybrid: Sage imports documents, we load contacts/items/openings** | Days | If Sage will take transactions but not master data, or vice versa |
+Four routes can execute the load, in preference order:
 
-Three operational consequences of the API route:
+| Route | Duration | When to use it |
+|---|---|---|
+| **Sage-assisted migration** | Days to weeks, negotiated | Ask first, before any date is promised. If Sage will import the company data, our job becomes verification |
+| **API load by us** | ~9 weeks exclusive, ~18 weeks shared (§4.1) | Default if Sage offers no assistance. Must be resumable and quota-budgeted |
+| **Hybrid** — Sage imports transactions, we load master data and openings | Days plus days | If Sage will take one half of the data but not the other |
+| **Third-party migration tool** | Days, licence cost | Last resort; it still needs the same signed reconciliation |
 
-1. **The load owns a quota class.** It runs under `migration` (its own daily budget), separate from
-   routine posting and reconciliation, so a month of conversion cannot starve invoicing once the new
-   system is live. Before go-live there is nothing else posting, so the load may take the whole
-   2,500 — decided by configuration, not by code.
-2. **Ordering is by document date and type.** Contacts before documents; invoices before their
-   credit notes; invoices before the payments that allocate to them. A credit note that overtakes its
-   invoice is a rejected document and a wasted call.
-3. **Progress is a database row, not a log line.** Each document gets a `sage_postings` row (same
-   table as production posting, tagged `run = conversion`), so a stop-and-resume is a query. The
-   loader is the production worker with a different claim filter, which means the retry and
-   idempotency behaviour being tested is the behaviour used in production.
+### 4.1 What one document costs
+
+The first draft assumed a search before every create, because that is the safe retry pattern. It is
+also twice the quota for no benefit: our `external_ref` is unique and a document that has never been
+attempted cannot exist in Sage. So the rule is refined:
+
+- **first attempt** (`attempts = 0`, status `queued`): create only, one call;
+- **any retry** (`attempts > 0`, or status `sending`/`unknown` from a crash): search, then create if
+  absent — two calls, which is exactly when the search earns its cost.
+
+A crash between the POST and the link-write leaves the row in `sending`, so the resume path always
+searches. Safety is preserved; the happy path halves.
+
+| Population | Documents | Calls each | Calls |
+|---|---:|---:|---:|
+| Sales invoices and credit notes | ~40,000 | 1.05 | ~42,000 |
+| Purchase invoices and credit notes | ~8,000 | 1.05 | ~8,400 |
+| Payments and their allocations | ~25,000 | 2.0 | ~50,000 |
+| Stock items and evidenced movements | ~12,600 | 1.0 | ~12,600 |
+| Contacts, products, tax rates, ledger accounts | ~8,000 | 1.0 | ~8,000 |
+| Verification reads and reconciliation passes | — | — | ~12,000 |
+| **Subtotal** | | | **~133,000** |
+| Retry and 429 allowance (+15%) | | | **~153,000** |
+
+**Worst case, in calendar days:**
+
+| Scenario | Calls/day for the conversion | Days | Weeks |
+|---|---:|---:|---:|
+| Exclusive — conversion before go-live, nothing else posting | 2,500 | ~61 | ~9 |
+| With 500 reserved for polling and reconciliation | 2,000 | ~77 | ~11 |
+| Shared 50/50 with live invoice posting | 1,250 | ~122 | **~18** |
+| Shared with month-end freezes (5 days a month at zero) | ~2,300 average | ~67 | ~10 |
+
+So the honest answer to "how long does the conversion take" is **nine weeks if it owns the quota,
+eighteen if the business is also invoicing through the new system**. That is the range the cutover
+date has to live inside, and it is why the assisted-migration question is worth asking before any of
+this is committed.
+
+### 4.2 The load as a resumable job
+
+The load is not a script that runs to completion. It is a job that runs for weeks, stops for
+month-end, survives a quota exhaustion and a re-authorisation, and resumes exactly where it stopped.
+
+**State.** `migration.sage_load_runs` (one row per attempt: snapshot id, status
+`planned|running|paused|complete|failed`, `paused_reason`, `claimed_docs`, `posted_docs`,
+`failed_docs`, `last_ordinal`, timestamps) and one `app.sage_postings` row per source document
+carrying `run_id` and a deterministic `sort_key` (`document date`, then source id). The posting row is
+the unit of progress; the run row is the unit of control.
+
+**Ordering.** Claim in `sort_key` order within a document type, so invoices precede the credit notes
+and payments that reference them. Document types run in the order of §5; inside a type, date order.
+
+**Claim and lease.** `SELECT … WHERE run_id = $1 AND status IN ('queued','retryable') AND
+next_attempt_at <= now() ORDER BY sort_key LIMIT $2 FOR UPDATE SKIP LOCKED`, then mark `sending` with
+a worker id and a **two-minute lease**. A lease older than two minutes is reclaimed by the next
+worker; the search-on-retry rule turns that into a lookup instead of a duplicate.
+
+**Batch size.** Ten documents per invocation. At one to three calls each that is 10-30 calls, far
+under the 100/minute ceiling, and it keeps an invocation inside the platform's time budget with room
+for a slow tenant. The daily quota, not the minute limit, is the binding constraint.
+
+**Checkpoint.** Every batch commits its own document rows, so a crash loses at most a lease, never a
+document. `last_ordinal` on the run row is a cursor to avoid rescanning, not the source of truth —
+the resumable state is the set of rows that are not `sent` or `skipped`.
+
+**Pause and resume.** `POST /api/internal/jobs/sage.convert` with `{ action: 'pause' | 'resume' |
+'status' }` and the job secret; the same handler the scheduler calls. Pausing flips the run row and
+the claim query returns nothing within one invocation. Automatic pauses, each recorded with a reason:
+
+| Trigger | Run state | Resumes |
+|---|---|---|
+| Daily quota exhausted (90% guard) | `paused`, reason `quota` | Next quota reset, automatically |
+| `needs_reauth` (refresh token dead) | `paused`, reason `reauth` | Only after a human authorises, then manual resume |
+| 3 consecutive 5xx from the tenant | `paused`, reason `tenant_error` | After 30 minutes, automatically; three consecutive pauses alert |
+| 422 rate above 5% in a batch | `paused`, reason `mapping` | Only after a human fixes the mapping — bulk-loading rejections burns quota for nothing |
+| Month-end window | `paused`, reason `close` | First business day after the close |
+
+**Evidence.** A daily progress row: documents attempted, posted, skipped, failed, calls used by
+class, projected completion date at the current rate, and the delta against the planned cutover. A
+projection that slips more than three days raises an alert, because the failure mode here is not a
+crash — it is a load that is quietly two weeks late.
+
+### 4.3 What normal posting does to the window
+
+The conflict only exists if the new system goes live before the conversion finishes. Three ways to
+order that, and their real costs:
+
+1. **Serial — convert, then go live.** The conversion owns 2,500 calls a day and finishes in about
+   nine weeks; the new system's first invoice posts afterwards. Cleanest reconciliation story,
+   longest calendar. **Recommended if the client can wait.**
+2. **Interleaved — go live, convert at the edges.** Live posting gets first claim on the quota, the
+   conversion takes the remainder (about 1,250 a day, ~18 weeks), and the conversion is suspended
+   during month-end. Reconciliation becomes harder, not impossible: the baseline is the snapshot
+   date, and everything the new system posts after it is *outside* the historical load and *inside*
+   the daily reconciliation.
+3. **Paused — go live, backfill later.** The new system posts for a period while the conversion is
+   stopped, then the backfill runs against a historical window that keeps growing. Only sensible if
+   the client accepts that history arrives late.
+
+**The rule that makes interleaving safe:** the conversion baseline is the snapshot date, fixed once.
+Historical documents dated on or before it are loaded from the extract; documents the new system
+creates after it are never loaded from the extract, and the load's `sort_key` upper bound is the
+snapshot date. Without that bound, the same invoice exists twice — once posted live, once imported —
+and the trial balance comparison is worthless.
+
+**Sharing rule if interleaved.** Classes and their daily caps: `posting` 1,000 (it is the business's
+live work and wins), `migration` 1,000-1,500, `payment_poll` 150, `reconcile` 100, `probe` 50, with a
+100-call reserve nobody may touch. The caps are configuration, and the worker reads them rather than
+assuming a number. If live posting needs more than 1,000 in a day (a month-end burst), the conversion
+pauses — the conversion can wait a day; an invoice cannot.
+
+**Month-end is not optional.** The last three business days of the month and the first two of the next
+are conversion-free: posting, reporting and the accountant's own session need the quota, and a bulk
+load competing with a close is how a 429 cascade starts. That costs about five days a month and is
+already in the worst-case table.
+
+### 4.4 What we will not do
+
+- **Pretend both can run at full speed.** The quota is per company, not per integration. Running the
+  conversion at 2,500 while the business invoices is not a scheduling choice; it is a 429 storm.
+- **Retry a 422.** A rejected document is a mapping bug. Retrying it spends quota and changes nothing.
+- **Skip the search on a retry.** The one call that prevents a duplicate invoice is never the one to
+  economise on.
+- **Run the load through the month-end close.** See above.
+- **Leave progress in a log file.** If the answer to "how far along is it" is not a query, the load
+  cannot be managed, only hoped for.
 
 ---
 
@@ -171,9 +288,9 @@ Steps 3-6 are master data and can run while documents are still being extracted.
 long tail and must be resumable in the middle of a month.
 
 **Duplicate prevention is the same mechanism as production posting:** `external_ref` is unique in
-`app.sage_postings`, and the worker searches before it creates. A resumed load therefore cannot
-double-post, and a partially loaded month is a query (`status in ('queued','retryable','unknown')`
-filtered by `converted_at`), not an investigation.
+`app.sage_postings`, and the worker searches before it creates **on a retry** (§4.1). A resumed load
+therefore cannot double-post, and a partially loaded month is a query
+(`status in ('queued','retryable','unknown')` filtered by `run_id`), not an investigation.
 
 ---
 

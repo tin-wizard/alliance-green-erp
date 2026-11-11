@@ -248,9 +248,10 @@ Findings: `TAX_PERIOD_MISMATCH` (warning, finance; blocker if it exceeds one dol
 ### 4.6 Queue and quota health
 
 Not money, but the leading indicator: count postings by status and age, quota calls used today by
-class, attempts > 3, and `unknown` postings. Findings: `QUEUE_BACKLOG`, `QUOTA_NEAR_LIMIT` (warning
-at 80%), `QUOTA_EXHAUSTED` (blocker), `REAUTH_REQUIRED` (blocker; the connection state is
-`needs_reauth`).
+class, attempts > 3, `unknown` postings, **and token age** (`days_since_refresh`,
+`refresh_expires_at - now`). Findings: `QUEUE_BACKLOG`, `QUOTA_NEAR_LIMIT` (warning at 80%),
+`QUOTA_EXHAUSTED` (blocker), `REAUTH_REQUIRED` (blocker; the connection state is `needs_reauth`),
+`TOKEN_STALE` (warning at 14 days since the last successful refresh, blocker at 21).
 
 ---
 
@@ -270,6 +271,7 @@ at 80%), `QUOTA_EXHAUSTED` (blocker), `REAUTH_REQUIRED` (blocker; the connection
 | `STUCK_POSTING` | warning → blocker | platform | Search-then-create; escalate at two failed searches |
 | `QUEUE_BACKLOG`, `QUOTA_NEAR_LIMIT` | warning | platform | Throttle sync, let posting have the budget |
 | `QUOTA_EXHAUSTED`, `REAUTH_REQUIRED` | blocker | platform | Stop posting, alert; a human authorises or the quota resets |
+| `TOKEN_STALE` | warning ≥14 d, blocker ≥21 d | platform | The refresh token dies at 31 days idle; at 21 days a human must authorise before any invoice fails |
 
 A run **passes** only when there are zero blockers and every warning from the previous run has a
 decision (`accepted`, `fixed_externally`, `excluded`). Warnings do not block the run, but an

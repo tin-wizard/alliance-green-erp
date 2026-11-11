@@ -288,6 +288,12 @@ the integration must stay alive afterwards.
   raises an alarm rather than retrying with the old token.
 - **A daily keep-alive refresh** prevents the 31-day expiry, and failure of the keep-alive is a
   health degradation, visible on the dashboard, before it becomes an outage.
+- **Token age is monitored, not assumed.** Normal invoice cadence keeps the token alive, but a quiet
+  month — a shutdown, a holiday closure — kills the integration silently at 31 days. So health
+  reports `daysSinceRefresh` and `refreshExpiresAt - now` on every check, warns at 14 days since the
+  last refresh, and blocks at 21: that leaves ten days to find a human and authorise before a single
+  invoice fails. A daily sample row keeps the history, so "was the token alive last Tuesday" is a
+  query. Thresholds and the test cases are in `SAGE-ADAPTER-SCAFFOLD.md` §5 and §11.
 - **Custody:** the refresh token is encrypted at rest with a key held in the platform secret store
   (not in the database), or held entirely in the platform store with the database keeping only a
   pointer and a fingerprint. A token never appears in logs, error messages, API responses, or the

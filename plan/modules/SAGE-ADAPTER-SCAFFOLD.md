@@ -154,6 +154,24 @@ connection* rather than *something went wrong*.
   31-day idle death. A failed keep-alive sets `needs_reauth` the same day, so the outage is a
   banner rather than a month-end surprise.
 
+**Token age is a health assertion, not a hope.** The integration dies silently if nothing refreshes
+for 31 days, so every health check computes and reports:
+
+| Measure | Healthy | Warning | Blocker |
+|---|---|---|---|
+| `daysSinceRefresh` (last successful refresh or keep-alive) | < 14 | 14-20 → `refresh_stale` warning | ≥ 21 → `needs_reauth`, stop posting |
+| `refreshExpiresAt - now` | > 10 days | 3-10 days → warning | < 3 days → blocker |
+| `accessExpiresAt` after a refresh attempt | future | — | past after a successful refresh means a clock or storage bug: `error` |
+
+The 21-day blocker sits a third of the way inside the 31-day window on purpose: it leaves ten days to
+find a human, authorise, and resume, without a single failed invoice. Normal invoice cadence keeps
+the token alive on its own; this assertion exists for the case where the business is quiet — a
+shutdown, a holiday closure, a month with no invoicing — which is exactly when nobody notices.
+
+The daily `sage.keepalive` job writes a `sage_health_samples` row (checked_at, days_since_refresh,
+refresh_expires_at, state), so "was the token alive last Tuesday" is a query rather than a log
+archaeology exercise. The samples also back the dashboard's 30-day token-age sparkline.
+
 ### Custody
 
 - AES-256-GCM, key from `SAGE_TOKEN_ENC_KEY` (32 bytes, base64), random IV per seal, AAD =
@@ -298,7 +316,7 @@ with a real uniqueness constraint satisfies it properly.
 ## 10. Database and environment changes
 
 **New schema file:** `packages/db/src/schema/app/sage.ts` exporting `sageConnections`, `sagePostings`,
-`sageLinks`, `sageQuotaUsage`, `sageSyncState`, `sageReconciliationRuns`,
+`sageLinks`, `sageQuotaUsage`, `sageSyncState`, `sageHealthSamples`, `sageReconciliationRuns`,
 `sageReconciliationFindings` (columns as in `SAGE-RECONCILIATION.md` §3, plus indexes on
 `(status, next_attempt_at)` and `(usage_day, class)`).
 **Migration:** `0007_sage_cloud.sql` (0005 and 0006 belong to the in-flight Purchasing/Inventory
@@ -342,7 +360,7 @@ the replacement, so a stale Vercel variable cannot silently do nothing.
 | Outbox | claim ordering per doc type; `FOR UPDATE SKIP LOCKED` under two workers, no double claim; cancel-before-post marks `skipped`; sent rows immutable |
 | Idempotency | search-hit adopts link; timeout-after-commit yields one ledger document; forced 500 then success yields one; 422 is permanent and does not retry; 409 resolves by search |
 | Mapping | invoice total reproduced to the cent including rounding line; missing contact link is permanent; missing tax mapping is permanent; tax by rate matches the snapshot |
-| Health | each state renders; `needs_reauth` is distinguishable from `error`; disabled makes zero calls |
+| Health | each state renders; `needs_reauth` is distinguishable from `error`; disabled makes zero calls; token-age thresholds fire at 14 and 21 days with a frozen clock; a stored sample is written by keep-alive |
 | Numbering | `numberInUse` finds a number in work orders, quotes, invoices and `sage_links`; returns null on database failure |
 | No network | the whole suite runs with the fake; a guard fails the build if a test imports the real client without an explicit `SAGE_TEST_HTTP=1` opt-in |
 
