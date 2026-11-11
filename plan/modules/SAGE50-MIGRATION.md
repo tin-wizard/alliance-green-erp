@@ -1,10 +1,16 @@
 # Sage 50 → Sage Accounting data conversion
 
-**Status:** active workstream. **Date:** 2026-11-11. **Owner:** Data platform, with the finance owner
-and Alliance Lighting as the Sage account holder.
+**Status:** active workstream, v3. **Date:** 2026-11-11. **Owner:** Data platform, with the finance
+owner and Alliance Lighting as the Sage account holder.
+**Scope (v3):** **documents only** — sales invoices and purchase invoices — plus a separate
+allocation pass whose source is the live Sage 50 company file, not the portal. The portal never
+wrote a receipt, payment, credit note or reversal: every payment column it inserts is a literal
+zero (`green-system/SAGE50-PAYMENTS.md` §1). Paid state therefore cannot be converted from portal
+data, only reconstructed from Sage 50's own receipts and allocations.
 **Decisions:** D19 (Sage Business Cloud Accounting), D21 (migrate Sage 50 **including historical
 documents**), D22 (Neon stays in Ohio), D23 (Alliance owns the subscription and OAuth consent).
-**Relates to:** `plan/modules/SAGE-CLOUD.md` §7 (quota arithmetic, what the API cannot accept),
+**Relates to:** `green-system/SAGE50-PAYMENTS.md` (the evidence for the scope change),
+`plan/modules/SAGE-CLOUD.md` §7 (quota arithmetic, what the API cannot accept),
 `plan/modules/SAGE-RECONCILIATION.md` §8 (cutover mode), `plan/CUTOVER-AND-MIGRATION.md` §3.6 and
 §4.4, `plan/modules/SAGE-ADAPTER-SCAFFOLD.md` (the loader reuses its outbox and quota machinery).
 
@@ -22,6 +28,13 @@ two-day opening-balance exercise into a scheduled load measured in weeks, becaus
 record per call at 2,500 calls a day per company. This document states how to do it without
 duplicating documents, without exhausting quota on retries, and with a signed reconciliation at the
 end.
+
+**Scope is narrower than it first looked, in a way that helps.** The portal posted invoices and
+nothing else: no receipts, no payments, no credit notes, no reversals — every payment column it
+writes is a literal zero (`green-system/SAGE50-PAYMENTS.md` §1). So the conversion is two passes with
+different sources: **documents** from the invoice tables, and **allocations** reconstructed from the
+live Sage 50 company file, where the staff-entered receipts actually live. The document pass is
+quota-bound; the allocation pass is export-bound in its source and API-bound in its write (§4.5).
 
 **The single most important sentence in this document:** the conversion is not finished when the
 documents are loaded; it is finished when the **signed Sage 50 trial balance and aged receivables
@@ -55,11 +68,12 @@ validates everything against Sage's own reports and a second extraction route.
 | Sales tax | 27,802 rows, of which 3,350 parseable | ~24,452 blank-money rows are a known legacy defect |
 | Money anchors | parts 18,522,092.42; labour 15,668,927.26; special parts 5,451,323.92; tax 10,239,845.01 | Use these as extraction checksums |
 | Purchase side | POs, receipts, supplier invoices | In `purchaseorder`, `po_*`, `titlu`-equivalents; counts require the live dump |
-| Receipts and payments | not yet enumerated | **Discovery item.** Without these, every converted invoice looks unpaid |
+| Receipts, payments, allocations | **not written by the portal** — staff entered them in the Sage 50 UI | Paid state lives only in the live company file; extracted separately (§4.5, §12). Every payment column the portal inserts is a literal zero |
+| Credit notes and reversals | **not written by the portal**; any present were created in the UI | Converted as credit-note artefacts plus allocations, never as negative invoices (§3) |
 | Projects (`tproject`) | present | No destination in Sage Accounting (see §7) |
 | Attachments | signature images and scanned documents on disk | Paths in the portal (`files_mod_signature`), not in Sage |
 
-### 2.3 The four extraction routes, and what each is good for
+### 2.3 The five extraction routes, and what each is good for
 
 | Route | What it gives | Support status | Risks | Use in this plan |
 |---|---|---|---|---|
@@ -77,6 +91,9 @@ Extraction rules that follow:
    harness, checksum the extract, and convert from there. Never re-read live Sage mid-load.
 3. **Validate the extract with Sage's reports.** Row counts and money anchors first, then the trial
    balance and aged reports. A discrepancy stops the conversion; it does not get explained away.
+4. **Take a second extract for allocations.** The receipt and payment side is a separate extract
+   from the same freeze (§4.5), because it comes from different tables — or from Sage's own receipt
+   journal if the VERIFY queries (§12) show those tables are not usable by SQL.
 4. **Second-route sample.** 200 documents re-extracted via SDK or CSV and diffed against the SQL
    extract. This is the cheapest possible insurance against an undocumented column change.
 
@@ -93,9 +110,10 @@ Extraction rules that follow:
 | Items (`tinvent`) | `POST /products` or `POST /stock_items` | Stock items only when the tenant has stock enabled (tenant probe) |
 | Opening A/R, A/P | `POST /opening_balances` | Per contact, at the conversion date; confirm whether it creates an artefact that must be reconciled |
 | Opening GL | `POST /journals` | Double entry, one journal per control position |
-| Sales invoices, credit notes | `POST /sales_invoices`, `/sales_credit_notes` | One request per document; `invoice_lines[]` carries the detail |
-| Purchase invoices, credit notes | `POST /purchase_invoices`, `/purchase_credit_notes` | Supplier and subcontractor bills |
-| Receipts, payments | `POST /contact_payments` + `/contact_allocations` | Required, or A/R and A/P never settle |
+| Sales invoices | `POST /sales_invoices` | One request per invoice; `invoice_lines[]` carries the detail. The portal never posted a credit note, so only the invoices it wrote are convertible from it |
+| Purchase invoices | `POST /purchase_invoices` | Supplier and subcontractor bills, plus the "adjustment" corrections that are re-posted invoices rather than credit notes |
+| **Receipts and vendor payments** | `POST /contact_payments` + `allocated_artefacts` | **Not in the legacy data at all.** Staff entered them in the Sage 50 UI. They must be extracted from the live company file and re-posted as a separate pass (§4.5) |
+| **Credit notes, prepayments, reversals** | `POST /sales_credit_notes` / `purchase_credit_notes`, then `/contact_allocations` | The portal never wrote any of these. If the live Sage 50 file contains them, they are UI-created and must be extracted and converted explicitly — a negative invoice is not an invoice |
 | Stock opening and movements | `POST /stock_items`, `/stock_movements` | Opening position, not a historical replay (§6.4) |
 | Attachments | `POST /attachments` | Optional; costs quota per file |
 | **Purchase orders** | **none** | No purchase-order endpoint; POs stay in our app and become a bill when invoiced |
@@ -128,7 +146,7 @@ Four routes can execute the load, in preference order:
 | Route | Duration | When to use it |
 |---|---|---|
 | **Sage-assisted migration** | Days to weeks, negotiated | Ask first, before any date is promised. If Sage will import the company data, our job becomes verification |
-| **API load by us** | ~9 weeks exclusive, ~18 weeks shared (§4.1) | Default if Sage offers no assistance. Must be resumable and quota-budgeted |
+| **API load by us** | ~6 weeks exclusive, ~11 weeks shared (§4.1) | Default if Sage offers no assistance. Must be resumable and quota-budgeted |
 | **Hybrid** — Sage imports transactions, we load master data and openings | Days plus days | If Sage will take one half of the data but not the other |
 | **Third-party migration tool** | Days, licence cost | Last resort; it still needs the same signed reconciliation |
 
@@ -147,28 +165,30 @@ searches. Safety is preserved; the happy path halves.
 
 | Population | Documents | Calls each | Calls |
 |---|---:|---:|---:|
-| Sales invoices and credit notes | ~40,000 | 1.05 | ~42,000 |
-| Purchase invoices and credit notes | ~8,000 | 1.05 | ~8,400 |
-| Payments and their allocations | ~25,000 | 2.0 | ~50,000 |
+| Sales invoices | ~40,000 | 1.05 | ~42,000 |
+| Purchase invoices | ~8,000 | 1.05 | ~8,400 |
 | Stock items and evidenced movements | ~12,600 | 1.0 | ~12,600 |
 | Contacts, products, tax rates, ledger accounts | ~8,000 | 1.0 | ~8,000 |
 | Verification reads and reconciliation passes | — | — | ~12,000 |
-| **Subtotal** | | | **~133,000** |
-| Retry and 429 allowance (+15%) | | | **~153,000** |
+| **Subtotal** | | | **~83,000** |
+| Retry and 429 allowance (+15%) | | | **~95,000** |
 
-**Worst case, in calendar days:**
+The scope change from `SAGE50-PAYMENTS.md` removes ~50,000 calls: the portal never posted a payment,
+so there is nothing payment-shaped to convert from its data. The allocation pass is sized separately
+in §4.5 because its source is different.
+
+**Calendar, document pass only:**
 
 | Scenario | Calls/day for the conversion | Days | Weeks |
 |---|---:|---:|---:|
-| Exclusive — conversion before go-live, nothing else posting | 2,500 | ~61 | ~9 |
-| With 500 reserved for polling and reconciliation | 2,000 | ~77 | ~11 |
-| Shared 50/50 with live invoice posting | 1,250 | ~122 | **~18** |
-| Shared with month-end freezes (5 days a month at zero) | ~2,300 average | ~67 | ~10 |
+| Exclusive — conversion before go-live, nothing else posting | 2,500 | ~38 | **~5.5** |
+| With 500 reserved for polling and reconciliation | 2,000 | ~48 | ~7 |
+| Shared 50/50 with live invoice posting | 1,250 | ~76 | **~11** |
+| Shared with month-end freezes (5 days a month at zero) | ~2,100 effective | ~46 | ~6.5 |
 
-So the honest answer to "how long does the conversion take" is **nine weeks if it owns the quota,
-eighteen if the business is also invoicing through the new system**. That is the range the cutover
-date has to live inside, and it is why the assisted-migration question is worth asking before any of
-this is committed.
+So the document conversion is **six weeks if it owns the quota, eleven if the business is also
+invoicing through the new system**, and the allocation pass adds a few days on top (§4.5) rather than
+a few weeks. That is the range the cutover date has to live inside.
 
 ### 4.2 The load as a resumable job
 
@@ -220,10 +240,11 @@ The conflict only exists if the new system goes live before the conversion finis
 order that, and their real costs:
 
 1. **Serial — convert, then go live.** The conversion owns 2,500 calls a day and finishes in about
-   nine weeks; the new system's first invoice posts afterwards. Cleanest reconciliation story,
-   longest calendar. **Recommended if the client can wait.**
+   six weeks for documents plus a few days for allocations; the new system's first invoice posts
+   afterwards. Cleanest reconciliation story, longest calendar. **Recommended if the client can
+   wait.**
 2. **Interleaved — go live, convert at the edges.** Live posting gets first claim on the quota, the
-   conversion takes the remainder (about 1,250 a day, ~18 weeks), and the conversion is suspended
+   conversion takes the remainder (about 1,250 a day, ~11 weeks), and the conversion is suspended
    during month-end. Reconciliation becomes harder, not impossible: the baseline is the snapshot
    date, and everything the new system posts after it is *outside* the historical load and *inside*
    the daily reconciliation.
@@ -259,9 +280,60 @@ already in the worst-case table.
 - **Leave progress in a log file.** If the answer to "how far along is it" is not a query, the load
   cannot be managed, only hoped for.
 
+### 4.5 The allocation pass: export-bound source, API-bound write
+
+The portal never posted a receipt, a payment or a credit note. Every payment-shaped column it
+inserts is a literal zero, and `bReversed` is only ever read
+(`green-system/SAGE50-PAYMENTS.md` §1). Staff entered receipts and payments directly in Sage 50's
+UI. So paid state does not exist in the legacy database at all — it exists only in the live Sage 50
+company file, and only as receipts plus the allocations that point them at invoices.
+
+**Source: export-bound.** The pass starts from the live Sage 50 company file, not from
+`alliance_db`. Extract, at the same freeze as the document extract:
+
+- the receipt/payment transactions (transaction type, contact, date, amount, reference, bank or
+  cheque id if present);
+- the allocation detail that says which invoice each amount settles and how much;
+- any customer or vendor credit note the UI created — the portal created none, so anything here is
+  UI-originated and must be converted as a credit-note artefact, not as a negative invoice.
+
+Which table those live in is exactly what the VERIFY queries in §12 settle. If the extract cannot
+identify them by SQL, fall back to Sage 50's own receipt journal and aged-detail reports exported by
+the bookkeeper — slower, but signed by the person who owns the numbers.
+
+**Write: API-bound by default.** One `POST /contact_payments` per receipt, with its allocations
+inline in `allocated_artefacts` (one entry per invoice it settles; a partial payment is several
+entries, not several payments), and `POST /contact_allocations` only where a credit note has to net
+against an invoice. Cost is about 1.1 calls per receipt, so with *R* receipts the pass is
+`R × 1.1 / 2,500` days on exclusive quota: 25,000 receipts is ~11 days, 10,000 is ~4.5 days. The
+receipt count is unknown until the export, which is why it is not in the §4.1 table.
+
+**Why not opening balances instead.** An opening balance per contact is a lump sum. It makes the A/R
+total correct while leaving every historical invoice `unpaid`, so the aging by invoice is wrong and
+any later allocation has nothing to attach to. It is defensible only if the client explicitly wants
+balance-level correctness and accepts that invoice-level paid state is unavailable in the new
+ledger — recorded as an option with that consequence, never as a silent shortcut.
+
+**Recommendation:** run the allocation pass in the same window, immediately after the documents,
+under the same resumable machinery with `run.kind = 'allocations'`. It is **export-bound for
+correctness and API-bound for the write**; the API cost is small next to the documents, and the
+alternative misstates the number the business looks at every day — which customer owes what.
+
+**Acceptance for this pass:** for every converted invoice, read back
+`GET /sales_invoices/{id}?show_payments_allocations=true` and compare `outstanding_amount` and the
+`payments_allocations[]` entries against the source extract, invoice by invoice. A payment that
+exists without an allocation, or an allocation whose amount does not sum to the source, fails the
+pass. Then the aged A/R and A/P totals in §8 must agree with the signed Sage 50 reports.
+
 ---
 
 ## 5. Conversion order
+
+The conversion runs as **two passes with different sources**. Steps 1-10 are the **document pass**:
+invoices from the source tables, written through the API, quota-bound. Step 11 is the **allocation
+pass**: receipts and their allocations from the live Sage 50 company file, export-bound for the
+source and API-bound for the write (§4.5). They share the run ledger and the resumable worker, so a
+pause in either is a row, not a mystery.
 
 Each step is idempotent, keyed by a natural identifier, and verified before the next begins. The
 `run` id ties every artefact to one attempt.
@@ -277,9 +349,9 @@ Each step is idempotent, keyed by a natural identifier, and verified before the 
 | 6 | **Items**: parts → products/stock items | item code (part number) | 2,605 items; cost and price fields agree with the extract |
 | 7 | **Financial baseline**: signed trial balance, aged A/R and A/P, tax by code and period | snapshot id | Signed by finance and the accountant |
 | 8 | **Opening balances and opening GL** at the conversion date | contact id / account | Loaded totals equal the signed baseline, to the cent |
-| 9 | **Historical sales documents** in date order (invoices, credit notes) | `s50:sales_invoice:<id>` | Count and total per month match the extract |
-| 10 | **Historical purchase documents** (supplier and subcontractor bills, credits) | `s50:purchase_invoice:<id>` | Same |
-| 11 | **Payments and allocations** | `s50:payment:<id>` | Aged A/R and A/P after allocation equal the baseline |
+| 9 | **Document pass — historical sales invoices** in date order | `s50:sales_invoice:<id>` | Count and total per month match the extract |
+| 10 | **Document pass — historical purchase invoices** (bills and the re-posted "adjustment" invoices) | `s50:purchase_invoice:<id>` | Same |
+| 11 | **Allocation pass — receipts, vendor payments and any UI-created credit notes**, from the live Sage 50 extract (§4.5), as its own run | `s50:payment:<id>`, `s50:credit_note:<id>` | Per-invoice outstanding and allocated amounts match the extract; aged totals match §8 |
 | 12 | **Inventory opening** per item at cut-off, plus evidenced movements | item code | Quantity and value agree with the stock report; drift documented |
 | 13 | **Attachments** (signatures, scans) where the client wants them in the ledger | document id + hash | Count and spot-check; quota cost recorded |
 | 14 | **Final reconciliation and sign-off** (§8), then **lock periods** and retire Sage 50 to read-only | run id | Signed report; no unposted or unexplained documents |
@@ -343,6 +415,50 @@ movements the business can evidence. Replaying years of movements would import t
 consume quota the document load needs. If the tenant has stock items disabled, quantities stay in our
 app and the ledger receives only quantities that affect cost of sales — decided at tenant probe.
 
+### 6.5 Legacy tax quirks that will not be reproduced
+
+These are defects in the legacy posting code, documented in `green-system/SAGE50-PAYMENTS.md` §4.
+The conversion does not carry them into the new ledger, and the reconciliation must **tolerate the
+resulting differences** rather than treat them as conversion failures. Each is a known, signed
+divergence.
+
+| Quirk | What the legacy did | What the conversion does | Reconciliation consequence |
+|---|---|---|---|
+| Hard-coded 13% on local lines | Part, labour and special-order lines compute `sum × 0.13` and write `lTaxAuth = 3` regardless of province (`functions.php:622,704,768,648`) | The line gets the tenant's real tax rate for the province/region | On a 5% or 15% document, the converted tax differs from the posted Sage 50 tax. Tolerance: the per-document difference is recorded as an accepted divergence with its amount, and the total is reported |
+| `salesHeadLocal` dies on zero tax | Header tax is derived as `total − subtotal`; a genuinely tax-free invoice cannot be posted at all (`functions.php:809-810`) | A zero-tax invoice converts normally, with an exempt/zero-rate tax code | New documents of this kind will exist in the cloud ledger where none exist in Sage 50; they are additions, not differences |
+| `ttaxdtl.dRate` always `13.0` | Sales tax detail wrote rate 13 and authority 1 even for 5%, 14%, 15% documents (`functions.php:946`) | Rate and authority come from the tenant's tax rate per line | Any reconciliation that groups by the source `dRate` column is meaningless; group by the document's province and the tenant's rate id instead |
+| Purchase rate splitting | `purchHeadSub` bills BC parts at 5% + 7% PST while `subSalesLab` bills BC labour at a flat 5% (`functions.php:1006-1007,1227`) | One rate per line as configured in the tenant, per line type | Multi-authority documents can differ by a few cents; accepted and reported per document |
+| One hard-coded cent correction | `if ($woidd == 73850 && $totaltax == '13262.85') $totaltax -= 0.01` (`ajaxCalcTotalSubProjectWo.php:303-309`) | Not reproduced | A one-cent difference on one historical document. The reconciliation must not "fix" it back |
+
+The rule for all five: **the source amount is evidence, not a target.** Where the legacy's arithmetic
+and the ledger's arithmetic disagree, the document converts with the ledger's arithmetic, the
+difference is recorded with its cause, and the total of those differences is part of the sign-off.
+Silently reproducing a 13% rate on a 5% invoice would put a wrong number in a tax return; silently
+dropping the difference would hide it.
+
+### 6.6 Bank accounts: a required human input
+
+The legacy data contains **no bank account reference anywhere**: `lBnkAcctId = 0` and `lChqId = 0`
+on every transaction line, and no payment rows at all
+(`green-system/SAGE50-PAYMENTS.md` §1, §7). So a `bank_account_id` cannot be derived, mapped or
+guessed. It must be chosen.
+
+The recommendation is that **Alliance Lighting's bookkeeper maps each payment stream to a real bank
+account that exists in the Sage Accounting tenant** — customer receipts to the deposit account the
+money actually lands in, vendor payments to the account it leaves from, and card settlements to the
+clearing account, if one exists. We do not invent accounts, and we do not use a generic "Migrated
+payments" account unless the bookkeeper explicitly asks for one as a temporary holding place.
+
+Required from the bookkeeper before the allocation pass:
+
+1. the list of bank accounts in the tenant, with which one receives customer payments and which pays
+   vendors;
+2. whether more than one deposit account was used historically, and if so which periods or customer
+   groups map to which;
+3. the treatment for any receipt whose bank account cannot be determined — parked in a named clearing
+   account or excluded with a list, their call;
+4. who signs off that the mapping is complete (the same person who signs the aged reports).
+
 ---
 
 ## 7. What has no home in the ledger
@@ -357,6 +473,9 @@ app and the ledger receives only quantities that affect cost of sales — decide
 | Extra ship-to addresses | One delivery address per contact | `app` |
 | Quotation documents | Quotes are ours | `app` and PDFs |
 | Attachments beyond quota | API call per file | Object storage, linked from our documents |
+| Receipt and payment **bank-account identity** | The source has none (`lBnkAcctId = 0`, `lChqId = 0`) | Chosen by the bookkeeper against the tenant's real accounts (§6.6) |
+| Unapplied cash and prepayments | The portal wrote `bPrePaid=0`, `lPPId=0`, `dPrePAmt=0`; whatever exists was UI-entered | Converted as unallocated `contact_payments` if present in the live extract, otherwise nothing to carry |
+| Reversals (`bReversed=1`) | The portal only ever read it; reversals happened in the Sage UI | Detected in the live extract as reversed/voided, converted as a void or a credit note, never as a silent omission |
 
 Each row is a **functional gap the client should see before cutover**, not a technical footnote. The
 conversion report lists them with the report or screen that replaces them.
@@ -365,7 +484,7 @@ conversion report lists them with the report or screen that replaces them.
 
 ## 8. The reconciliation test, and who signs
 
-The conversion passes only when all four hold.
+The conversion passes only when all five hold.
 
 1. **Trial balance.** The signed Sage 50 trial balance at the conversion date versus the tenant's
    trial balance for the same date: every account agrees to the cent, or has a mapped exception that
@@ -375,8 +494,11 @@ The conversion passes only when all four hold.
 3. **Document population.** For each month in scope: document count and total from the extract versus
    the tenant, with every difference traceable to an exception id. A missing invoice is not a
    rounding difference.
-4. **Payment allocation.** Unallocated cash is zero or explicitly owned; no invoice appears unpaid
-   when the source shows it settled.
+4. **Payment allocation.** For every invoice the source shows settled: the tenant shows a
+   `payments_allocations[]` entry, the outstanding amount is zero, and the sum of allocations equals
+   the source amount. Unallocated cash is zero or explicitly owned by a named person.
+5. **Tax divergences.** Every document whose converted tax differs from the source (the §6.5 quirks)
+   appears in the divergence report with its cause and amount, and the report total is signed.
 
 Signers:
 
@@ -420,7 +542,10 @@ decision is a failed conversion, not a warning.
 | Duplicate document from a retry | Two invoices for one job in the books | `external_ref` unique + search-before-create; same worker as production |
 | Locked period rejects a history load | Whole month fails | Create periods open; lock only after sign-off; test in sandbox first |
 | Tax model differs from Sage 50 | Totals drift by cents, then dollars | Sample 200 documents, compare to the cent, decide §6.2 behaviour before bulk load |
-| Receipts not enumerated | Every invoice looks unpaid, A/R balloons | Discovery item; the extract must enumerate payment/receipt tables before step 11 is scheduled |
+| Receipts and allocations not extracted | Every invoice looks unpaid, so the ageing is wrong even when the trial balance agrees | The live-extract pass in §4.5; the VERIFY checklist in §12 runs before it is scheduled |
+| Allocation amounts disagree with invoices | A partial payment recorded as full, or double-allocated | Per-invoice comparison in §8.4; the pass fails rather than posting a plausible number |
+| Bank account invented to keep moving | Payments land in an account the bookkeeper never reconciles | §6.6: the mapping is a required input, not a default |
+| Credit note converted as a negative invoice | It never nets, so both sides stay open | UI-created credits are converted as credit-note artefacts plus allocations (§3) |
 | Schema changes in a Sage 50 release | Extract breaks silently | Second-route sample and checksums catch it; never upgrade Sage 50 during the conversion |
 | latin1 and odd encodings | Names and descriptions corrupted | Explicit charset on extraction, byte-level round-trip test on a sample of 100 records |
 | Attachments quota | Load slows unexpectedly | Attachments last, optional, costed per file |
@@ -436,10 +561,11 @@ counts and totals to the first, and a full reconciliation pass.
 
 **Acceptance criteria:**
 
-- all four checks in §8 pass, signed by the named signers;
-- zero `queued`/`unknown` postings for the run;
+- all five checks in §8 pass, signed by the named signers;
+- zero `queued`/`unknown` postings for either run;
 - suspense nets to zero, or to a signed-off amount with a named clearing owner;
-- every exception has a decision and an owner;
+- every exception has a decision and an owner, and the tax-divergence report is signed;
+- the allocation pass was accepted invoice by invoice, not only in total;
 - the load was resumed at least once without a duplicate;
 - the daily reconciliation (`SAGE-RECONCILIATION.md`) passes in `cutover` mode on the loaded tenant.
 
@@ -452,6 +578,63 @@ projects, POs, UDFs and the pre-cut-off operational detail.
 1. the posting cut-off date;
 2. whether Sage offers an assisted migration or a temporary quota increase (ask before planning the
    API route);
-3. the receipt/payment tables in the source schema (discovery step 1);
-4. written confirmation from Sage that the Canadian edition has no project dimension;
-5. the tenant's chart of accounts, tax rates and stock settings.
+3. the three live-file VERIFY queries (§12) and the resulting receipt/allocation export;
+4. the bank-account mapping, from Alliance Lighting's bookkeeper (§6.6);
+5. written confirmation from Sage that the Canadian edition has no project dimension;
+6. the tenant's chart of accounts, tax rates and stock settings.
+
+---
+
+## 12. Pre-cutover VERIFY checklist (live Sage 50, read-only)
+
+Three queries, run once against the live company file with the portal's Sage writes stopped, settle
+everything the archive and the code cannot. `green-system/SAGE50-PAYMENTS.md` §3 and §8 list them;
+they are repeated here because they gate the allocation pass and therefore the cutover date.
+
+**1. Transaction-type histogram — does a receipt live in the same table as an invoice?**
+
+```sql
+SELECT nTranType, COUNT(*), MIN(dtDate), MAX(dtDate)
+FROM   tcustrdt
+GROUP  BY nTranType;
+```
+
+*Why it matters:* the portal only ever wrote `nTranType = 0`. If other values exist, receipts are
+stored in the same subledger detail table under a different type, and the allocation extract can be
+built from SQL. If the count is one row of zeros, receipts live elsewhere and the fallback is the
+Sage 50 receipt journal exported by the bookkeeper.
+
+**2. Journal histogram — how many journal kinds does the ledger actually contain?**
+
+```sql
+SELECT nJournal, COUNT(*), MIN(dtASDate), MAX(dtASDate)
+FROM   titrec
+GROUP  BY nJournal;
+```
+
+*Why it matters:* the portal writes only 8 (sales) and 7 (purchase). Any other `nJournal` value is
+a document the UI created — a receipt, a payment, a credit note or a reversal. Those are precisely
+the artefacts the allocation pass must carry, and their count sizes the pass (§4.5). It also tells us
+whether the "every payment column is zero" finding holds for *all* rows or only for portal-created
+ones.
+
+**3. Full counter map — which document tables exist at all?**
+
+```sql
+SELECT lId, lNextId FROM tNxtPIds ORDER BY lId;
+```
+
+*Why it matters:* `tNxtPIds` names every table that receives documents. Any `lId` the legacy code
+never touches (`30, 43, 44, 53, 54, 100, 103, 126, 150` are the known ones) is a table populated only
+by hand — the receipts, payments and credit notes. It is the map of what the portal never wrote and
+the conversion must reconstruct.
+
+**Also blocking, from the same sitting:** compare `tcustrdt.dAmtOwg` for invoices staff know are
+unpaid against ones they know are paid (`SAGE50-PAYMENTS.md` §3). The portal writes `0.0` on every
+invoice (`functions.php:911`), so either the column means "owing at transaction time" and the ageing
+ignores it, or the portal has been creating settled invoices for years. The answer changes how the
+source ageing is read, and it must be recorded before the baseline is signed.
+
+**Outcome recorded as:** a one-page result note with the three histograms, the `dAmtOwg` sample, the
+receipt/document counts that follow, and the updated allocation-pass estimate. It is signed by the
+person who ran it and filed with the conversion run report.

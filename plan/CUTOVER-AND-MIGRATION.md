@@ -903,14 +903,15 @@ can be tested before a cutover date is promised.
 3. **The Sage conversion completes inside the API's quota and the tenant's period rules.** The freeze
    risk is gone (no company file, no counters, no shared tables), and D21 replaces it with a
    conversion that loads historical documents: 2,500 calls a day per company, one record per call,
-   against an order of 40,000 sales documents. That is 32-48 days of uninterrupted posting before
-   bills and payments, unless Sage provides a migration service or a temporary quota. The second
-   unknown is period locks: a historical invoice can only be posted into a period the tenant keeps
-   open, and payments must be allocated or A/R balloons. Both are testable in a sandbox before the
-   cutover date is promised, and both can move wave 5 by weeks. Product gaps are now known rather
-   than assumed — no purchase orders in the API, no project costing in the Canadian edition — and
-   the app absorbs them per `plan/modules/SAGE-CLOUD.md` §1.6 and
-   `plan/modules/SAGE50-MIGRATION.md`.
+   against an order of 40,000 sales invoices and 8,000 purchase invoices. That is about six weeks of
+   uninterrupted posting, or eleven shared with live invoicing, unless Sage provides a migration
+   service or a temporary quota. Receipts are a separate pass from the live Sage 50 file, since the
+   portal never posted one; without it every invoice looks unpaid. The second unknown is period
+   locks: a historical invoice can only be posted into a period the tenant keeps open, and payments
+   must be allocated or A/R balloons. Both are testable in a sandbox before the cutover date is
+   promised, and both can move wave 5 by weeks. Product gaps are now known rather than assumed — no
+   purchase orders in the API, no project costing in the Canadian edition — and the app absorbs them
+   per `plan/modules/SAGE-CLOUD.md` §1.6 and `plan/modules/SAGE50-MIGRATION.md`.
 4. **The target modules will publish stable natural keys and ID policies before their cutover.**
    Quotes currently use a serial `id` for a customer-facing number; PO uses the PO number;
    work orders preserve the legacy number. If those rules change after migration, the row map and

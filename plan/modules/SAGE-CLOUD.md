@@ -379,10 +379,12 @@ edition, §1.6), postings into locked prior-year periods (a tenant policy, not a
 import of any kind — one record per request, 2,500 requests/day per company, shared with everything
 else on the tenant.
 
-The arithmetic that decides the schedule, stated plainly: of the order of 40,000 sales documents at
-two to three calls each (search plus create, with cached lookups), the load is 80,000-120,000 calls.
-At 2,500/day that is 32-48 days of uninterrupted posting, before bills, payments and stock. Three
-consequences follow:
+The arithmetic that decides the schedule, stated plainly: the portal wrote invoices and nothing else,
+so the document population is of the order of 40,000 sales invoices and 8,000 purchase invoices at
+one call each on the happy path, plus stock, master data and verification — about 95,000 calls with
+a retry allowance. At 2,500/day that is 38 days, or about six weeks. Receipts and allocations are a
+second, smaller pass whose source is the live Sage 50 company file, not the portal
+(`plan/modules/SAGE50-MIGRATION.md` §4.5). Three consequences follow:
 
 1. the load must be scheduled, resumable and idempotent exactly like the migration harness, and it
    needs its own quota class so routine posting is not starved;
