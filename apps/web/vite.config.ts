@@ -16,8 +16,11 @@ export default defineConfig({
   },
   // Argon2 is a native addon (.node binary). It must be required from
   // node_modules at runtime, not bundled into the server output.
+  // `@react-pdf/renderer` uses package-internal `#standard-fonts/*` imports that
+  // only resolve when Node loads it from node_modules. Keep it (and its
+  // transitive font stack) out of the bundled server output.
   ssr: {
-
+    external: ['@react-pdf/renderer', '@react-pdf/font', '@react-pdf/layout', '@react-pdf/pdfkit'],
   },
   plugins: [tanstackStart(), nitro({ preset: 'node-server' }), viteReact(), tailwindcss()],
 })

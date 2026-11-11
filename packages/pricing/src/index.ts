@@ -14,6 +14,7 @@
 export * from './decimal'
 export * from './tax'
 export * from './sales'
+export * from './quote'
 export * from './purchase'
 export {
   calculateLocalInvoiceTotals,

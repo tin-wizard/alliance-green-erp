@@ -34,7 +34,9 @@
       "@cls/pricing": ["packages/pricing/src/index.ts"],
       "@cls/pricing/*": ["packages/pricing/src/*"],
       "@cls/ui": ["packages/ui/src/index.ts"],
-      "@cls/ui/*": ["packages/ui/src/*"]
+      "@cls/ui/*": ["packages/ui/src/*"],
+      "@cls/pdf": ["packages/pdf/src/index.ts"],
+      "@cls/pdf/*": ["packages/pdf/src/*"]
     }
   }
 }

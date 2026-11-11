@@ -5,6 +5,7 @@
  * header, tax/report rows, the subcontractor assignment, an initial note, the
  * audit row and the first revision snapshot.
  */
+import { eq } from 'drizzle-orm'
 import { ValidationError } from '@cls/core'
 import { getDb, type Db, type Tx } from '@cls/db'
 import {
@@ -49,6 +50,7 @@ export async function createWorkOrderCore(
   tx: Tx,
   input: WorkOrderCreateInput,
   session: AuthSessionView,
+  options?: { workOrderNumber?: number },
 ): Promise<CreateWorkOrderResult> {
   assertPermission(session, 'workorder:create')
 
@@ -88,12 +90,34 @@ export async function createWorkOrderCore(
     if (!wsib.allowed) throw new ValidationError(wsib.reason ?? 'WSIB check failed.')
   }
 
-  const plan = await allocateWorkOrderNumber(tx, series)
+  const reservedNumber = options?.workOrderNumber
+  if (
+    reservedNumber !== undefined &&
+    (!Number.isInteger(reservedNumber) || reservedNumber <= 0)
+  ) {
+    throw new ValidationError('The reserved work-order number is not valid.')
+  }
+
+  const plan = reservedNumber === undefined
+    ? await allocateWorkOrderNumber(tx, series)
+    : null
+  const workOrderNumber = reservedNumber ?? plan!.number
+
+  if (reservedNumber !== undefined) {
+    const existing = await tx
+      .select({ id: workOrders.id })
+      .from(workOrders)
+      .where(eq(workOrders.id, reservedNumber))
+      .limit(1)
+    if (existing.length > 0) {
+      throw new ValidationError(`Work order ${reservedNumber} already exists.`)
+    }
+  }
 
   const [row] = await tx
     .insert(workOrders)
     .values({
-      id: plan.number,
+      id: workOrderNumber,
       series,
       siteId: input.siteId,
       serviceTypeId: input.serviceTypeId,
@@ -145,7 +169,7 @@ export async function createWorkOrderCore(
     createdAt: new Date(),
   })
 
-  await commitWorkOrderNumber(tx, plan)
+  if (plan) await commitWorkOrderNumber(tx, plan)
 
   await auditWorkOrder(tx, session, 'workorder.create', row.id, {
     summary: `Created work order ${row.id} (${series === 2 ? 'maintenance' : 'main'} series).`,
@@ -153,7 +177,7 @@ export async function createWorkOrderCore(
   })
   await captureRevision(tx, row.id, 'create', session.user.id)
 
-  return { id: row.id, series, warnings: plan.warnings }
+  return { id: row.id, series, warnings: plan?.warnings ?? [] }
 }
 
 export async function createWorkOrder(

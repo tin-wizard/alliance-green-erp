@@ -1,0 +1,120 @@
+{
+  "cases": [
+    {
+      "id": "quote-q1-sell-lines",
+      "input": {
+        "taxProvince": "ON",
+        "labour": [{ "hours": "2", "numTechs": 1, "rate": "85.00" }],
+        "parts": [{ "partNo": "BALLAST-1", "qty": "3", "price": "12.99" }]
+      },
+      "expected": {
+        "labour": "170.00",
+        "material": "38.97",
+        "subtotal": "208.97",
+        "tax": "27.17",
+        "total": "236.14"
+      }
+    },
+    {
+      "id": "quote-q2-num-techs",
+      "input": {
+        "taxProvince": "ON",
+        "labour": [{ "hours": "3", "numTechs": 2, "rate": "50.00" }]
+      },
+      "expected": { "labour": "300.00", "subtotal": "300.00", "tax": "39.00", "total": "339.00" }
+    },
+    {
+      "id": "quote-q3-incurred-margin",
+      "input": {
+        "taxProvince": "ON",
+        "labour": [{ "hours": "1", "rate": "100.00" }],
+        "parts": [{ "partNo": "P1", "qty": "1", "price": "0.00", "costPrice": "40.00" }]
+      },
+      "expected": {
+        "subtotal": "100.00",
+        "tax": "13.00",
+        "total": "113.00",
+        "incurredMaterial": "40.00",
+        "incurredSubtotal": "40.00",
+        "margin": "60.00",
+        "marginPercent": "60.00"
+      }
+    },
+    {
+      "id": "quote-q4-manual-tax-unconditional",
+      "input": {
+        "taxProvince": "ON",
+        "manualTaxAmount": "5.00",
+        "labour": [{ "hours": "1", "rate": "100.00" }]
+      },
+      "expected": { "subtotal": "100.00", "tax": "5.00", "total": "105.00", "appliedManualTax": true }
+    },
+    {
+      "id": "quote-q5-material-only",
+      "input": {
+        "taxProvince": "ON",
+        "parts": [{ "partNo": "P2", "qty": "2", "price": "10.00" }]
+      },
+      "expected": { "labour": "0.00", "material": "20.00", "subtotal": "20.00", "tax": "2.60", "total": "22.60" }
+    },
+    {
+      "id": "quote-q6-sentinel-sopart",
+      "input": {
+        "taxProvince": "ON",
+        "labour": [{ "hours": "1", "rate": "100.00" }],
+        "specialParts": [{ "name": "Deleted", "qty": "-99999", "price": "5.00" }]
+      },
+      "expected": { "material": "0.00", "subtotal": "100.00", "tax": "13.00" }
+    },
+    {
+      "id": "quote-q7-negative-sopart",
+      "input": {
+        "taxProvince": "ON",
+        "labour": [{ "hours": "1", "rate": "100.00" }],
+        "specialParts": [{ "name": "Credit", "qty": "-1", "price": "25.00" }]
+      },
+      "expected": { "material": "-25.00", "subtotal": "75.00", "tax": "9.75", "total": "84.75" }
+    },
+    {
+      "id": "quote-q8-rate-override",
+      "input": {
+        "taxProvince": "ON",
+        "appliedTaxRate": "0.05",
+        "labour": [{ "hours": "2", "rate": "85.00" }]
+      },
+      "expected": { "subtotal": "170.00", "tax": "8.50", "total": "178.50", "taxRate": "0.05" }
+    },
+    {
+      "id": "quote-q9-per-line-rounding",
+      "input": {
+        "taxProvince": "ON",
+        "labour": [
+          { "hours": "0.75", "rate": "0.11" },
+          { "hours": "0.75", "rate": "0.11" }
+        ]
+      },
+      "expected": { "labour": "0.16", "subtotal": "0.16", "tax": "0.02", "total": "0.18" }
+    },
+    {
+      "id": "quote-q10-incurred-hours",
+      "input": {
+        "taxProvince": "ON",
+        "labour": [
+          {
+            "hours": "2",
+            "numTechs": 2,
+            "rate": "50.00",
+            "incurredHours": "3",
+            "incurredRate": "20.00"
+          }
+        ]
+      },
+      "expected": {
+        "subtotal": "200.00",
+        "incurredLabour": "120.00",
+        "margin": "80.00",
+        "marginPercent": "40.00"
+      }
+    }
+  ]
+}
