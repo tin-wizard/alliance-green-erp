@@ -256,9 +256,11 @@ false`, and every use records the permission key. The six `*.*` keys other than
 `invoice.calculate` are reserved with **no default role grant**; their modules decide who gets them
 and can scope them.
 
-There is no separate `super_admin` role in the rebuild. The legacy super-admin accounts are
-application `admin` users, so mapping `invoice.calculate` to `admin` covers them without adding a
-fifth role. Adding one later is a schema and seed change, not a permission change.
+There is no separate `super_admin` role in the rebuild. The **11 legacy super-admin accounts**
+(`users.access = 9`, counted in `green-system/RUNBOOK.md`) are application `admin` users and are
+included through the `admin` role. `invoice.calculate` therefore reaches all of them; none were
+missed, and no fifth role is needed. Adding one later is a schema and seed change, not a permission
+change.
 
 **Legacy quirk worth remembering while mapping the remaining names:** `editsubcontractor.php:103`
 gates on `($user_login == 'carmen' || $user_login <> '')`. The second clause is true for every
