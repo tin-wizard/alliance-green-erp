@@ -1,74 +1,188 @@
 # Sage integration on cloud APIs
 
-**Status:** draft for decision. **Date:** 2026-11-11. **Owner:** Platform, with the finance owner.
+**Status:** active; the product is decided (D19). **Date:** 2026-11-11. **Owner:** Platform, with
+the finance owner.
 **Supersedes:** the MySQL implementation in ADR 0005 (`simply` schema, ports 13540-13544).
-**Driven by:** `plan/REBUILD-PLAN.md` D18 — the rebuild runs in the cloud and targets a Sage cloud
-API. `plan/CUTOVER-AND-MIGRATION.md` §3.6 and §4.4 carry the cutover consequences.
+**Driven by:** `plan/REBUILD-PLAN.md` D18 (cloud) and D19 (Sage Business Cloud Accounting).
+`plan/CUTOVER-AND-MIGRATION.md` §3.6 and §4.4 carry the cutover consequences;
+`plan/modules/SAGE-RECONCILIATION.md` carries the daily reconciliation design;
+`plan/modules/SAGE-ADAPTER-SCAFFOLD.md` carries the implementation-ready scaffold.
 **Repo target:** `packages/sage/` keeps the adapter boundary; only the implementation changes.
 
 ---
 
-## 1. Which "Sage Cloud" this is — not yet answered
+## 1. The product is decided: Sage Business Cloud Accounting
 
-"Sage Cloud" is not one product. Three candidates are in play for this business, and they are not
-variations of each other: different data models, different APIs, different migration paths, and
-different answers to "can it hold our history". The plan cannot pick one on the human's behalf,
-because the choice changes the accounting product the company runs, not just an integration.
+**D19 (2026-11-11): the integration target is Sage Business Cloud Accounting** ("Sage Accounting",
+formerly Sage One). This supersedes the three-candidate ambiguity in the first draft of this
+document. The API shape below — REST v3.1, OAuth authorisation-code, 2,500 requests/day per company
+— is therefore the shape to build against, not a placeholder.
 
-### 1.1 The candidates
+What that decision fixes:
 
-| | **Sage Business Cloud Accounting** (a.k.a. Sage Accounting, formerly Sage One) | **Sage 50cloud / Sage 50 Cloud** | **Sage Intacct** |
+- The transport is HTTPS/JSON against `https://api.accounting.sage.com/v3.1`, with an
+  `Authorization: Bearer` token and an `X-Business` header naming the business.
+- Authorisation is interactive at least once; there is no client-credentials flow, so the
+  integration has a human-dependent bootstrap and a token that must be kept alive.
+- Identity is opaque strings assigned by Sage. Nothing in our code may parse, predict or renumber
+  an id.
+- There are no webhooks and no bulk endpoints: reads are polled with
+  `updated_or_created_since` / `deleted_since`, writes are one record per request.
+- Purchase orders are ours. The purchase surface is bills, credit notes and quick entries, so a PO
+  becomes a bill when it is invoiced, and the app remains the system of record for purchasing.
+- Project costing does not exist. Work-order and project profitability stays in our reports.
+
+What it does not fix, and what this document therefore still treats as open, is listed in §1.2.
+
+### 1.1 Why not hosted Sage 50 or Sage Intacct
+
+Hosted Sage 50 (Sage 50cloud) is the same desktop product on a Sage-managed Windows host. It still
+has no REST API: the US and Canadian editions ship a .NET SDK that must run on a 32-bit Windows
+machine beside the company file, and UK/Ireland use Sage Data Objects. Choosing it would mean a
+Windows agent and a sync service, which D18 removes.
+
+Sage Intacct is a genuine cloud ERP and would suit a larger, multi-entity business. Its dimensions,
+approval workflows and project accounting are more than this business needs, and its implementation
+scope and pricing do not match a 30-person distributor. It remains the fallback if the conversion
+finds a hard blocker in Sage Accounting, but it is not the plan.
+
+Both are recorded so the choice is not reopened by accident. The detailed candidate comparison from
+the first draft is withdrawn; it served its purpose and is not maintained.
+
+### 1.2 Decisions recorded (2026-11-11)
+
+| Ref | Decision | Consequence for this document |
+|---|---|---|
+| D19 | Product is **Sage Business Cloud Accounting** | REST v3.1 shape throughout; no SDK, no Windows agent |
+| D21 | **Sage 50 data is migrated into Sage Accounting, including full historical documents** | The conversion is a workstream of its own: `plan/modules/SAGE50-MIGRATION.md` |
+| D22 | **Data residency: stay on Neon `aws-us-east-2` (Ohio)**; US hosting accepted | ADR 0015; compute may still be Montréal (`yul1`); no database migration, `packages/auth` stays on Neon Auth, object storage stays Neon |
+| D23 | Sage subscription, developer app and OAuth authorisation are **owned by Alliance Lighting** | Credentials and the consenting person come from the client; the platform secret store holds the values |
+| — | **Project costing lives in this ERP**, not in the ledger | §1.6; Sage receives the financial summary and no project dimension |
+
+Two things follow immediately. The rebuild does not need a residency migration, so the scaffold and
+the cutover plan stay on Neon. And the Sage conversion is no longer an "opening balances only"
+exercise: it carries real historical documents, which makes quota, period locks and document
+fidelity first-order problems — see `plan/modules/SAGE50-MIGRATION.md` §4.
+
+### 1.3 Still open
+
+1. **The posting cut-off date**, and who signs the opening-balance and trial-balance snapshots. It
+   shapes the conversion schedule, not the adapter.
+2. **Tenant confirmation**: the chart of accounts, tax rates and stock settings the Alliance
+   Lighting tenant will use. The conversion depends on them, and the tenant must exist before the
+   load can be rehearsed.
+
+### 1.4 Technical facts to verify against the tenant
+
+Confirmed from the public reference on 2026-11-11 (endpoints, token lifetimes, quotas, Canada tax
+regions). Still to verify on the actual tenant before posting is enabled:
+
+- that Canadian stock items and stock movements are enabled, which decides whether invoice posting
+  moves stock or whether we post `/stock_movements` explicitly;
+- the tenant's tax rates and `tax_address_region` ids, and how the returned `tax_breakdown` treats
+  exempt and zero-rated lines;
+- the daily quota reset boundary (assumed UTC) and whether response headers expose remaining quota;
+- whether the tenant accepts the invoice volume and date range this business posts;
+- whether historical inventory movement can be loaded at all, or only an opening position.
+
+Each is an acceptance check in the scaffold's tenant-probe phase, not an assumption in code.
+
+### 1.5 Credentials: names, placement and the wiring checklist
+
+**Ownership (D23).** The Sage subscription, the developer application and the one-time OAuth
+authorisation belong to **Alliance Lighting**. The client holds the Sage account; we hold the
+integration's secrets. That distinction matters at rotation and at re-authorisation: only someone
+with Alliance's Sage login can consent, so the procedure below names the client step explicitly.
+
+The developer credentials arrive from the human. They are never requested by chat, never written to a
+file in the repository, and never sent to a browser.
+
+| Variable | What it is | Where it lives | Rotation |
 |---|---|---|---|
-| What it is | Cloud-native SMB ledger, multi-country incl. Canada | The existing desktop Sage 50, either local or hosted by Sage on Azure | Mid-market cloud ERP/finance |
-| API | REST v3.1, JSON, OAuth 2.0 | **No REST API.** Sage 50 US/Canada ship a .NET SDK that must run on a 32-bit Windows machine beside Sage 50; UK/Ireland use Sage Data Objects (COM). Sage's own UK FAQ states there is no RESTful API for Sage 50 | XML web services (long-standing) plus a newer REST API; OAuth 2.0, performance tiers |
-| Auth | Authorisation-code flow only. **No client-credentials/daemon flow**; access token 5 minutes; refresh token rotates on every use and expires after 31 days idle | N/A — machine-local session, application ID, user approval of the app against the company | OAuth 2.0, entity-scoped |
-| Limits | 2,500 requests/day **per company**, 100/min, 200 records/page, no bulk endpoint, no webhooks | N/A | Higher volume tiers; concurrency limits per tier |
-| Feature fit for this business | Invoices, bills, credit notes, quick entries, contacts, journals, ledger accounts, tax rates, **stock items and stock movements**, opening balances, attachments. **No purchase-order endpoint in the reference sections reviewed** — POs stay in our app and become bills on invoicing. No project/job costing like Sage 50 projects | Everything the legacy uses today, because it *is* the legacy product. No cloud write path without a Windows agent | Strong dimensions (projects, departments, locations), multi-entity, approvals, high volume |
-| Migration from the current Sage 50 CA company | Real product migration. Opening balances and contacts load by API; per-document history is a conversion project, not a sync | None needed — same product | Real product migration, larger scope and cost |
-| Effort in this rebuild | Adapter reimplementation + OAuth + posting outbox + reconciliation | A Windows agent plus a sync service. This is the option D18 rules out | Adapter + dimension mapping + higher integration complexity |
+| `SAGE_ENABLED` | Master switch (`false` disables all Sage work, health reports `disabled`) | Vercel env, all environments | n/a |
+| `SAGE_ENVIRONMENT` | `sandbox` or `production`; selects base URLs and which tenant | Vercel env per environment | n/a |
+| `SAGE_CLIENT_ID` | Developer app client id | Vercel env, **sensitive** | On app re-registration |
+| `SAGE_CLIENT_SECRET` | Developer app client secret | Vercel env, **sensitive** | On suspected exposure or app rotation |
+| `SAGE_REDIRECT_URI` | Exact callback, `https://<production-domain>/api/sage/oauth/callback` | Vercel env, non-secret | When the domain changes |
+| `SAGE_API_BASE_URL` | `https://api.accounting.sage.com/v3.1` | Vercel env, non-secret | If the API version changes |
+| `SAGE_AUTH_BASE_URL`, `SAGE_TOKEN_URL` | Authorise and token endpoints | Vercel env, non-secret | If the API version changes |
+| `SAGE_BUSINESS_ID` | `X-Business` value; set after the first `/businesses` read | Vercel env, non-secret | If the company is re-onboarded |
+| `SAGE_TOKEN_ENC_KEY` | 32-byte key that encrypts the stored refresh token | Vercel env, **sensitive** | Rotatable: decrypt-then-re-encrypt, never by overwriting |
+| `SAGE_DAILY_QUOTA`, `SAGE_MINUTE_QUOTA` | Budget overrides, default 2500 / 100 | Vercel env, non-secret | If Sage changes the plan |
 
-**What is verified (2026-11-11):** the Sage Accounting API v3.1 reference lists contacts, sales and
-purchase invoices/credit notes/quick entries, journals, ledger accounts, products, services, stock
-items, stock movements, contact payments and allocations, tax rates, opening balances and
-attachments; Canada appears explicitly (`tax_address_region_id`, "Canada only"); token lifetimes and
-per-company quotas are documented as above; Sage 50 is documented as SDK-only per region.
+Two rules follow from that table. First, **the refresh token is data, not configuration**: the OAuth
+callback writes it into `sage_connections`, encrypted with `SAGE_TOKEN_ENC_KEY`, with a fingerprint
+so a key mismatch is detectable. Second, **preview deployments get `SAGE_ENABLED=false`**, so a pull
+request can never post to the company's ledger. If the team later moves configuration into Neon's
+secret store instead of Vercel, the names stay identical and only the injection point changes; there
+is no code difference.
 
-**What is not verified and must not be assumed:** that the API's purchase-order surface exists in
-any region (none appeared in the purchase reference); that Canadian stock items and stock movements
-are enabled on the tenant the company would buy; that the tenant supports the invoice volume and
-date range this business posts; and whether historical inventory movement can be loaded at all.
+The legacy `SAGE_HOST`, `SAGE_PORTS`, `SAGE_DATABASE`, `SAGE_USER`, `SAGE_PASSWORD` and
+`SAGE_CONNECT_TIMEOUT_MS` variables are removed with the MySQL implementation; no code path reads
+them after the scaffold lands.
 
-### 1.2 Questions the human must answer before implementation starts
+#### Wiring checklist, in the order it has to happen
 
-These are blocking. Each one changes code, cost, or the cutover date.
+This is the whole procedure for the day the credentials arrive. It is a checklist, not a design
+question: every step has a named actor and a verifiable outcome.
 
-1. **Which product is the accounting system of record after cutover** — Sage Business Cloud
-   Accounting, a hosted Sage 50 (in which case D18's "cloud API" cannot mean an HTTP API and the
-   plan needs a different integration shape), or Sage Intacct? If the company has already bought,
-   licensed or trialled one, that decides it.
-2. **Is Sage 50 being retired, or kept for history?** The recommendation is: Sage 50 becomes a
-   read-only archive at the opening-balance date, and the cloud ledger holds the opening position
-   plus everything posted afterwards. Confirm finance accepts that, because it is the single
-   biggest scope lever in this document.
-3. **Does finance need per-document history in the cloud product**, or is an opening balance plus
-   an exportable Sage 50 archive enough? Per-document history converts this from an integration
-   into a data conversion of 71,087 invoice lines and 45,087 work-order part rows against a product
-   whose tax and inventory models differ.
-4. **Who owns the Sage subscription and the API application?** OAuth requires a human at a browser
-   to authorise, and a refresh token that must stay alive. That person, and the shared mailbox the
-   token lives behind, must be named.
-5. **Which legal entity and country does the tenant use**, and does its chart of accounts, tax
-   codes and inventory setup already exist, or must we create them?
-6. **What is the posting cut-off date**, and who signs the opening-balance snapshot?
-7. **Data residency:** must accounting data stay in Canada? It changes both the Sage product
-   available and the hosting region (ADR 0014).
-8. **Does the business still need Sage 50 projects** (project work orders in the legacy post to a
-   Sage project)? Sage Accounting has no equivalent; if projects are load-bearing, that is a
-   functional gap the app has to absorb or the product choice has to change.
+| # | Actor | Step | Verified by |
+|---|---|---|---|
+| 1 | Alliance Lighting | Confirm the Sage Accounting tenant is live, and note its country and business name | Tenant visible in the Sage portal; country = Canada |
+| 2 | Platform | Register the developer application in the Sage developer portal under Alliance's account, with the production callback URL | Client id and secret issued |
+| 3 | Platform | Store `SAGE_CLIENT_ID`, `SAGE_CLIENT_SECRET`, `SAGE_TOKEN_ENC_KEY` in **Vercel project env, Production scope, marked Sensitive**; store the non-secret URLs and `SAGE_ENVIRONMENT=production` alongside | `vercel env ls` shows all keys for Production only |
+| 4 | Platform | Set `SAGE_ENABLED=true` for Production; leave Preview and Development at `false` with `SAGE_FAKE=true` | Preview deployment reports `disabled` on `/api/health` |
+| 5 | Platform | Deploy, then open `https://<production-domain>/api/sage/oauth/start` while signed in as an admin | Redirect to Sage's consent screen |
+| 6 | **Alliance Lighting** | Sign in to Sage as the account owner and approve the application | Sage redirects back to `/api/sage/oauth/callback` |
+| 7 | Platform | Confirm the callback stored the connection and resolved the business | `sage_connections.state = verified`, `business_id` set, `/api/health` shows `verified` |
+| 8 | Platform | If more than one business was returned, select the right one in the admin picker | Posting is blocked until a business is chosen |
+| 9 | Platform | Run the tenant probe (`sage.probe` job) | Capsule report: tax rates, ledger accounts, stock items enabled, quota reset boundary |
+| 10 | Platform | Post one sandbox invoice, then reconcile it | Link row exists, totals match to the cent, one ledger document |
+| 11 | Platform | Set `SAGE_ENVIRONMENT=production` only after the sandbox probe passes, then repeat steps 5-10 against production | First production invoice reconciles; daily reconciliation passes |
 
-Until 1, 2 and 3 are answered, everything below is a design that holds for a cloud accounting API
-with invoices, contacts, journals, tax rates and opening balances — which all three candidates
-except hosted Sage 50 have, in some form.
+Three failure modes this checklist is designed to catch, because each one has bitten an integration
+before:
+
+- **Wrong redirect URI** — the app must be registered with the exact production URL. A localhost or
+  preview URL is rejected by Sage and looks like an authorisation failure.
+- **Token stolen by a preview deployment** — prevented by step 4, not by discipline.
+- **Silent expiry** — step 7 plus the daily keep-alive job; a failed keep-alive flips the state to
+  `needs_reauth` the same day, which is a banner and an alert, not an error in a log.
+
+### 1.6 Project costing: the dimension stays in this app
+
+This is decided, with one external fact to confirm.
+
+**What exists today.** The legacy posts project work orders to Sage 50's project module
+(`tproject`, `inv_project.sage_project_workorder`, `salesHeadProjectWO`), and job costing is a
+Sage 50 Premium/Quantum (Canada) feature. Work orders and their costs also exist in the portal, in
+`project_workorder`, `project_wopinvoice` and the `inv_*` tables.
+
+**What Sage Accounting Canada provides.** No project/job dimension. The Projects feature that exists
+in Sage Accounting is a UK/Ireland capability and is not part of the Canadian edition. This is
+verified indirectly (product documentation and regional feature lists), so it carries a
+**confirm-with-Sage** caveat: ask the account manager for the Canadian edition's project/job
+capability in writing before the conversion design is frozen. If it turns out to exist, this
+decision can be revisited cheaply; if it does not, nothing has been built on it.
+
+**Decision.** Project costing lives in this ERP. Sage receives the financial summary — a sales
+invoice whose lines carry the work-order number in the description and reference — and no project
+dimension. Concretely:
+
+- Work order, quote, purchase order and project profitability are computed in `app` from data we
+  already own (`inv_parts`, `inv_hours`, `inv_soparts`, PO receipts, subcontractor invoices).
+- Reports that today read a Sage project P&L are rebuilt as app reports, with the work-order number
+  as the grouping key. There is no Sage report to reproduce once Sage 50 is retired.
+- If finance insists on a ledger-side project view for the accountant, the fallback is one ledger
+  account per active project, not one per job — a small, controlled chart of accounts, mapped in the
+  conversion. That is a bookkeeping convenience, not a costing system, and it is not the
+  recommendation.
+- The conversion therefore has no project dimension to load. Sage 50 project rows are converted into
+  our own tables (or read from the archive), never into Sage Accounting.
+
+**Why this is safe.** The dimension the business actually uses is the work order, and that never
+leaves our database. What leaves is money: one invoice total per work order. Losing the ledger's
+project report costs a report; losing the work-order cost history would cost the business.
 
 ---
 
@@ -245,39 +359,41 @@ on an invoice must not overtake it. Cross-document order is per record, not glob
 
 ---
 
-## 7. What happens to the history that only exists in Sage 50
+## 7. History: Sage 50 is migrated, not archived
 
-This is the question the API cannot answer for us. Three options, in ascending cost:
+D21 settles this: Sage 50's accounting data moves into Sage Accounting, **including historical
+documents**. The first draft's recommendation of archive-plus-opening-balances is withdrawn. The
+conversion is now a workstream with its own plan — `plan/modules/SAGE50-MIGRATION.md` — and this
+section states only what the API imposes on it, because those constraints shape the schedule.
 
-1. **Archive plus opening balances (recommended).** At the cut-off date, take Sage 50's own reports
-   (aged receivables, aged payables, trial balance, tax by code and period), sign them, load opening
-   balances through `/opening_balances` and opening GL positions through `/journals`, and keep the
-   Sage 50 company file as a read-only archive forever. Everything after the cut-off is posted by
-   the rebuild. Cost: days, not months. Consequence: the cloud product's history starts at the
-   cut-off date, and anyone needing an old invoice opens the archive or our own `app` tables, which
-   already hold every invoice we migrated.
-2. **Opening balances plus reissued documents on demand.** Same as 1, but specific open documents
-   (unpaid invoices, outstanding credits) are re-created in the cloud ledger so collections work
-   there. This is usually what finance actually wants: the balances must be collectable, not merely
-   correct. Adds a reconciliation per reissued document.
-3. **Full historical conversion.** Every invoice and bill since inception becomes a cloud document.
-   Against a product with different tax handling, no project costing and possibly no historical
-   inventory movement, this is a conversion project with its own acceptance criteria. It should be
-   chosen deliberately, with a budget, not as an implied part of "migrate the data".
+What the API can receive: contacts, opening balances, sales invoices, purchase invoices, credit
+notes, journals, stock items and stock movements, with `migrated` flags and `legacy_id`/`source_guid`
+hints on artefacts. What it cannot: purchase orders (no endpoint), projects or jobs (Canadian
+edition, §1.6), postings into locked prior-year periods (a tenant policy, not a field), and bulk
+import of any kind — one record per request, 2,500 requests/day per company, shared with everything
+else on the tenant.
+
+The arithmetic that decides the schedule, stated plainly: of the order of 40,000 sales documents at
+two to three calls each (search plus create, with cached lookups), the load is 80,000-120,000 calls.
+At 2,500/day that is 32-48 days of uninterrupted posting, before bills, payments and stock. Three
+consequences follow:
+
+1. the load must be scheduled, resumable and idempotent exactly like the migration harness, and it
+   needs its own quota class so routine posting is not starved;
+2. it needs a calendar window measured in weeks, not a weekend maintenance slot;
+3. the fastest path is to ask Sage whether a migration service or a temporary quota increase exists
+   for the conversion account. If it does, the API becomes a verification pass instead of the
+   primary transport, and the schedule collapses to days.
+
+Inventory is the one place where "full history" must be interpreted conservatively. Stock counters
+in the legacy have drifted (`plan/CUTOVER-AND-MIGRATION.md` §5), so the conversion loads an opening
+position per item dated at cut-off plus the drift report, and only those historical movements the
+business can evidence. Replaying years of movements would import the drift as fact and consume quota
+that the document load needs.
 
 The rebuild's own `app` tables hold the operational history either way — work orders, quotes, POs,
-invoice snapshots, stock ledger — because that history is the business's, not the ledger's. The Sage
-question is only about the accounting ledger.
-
-Two technical details for whichever option is chosen:
-
-- **Inventory opening is not a historical replay.** Stock counters in the legacy have drifted (see
-  `plan/CUTOVER-AND-MIGRATION.md` §5). The cloud product receives an opening stock position per
-  item, dated at cut-off, with the drift report attached. Reconstructing years of movements would
-  import the drift as fact.
-- **`migrated` / `source_guid` / external references must be set** on every loaded record, so a
-  re-run updates rather than duplicates. This is the same rule as the migration harness: the
-  second run is a no-op.
+invoice snapshots, stock ledger — because that history is the business's, not the ledger's. Sage
+holds the accounting view of it.
 
 ---
 
@@ -305,12 +421,13 @@ finance owner signs — the same artefact shape as the migration parity run.
 ## 9. What this design deliberately does not do
 
 - **No purchase-order sync.** The purchase reference exposes bills, credit notes and quick entries,
-  not purchase orders. POs live in our app; a bill is created in Sage when a PO is invoiced. If the
-  chosen product does expose POs, we revisit, but the app remains the system of record for
+  not purchase orders. POs live in our app; a bill is created in Sage when a PO is invoiced. If a
+  future API version exposes POs, we revisit, but the app remains the system of record for
   purchasing either way.
 - **No quote sync.** Quotes are ours, with our numbering and our PDF; the ledger never sees a quote.
-- **No project costing in the ledger.** Sage 50 projects do not exist in Sage Accounting. Work-order
-  and project profitability stays in our reports.
+- **No project costing in the ledger.** Sage 50 projects do not exist in Sage Accounting's Canadian
+  edition, so project and work-order profitability stays in this app (§1.6). Sage receives the
+  financial summary, and the conversion has no project dimension to load.
 - **No webhooks, no bulk, no client credentials.** We poll, we post one document at a time, and a
   human authorises the tenant.
 - **No secrets in the repository or in the client bundle.** Consumer key, consumer secret, refresh
@@ -321,18 +438,22 @@ finance owner signs — the same artefact shape as the migration parity run.
 
 ---
 
-## 10. Implementation sequence, once §1.2 is answered
+## 10. Implementation sequence
+
+S0 is done (D19). The rest runs in the order below; S1-S3 need only the developer app credentials
+and a sandbox tenant, not the client business decisions in §1.2.
 
 | Phase | Work | Done when |
 |---|---|---|
-| S0 | Answer §1.2; pick the product and the tenant; record the decision as a new ADR that supersedes ADR 0005's implementation | A named tenant exists and a test invoice can be posted by hand |
-| S1 | OAuth connection: authorise, store encrypted token, refresh under a lock, keep-alive, health states, disconnect | A scheduled keep-alive survives a week; health reports `verified` |
+| S0 | ~~Choose the product and record it as D19~~ — decided 2026-11-11: Sage Business Cloud Accounting | Recorded; ADR 0005 marked superseded |
+| S1 | OAuth connection: authorise, store encrypted token, refresh under a lock, keep-alive, `needs_reauth` state, disconnect | A scheduled keep-alive survives a week in the sandbox; health reports `verified` |
 | S2 | Entity sync: contacts, products/stock items, tax rates, ledger accounts; `sage_links` for each | Re-running the sync twice changes nothing |
-| S3 | Sales invoice posting with `external_ref`, search-before-create, idempotent retry, link table | Posted invoice reconciles to the cent; a forced timeout does not duplicate |
-| S4 | Purchase invoice posting, credit notes, journals, opening balances | A cutover rehearsal loads opening balances into a scratch tenant twice with one result |
-| S5 | Reconciliation job and dashboard, quota guard, exception queue | Daily run report signed by finance |
-| S6 | Cutover: freeze legacy posting, snapshot, load, first reconciled document | `plan/CUTOVER-AND-MIGRATION.md` §4.4 complete |
+| S3 | Sales invoice posting with `external_ref`, search-before-create, idempotent retry, link table, outbox worker | A posted invoice reconciles to the cent; a forced timeout does not duplicate |
+| S4 | Purchase invoice posting, credit notes, journals, opening balances | A rehearsal loads opening balances into a sandbox tenant twice with one result |
+| S4b | **Historical conversion (D21) — its own workstream** | `plan/modules/SAGE50-MIGRATION.md`: signed baseline, documents loaded and resumable, reconciliation to the cent |
+| S5 | Reconciliation job and dashboard, quota guard, exception queue | Daily run report signed by finance (see `plan/modules/SAGE-RECONCILIATION.md`) |
+| S6 | Cutover: stop legacy posting, snapshot, load, first reconciled document | `plan/CUTOVER-AND-MIGRATION.md` §4.4 complete |
 
-Until S0, no code is written against a guessed product. The adapter interface, the outbox shape and
-the reconciliation rules above are product-neutral and can be built behind a fake adapter in tests,
-which is exactly how the existing Sage tests already work.
+S1-S3 are specified to the file and function level in `plan/modules/SAGE-ADAPTER-SCAFFOLD.md`, which
+is written to be implemented with the fake adapter first and the real client second. Nothing waits
+on §1.2 except S4 and S6.

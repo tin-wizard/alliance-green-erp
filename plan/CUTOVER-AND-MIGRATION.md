@@ -612,12 +612,12 @@ followed by document-level agreement on everything posted after it. A one-cent d
 run: it is the signature of a rounding or tax-model difference that will grow every month it is
 left alone.
 
-The ambiguity that has to be resolved by the human, not by the harness, is *what the cloud ledger
-is expected to contain*. If it is a clean opening position plus future documents, the conversion
-is small and the history stays in Sage 50 as an archive. If finance expects per-document history
-in the cloud product, the exercise becomes a data conversion of 71,087 invoice lines and 45,390
-work-order part rows into a product that may not accept historical inventory movement — and that
-is a different project. `plan/modules/SAGE-CLOUD.md` §7 states the choice.
+The ambiguity this section used to carry is resolved: D21 converts Sage 50 **including historical
+documents**, so the cloud ledger is not an opening position with an empty past. That moves the work
+into `plan/modules/SAGE50-MIGRATION.md` and changes what the harness must prove here: the baseline
+reconciliation is unchanged, but the loaded population is orders of magnitude larger, quota-bound at
+2,500 API calls a day, and shaped by tenant period locks. The cutover runbook for wave 5 now depends
+on the conversion schedule, not just on the migration harness's own window.
 
 ---
 
@@ -900,15 +900,17 @@ can be tested before a cutover date is promised.
    remain live.** Master data and work-order writes are mostly mappable; invoices, receipts, price
    changes and calculated totals are not. If a write cannot be mapped, the dependent wave must be
    bundled, not forced.
-3. **The Sage target is a cloud ledger that was never reconciled to the Sage 50 books, and the
-   cutover accepts an opening-balance date.** The freeze risk is gone (no company file, no
-   counters, no shared tables), and it is replaced by three others: the cloud product must support
-   the documents this business posts (Canadian tax, customer invoices, supplier bills),
-   its API quota must cover a month of posting plus polling, and finance must accept Sage 50 as a
-   closed history archive rather than a system that keeps agreeing to the cent. If the chosen
-   product differs from Sage 50 in a way that matters — no project costing, no purchase orders, or
-   a different tax model — the affected wave must bundle that gap rather than invent a workaround
-   at cutover. See `plan/modules/SAGE-CLOUD.md`.
+3. **The Sage conversion completes inside the API's quota and the tenant's period rules.** The freeze
+   risk is gone (no company file, no counters, no shared tables), and D21 replaces it with a
+   conversion that loads historical documents: 2,500 calls a day per company, one record per call,
+   against an order of 40,000 sales documents. That is 32-48 days of uninterrupted posting before
+   bills and payments, unless Sage provides a migration service or a temporary quota. The second
+   unknown is period locks: a historical invoice can only be posted into a period the tenant keeps
+   open, and payments must be allocated or A/R balloons. Both are testable in a sandbox before the
+   cutover date is promised, and both can move wave 5 by weeks. Product gaps are now known rather
+   than assumed — no purchase orders in the API, no project costing in the Canadian edition — and
+   the app absorbs them per `plan/modules/SAGE-CLOUD.md` §1.6 and
+   `plan/modules/SAGE50-MIGRATION.md`.
 4. **The target modules will publish stable natural keys and ID policies before their cutover.**
    Quotes currently use a serial `id` for a customer-facing number; PO uses the PO number;
    work orders preserve the legacy number. If those rules change after migration, the row map and

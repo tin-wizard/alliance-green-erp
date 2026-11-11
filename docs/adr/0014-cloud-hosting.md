@@ -1,6 +1,7 @@
 # ADR 0014 — Cloud hosting for the rebuild
 
-- **Status:** Accepted (recommendation; the region and residency answer is a human decision)
+- **Status:** Accepted. Vercel approved by the human on 2026-11-11 (D20). Region pending the
+  data-residency answer; the Vercel connection to the org is not yet made.
 - **Date:** 2026-11-11
 - **Owners:** Platform
 - **Supersedes:** ADR 0002 (local LAN runtime), and the hosting half of D4
@@ -30,6 +31,10 @@ runtime and both are friction on a 128 MB V8 isolate.
 `DATABASE_URL`) and the existing S3-compatible object storage. Build with the Nitro Vite plugin
 (`nitro()` in `vite.config.ts`), which Vercel recognises and configures; no adapter rewrite.
 
+Approved by the human as D20 on 2026-11-11. The organisation's Vercel connection is not yet made
+and is expected to be routine; the region is selected when the data-residency question is answered,
+and nothing else in this ADR depends on that answer.
+
 Why this one:
 
 1. **TanStack Start on Nitro is first-class there.** Vercel detects TanStack Start, sets the build
@@ -56,15 +61,16 @@ Why this one:
 
 Conditions attached to the decision:
 
-- **Region.** Run functions in the region closest to the Neon primary and confirm on the plan that
-  the region is available (Toronto if offered, otherwise the nearest North American region). The
-  app is data-heavy and server-rendered; function-to-database latency dominates, not visitor
-  distance.
+- **Region: `yul1` (Montréal).** Chosen by D22 alongside the database decision (ADR 0015): the
+  application tier runs in Canada while the Neon database stays in `aws-us-east-2` (Ohio). The app is
+  data-heavy and server-rendered, so function-to-database latency is paid more than visitor distance;
+  keep queries batched, and revisit the pairing only if the database ever moves.
 - **Previews never touch production.** Preview deployments get their own Neon branch, their own
   secrets, and a fake or sandbox Sage adapter. A preview that can post to the real ledger is the
   modern version of two writers.
-- **Residency is a human answer.** If accounting data must stay in Canada, the region choice (and
-  possibly the platform) follows from that, not from this ADR.
+- **Residency is settled, not assumed.** D22 keeps the database in the US with the client's explicit
+  acceptance; ADR 0015 records the consequences, including that the Sage tenant's hosting is Sage's
+  choice. Anything the client is told about data location must say all three.
 - **Fallback is Cloudflare, not a VPS**, if cost or an outage forces a move: the framework is
   identical, and the migration path is documented on both sides.
 
