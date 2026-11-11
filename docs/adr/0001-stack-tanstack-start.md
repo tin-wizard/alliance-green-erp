@@ -15,9 +15,10 @@ run as a normal long-lived server on a Windows or Linux box on the company LAN, 
 platform and no public ingress. Outbound HTTPS to Neon Postgres is the only network dependency.
 
 The prior assessment (`docs/legacy-system-critical-assessment.md`, §7) recommended Next.js.
-That recommendation was written before the LAN-only constraint was fixed, and its stack list
+That recommendation is **superseded** by the human's later decision: TanStack Start, running on a
+LAN-local server. It was written before the LAN-only constraint was fixed, and its stack list
 already includes TanStack Query. React 19 + TypeScript is agreed in both cases; only the
-meta-framework differs.
+meta-framework differs. No CLS or Next.js variant is produced.
 
 ## Decision
 

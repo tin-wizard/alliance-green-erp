@@ -202,7 +202,7 @@ return db.transaction(async (tx) => {
 
   if (!updated) throw new ConflictError('Work order changed since you loaded it.')
 
-  await writeAudit(tx, { action: 'workorder.complete', /* actor, entity, before/after */ })
+  await writeAudit(tx, { action: 'workorder.complete', permission: 'workorder:approve', /* actor, entity, before/after */ })
   return updated
 })
 ```
@@ -249,7 +249,21 @@ Cross-domain foreign keys are allowed inside `app`. Cross-domain writes are not.
    `scope_subcontractor_id` row via the admin flow and use
    `assertScopedPermission`.
 
-Never hardcode a role name in a guard (`role === 'admin'`). Use a permission.
+Two key shapes exist, and both are exact strings:
+
+- `module:action` for broad CRUD (`workorder:write`, `invoice:issue`).
+- dotted keys for the seven gates inherited from legacy username checks
+  (`invoice.calculate`, `invoice.post_sage`, `po.approve`, `po.issue`,
+  `report.download_rates`, `pma.certificate.download`,
+  `subcontractor.rates.download`). Copy the string from `PERMISSIONS`; do not
+  invent a colon variant.
+
+Never hardcode a role name in a guard (`role === 'admin'`). Use a permission. A
+role check is allowed only to narrow data the permission already allows, such as
+"a subcontractor sees only their own vendor"; document it and test it.
+
+When a sensitive action writes audit, pass `permission: '<key>'` so the record
+names the capability, not a person (`AUTH-RBAC.md` §8).
 
 ---
 
@@ -268,6 +282,7 @@ Required:
 
 - **Unit tests** for every pure rule in `lib/`: totals, tax, status transitions,
   eligibility, numbering, validators. Colocate as `lib/<name>.test.ts`.
+- **Authorization denial tests** for every guarded server function. See §8.1.
 - **E2E** for the primary flow: list → open → edit → save, plus one permission
   denial (a user without the key gets 403/redirect).
 - **Data reconciliation** where the module replaces a legacy calculation: a
@@ -276,6 +291,179 @@ Required:
 
 Test the states no happy path covers: empty list, cancelled/void records,
 concurrent update (409), expired compliance document, decimal money rounding.
+
+### 8.1 Proving a server function denies the wrong caller
+
+Every guarded server function needs three denial cases, not just the happy path:
+
+| Case | Caller | Expected |
+|---|---|---|
+| Unauthenticated | no `cls_session` cookie | `401` (server function) or redirect to `/login` (route) |
+| Wrong role | signed in, role lacks the key | `403` with the permission key, audited `auth.permission_denied` |
+| Wrong scope / company | signed in, key is scoped or data belongs to another vendor | `403` or `404`; never another vendor's row |
+
+Write the authorization decision so it can be tested without a browser. Pass the
+session into the server implementation; do not read it from a global inside the
+query:
+
+```ts
+// list.server.ts
+import { assertPermission, assertScopedPermission } from '../../../server/middleware'
+import type { AuthSessionView } from '../../../server/auth.types'
+
+export async function queryWorkOrders(
+  input: { page: number; subcontractorId?: number },
+  session: AuthSessionView,
+) {
+  assertPermission(session, 'workorder:read')
+  // A technician or subcontractor is always narrowed to their own vendor; the
+  // client cannot widen it by sending another id.
+  if (session.user.role === 'subcontractor') {
+    assertScopedPermission(session, 'workorder:read', session.user.subcontractorId ?? -1)
+  }
+  // ...
+}
+```
+
+A unit test then fabricates the session and asserts the throw:
+
+```ts
+import { ForbiddenError } from '@cls/core'
+import { assertPermission, assertScopedPermission } from '../../../server/middleware'
+
+const technician = makeSession({ role: 'technician' })
+
+it('denies invoice calculation to a technician', () => {
+  expect(() => assertPermission(technician, 'invoice.calculate')).toThrow(ForbiddenError)
+})
+
+it('denies a scoped grant for another vendor', () => {
+  const scoped = makeSession({
+    role: 'subcontractor',
+    subcontractorId: 42,
+    grants: [{ key: 'workorder:read', scopeSubcontractorId: 42 }],
+  })
+  expect(() => assertScopedPermission(scoped, 'workorder:read', 43)).toThrow(ForbiddenError)
+})
+```
+
+`makeSession` is a local test factory that fills `AuthSessionView` with defaults
+and lets each test override role, `subcontractorId` and `grants`. Do not sign in
+for these tests; they are pure and fast.
+
+For the middleware wiring itself, test the end-to-end denial once per module
+(§8.2). The unit test proves the rule; the E2E proves the rule is attached to the
+function.
+
+### 8.2 A throwaway signed-in session for integration tests
+
+Never reuse a real person's login, and never commit a password. Provision a
+throwaway through the provider admin API, give it an app role, use it, delete it.
+
+```ts
+// e2e/support/throwaway.ts (test process only; never imported by the app)
+const BASE = process.env.NEON_AUTH_BASE_URL!
+const ORIGIN = process.env.APP_URL!
+
+async function adminCookie(): Promise<string> {
+  const response = await fetch(`${BASE}/sign-in/email`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', origin: ORIGIN },
+    body: JSON.stringify({
+      email: process.env.E2E_ADMIN_EMAIL,
+      password: process.env.E2E_ADMIN_PASSWORD,
+    }),
+  })
+  if (!response.ok) throw new Error(`admin sign-in failed: ${response.status}`)
+  return response.headers.getSetCookie().map((c) => c.split(';')[0]).join('; ')
+}
+
+export async function createThrowaway(email: string, password: string) {
+  const cookie = await adminCookie()
+  const response = await fetch(`${BASE}/admin/create-user`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', origin: ORIGIN, cookie },
+    body: JSON.stringify({ email, password, name: 'E2E Throwaway' }),
+  })
+  if (!response.ok) throw new Error(`create-user failed: ${response.status}`)
+  return (await response.json()).user as { id: string; email: string }
+}
+
+export async function deleteThrowaway(userId: string) {
+  const cookie = await adminCookie()
+  await fetch(`${BASE}/admin/remove-user`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', origin: ORIGIN, cookie },
+    body: JSON.stringify({ userId }),
+  })
+}
+```
+
+Insert the app row with the role under test, sign in once through the real login
+page, then use the page or its request context:
+
+```ts
+const email = `e2e-${Date.now()}@example.invalid`
+const password = randomBytes(24).toString('base64url')
+const authUser = await createThrowaway(email, password)
+
+await sql`
+  insert into app.users (email, username, display_name, role)
+  values (${email}, ${'e2e' + Date.now()}, 'E2E Throwaway', 'technician')
+`
+
+await page.goto('/login')
+await page.getByLabel('Username or email').fill(email)
+await page.getByLabel('Password').fill(password)
+await page.getByRole('button', { name: 'Sign in' }).click()
+await expect(page).toHaveURL(/\/$/)
+
+// Drive the real UI: it exercises the route, the server function and the
+// middleware together. Server-function RPC ids are build-generated, so do not
+// hard-code a /_serverFn/... URL in a test.
+await page.goto('/work-orders/<id>')
+await page.getByRole('button', { name: 'Approve' }).click()
+await expect(page.getByRole('alert')).toContainText(/permission/i)
+
+await sql`delete from app.users where email = ${email}`
+await deleteThrowaway(authUser.id)
+```
+
+Use `test.afterEach` or `try/finally` so cleanup runs even when an assertion
+fails. The throwaway is worthless after the run; deleting it keeps the branch
+clean and prevents an accumulating list of test identities.
+
+Rules:
+
+- Use `@example.invalid` addresses and a random password per run.
+- Create the provider user **before** the app row; delete the app row **before**
+  the provider user.
+- If you need a cookie without a browser, the sealed payload is
+  `sealSession(SESSION_SECRET, { cookie, jwt, expiresAt })` from `@cls/auth`;
+  set it as `cls_session`, `HttpOnly`, `SameSite=Lax`. The JWT must come from a
+  real provider sign-in, never be minted locally.
+- A throwaway with no `app.users` row must get `403` on sign-in (`not
+  provisioned`); assert that too when you touch provisioning.
+- Never give a throwaway `admin` unless the test is specifically proving an admin
+  path, and never run these against a branch with real users.
+
+### 8.3 Audit assertion
+
+A denial must leave evidence of the capability, not just a username. After the
+403, assert the row:
+
+```sql
+select actor_label, after->>'permission' as permission
+  from app.audit_log
+ where action = 'auth.permission_denied'
+ order by id desc
+ limit 1;
+-- permission = workorder:write (or the key under test)
+```
+
+Business actions that depend on a sensitive permission must write their own
+audit row with `permission: '<key>'` (§AUTH-RBAC.md §8), so the financial
+decision is attributable to a capability.
 
 ---
 

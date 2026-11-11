@@ -13,6 +13,7 @@ blob-report/
 # secrets and local state
 .env
 .env.*
+.secrets/
 !.env.example
 *.local
 *.log

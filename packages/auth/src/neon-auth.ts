@@ -69,11 +69,20 @@ function sessionCookieFrom(response: Response): string | undefined {
   return undefined
 }
 
+function looksLikeJwt(value: string): boolean {
+  return value.split('.').length === 3 && value.startsWith('ey')
+}
+
 function jwtFrom(response: Response, body: unknown): string | undefined {
   const header = response.headers.get('set-auth-jwt')
-  if (header) return header
+  if (header && looksLikeJwt(header)) return header
   const parsed = body as SignInResponse | null
-  return parsed?.token ?? parsed?.session?.token ?? parsed?.session?.access_token
+  // `body.token` on this deployment is the opaque session token, not a JWT.
+  // Only accept a compact JWS; otherwise the caller fetches /get-session.
+  for (const candidate of [parsed?.session?.access_token, parsed?.session?.token, parsed?.token]) {
+    if (typeof candidate === 'string' && looksLikeJwt(candidate)) return candidate
+  }
+  return undefined
 }
 
 function mapUser(input: SignInResponse['user'], claims: NeonClaims): NeonUser {
@@ -184,7 +193,14 @@ export class NeonAuthClient {
     const body = (await response.json().catch(() => null)) as SignInResponse | null
     if (!response.ok) {
       const code = (body as { code?: string })?.code ?? 'sign_in_failed'
-      throw new NeonAuthError(code, 'Invalid email or password.', 401)
+      const message = (body as { message?: string })?.message ?? 'Neon Auth rejected the sign-in.'
+      // Only a credential rejection is the user's problem. An origin or
+      // configuration rejection must surface as a provider fault, not as
+      // "wrong password", or the operator will chase the wrong cause.
+      if (response.status === 401 || code === 'INVALID_EMAIL_OR_PASSWORD') {
+        throw new NeonAuthError(code, 'Invalid email or password.', 401)
+      }
+      throw new NeonAuthError(code, message, 502)
     }
 
     const cookie = sessionCookieFrom(response)
@@ -198,8 +214,14 @@ export class NeonAuthClient {
       return this.refreshSession(cookie)
     }
 
-    const claims = await this.verifyJwt(jwt)
-    return { jwt, claims, user: mapUser(body?.user, claims), cookie }
+    try {
+      const claims = await this.verifyJwt(jwt)
+      return { jwt, claims, user: mapUser(body?.user, claims), cookie }
+    } catch {
+      // A malformed or stale inline token is not a credential failure; the
+      // session endpoint is authoritative.
+      return this.refreshSession(cookie)
+    }
   }
 
   async signOut(cookie: string): Promise<void> {

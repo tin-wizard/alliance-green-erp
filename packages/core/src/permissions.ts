@@ -102,6 +102,22 @@ export const PERMISSIONS = [
     defaultRoles: ['admin'],
   },
   {
+    key: 'po.approve',
+    module: 'purchasing',
+    label: 'Approve a purchase order',
+    description:
+      'Reserved for the purchasing module: approve a specific PO. Replaces the legacy per-username PO approval checks.',
+    defaultRoles: [],
+  },
+  {
+    key: 'po.issue',
+    module: 'purchasing',
+    label: 'Issue a purchase order',
+    description:
+      'Reserved for the purchasing module: issue a PO to a supplier. Replaces the legacy per-username PO issue checks.',
+    defaultRoles: [],
+  },
+  {
     key: 'inventory:read',
     module: 'inventory',
     label: 'View inventory',
@@ -150,6 +166,22 @@ export const PERMISSIONS = [
     label: 'Issue invoices',
     description: 'Finalise and issue an invoice to the customer or Sage.',
     defaultRoles: ['admin'],
+  },
+  {
+    key: 'invoice.calculate',
+    module: 'invoice',
+    label: 'Calculate invoice amounts',
+    description:
+      'Run the invoice calculator that computes billable lines, rates and totals before an invoice is issued. Replaces the legacy hard-coded username gate (carmen, ASzpytka).',
+    defaultRoles: ['admin'],
+  },
+  {
+    key: 'invoice.post_sage',
+    module: 'invoice',
+    label: 'Post invoice to Sage',
+    description:
+      'Reserved for the invoice module: transfer a calculated invoice into Sage 50. Replaces the legacy ASzpytka-only Sage transfer buttons.',
+    defaultRoles: [],
   },
   {
     key: 'tjx:read',
@@ -201,6 +233,30 @@ export const PERMISSIONS = [
     defaultRoles: ['admin', 'technician'],
   },
   {
+    key: 'report.download_rates',
+    module: 'reports',
+    label: 'Download rate reports',
+    description:
+      'Reserved for the reports module: download subcontractor and customer rate sheets. Replaces the legacy username gate on the rate download screens.',
+    defaultRoles: [],
+  },
+  {
+    key: 'pma.certificate.download',
+    module: 'compliance',
+    label: 'Download PMA certificate',
+    description:
+      'Reserved for the compliance module: download a PMA certificate. Replaces the legacy per-username certificate gate.',
+    defaultRoles: [],
+  },
+  {
+    key: 'subcontractor.rates.download',
+    module: 'customer',
+    label: 'Download subcontractor rates',
+    description:
+      'Reserved for the subcontractor module: download a vendor rate sheet. Replaces the legacy username gate, including the always-true check in editsubcontractor.php.',
+    defaultRoles: [],
+  },
+  {
     key: 'admin:users',
     module: 'admin',
     label: 'Manage users and roles',
@@ -241,6 +297,30 @@ export const PERMISSIONS = [
     label: 'Write to Sage 50',
     description: 'Create or change records in the Sage company database.',
     defaultRoles: ['admin'],
+  },
+  {
+    key: 'workorder:create',
+    module: 'workorder',
+    label: 'Create work orders',
+    description:
+      'Open a new work order and allocate its number. Field roles capture against assigned work orders instead.',
+    defaultRoles: ['admin'],
+  },
+  {
+    key: 'workorder:dispatch',
+    module: 'workorder',
+    label: 'Dispatch work orders',
+    description:
+      'Assign a subcontractor and move a work order to Dispatched. Replaces the legacy access > 5 page guard.',
+    defaultRoles: ['admin'],
+  },
+  {
+    key: 'workorder:capture',
+    module: 'workorder',
+    label: 'Capture field data',
+    description:
+      'Add labour, parts, the service report, photos and local time/signatures. For technicians and subcontractors the server scopes this to their own assigned work orders.',
+    defaultRoles: ['admin', 'technician', 'subcontractor'],
   },
 ] as const satisfies readonly PermissionDefinition[]
 

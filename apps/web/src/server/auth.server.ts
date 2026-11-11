@@ -121,7 +121,10 @@ export async function authenticate(input: LoginInput): Promise<void> {
       actorUserId: candidate?.id ?? null,
       actorLabel: identifier,
       actorRole: candidate?.role ?? null,
-      summary: error instanceof NeonAuthError && error.status === 401 ? 'Bad credentials' : 'Auth provider error',
+      summary:
+        error instanceof NeonAuthError && error.status === 401
+          ? 'Bad credentials'
+          : `Auth provider error: ${error instanceof NeonAuthError ? error.code : 'unknown'}`,
       ip,
       userAgent,
     }).catch(() => undefined)

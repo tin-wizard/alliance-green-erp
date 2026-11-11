@@ -33,12 +33,17 @@ export default defineConfig({
       PORT: String(PORT),
       APP_URL: `http://127.0.0.1:${PORT}`,
       SESSION_SECRET: 'e2e-only-secret-that-is-at-least-32-characters',
-      // Opt-in integration run: set E2E_DATABASE_URL to a migrated + seeded DB.
+      // Baseline runs deliberately have no database. Set E2E_DATABASE_URL to a
+      // migrated + seeded DB for the integration run.
       DATABASE_URL: process.env.E2E_DATABASE_URL ?? '',
-      // Neon Auth comes from .env unless overridden. A real sign-in also needs
-      // this origin registered as a trusted domain in Neon Auth.
-      NEON_AUTH_BASE_URL: process.env.NEON_AUTH_BASE_URL ?? '',
-      NEON_AUTH_JWKS_URL: process.env.NEON_AUTH_JWKS_URL ?? '',
+      DATABASE_URL_UNPOOLED: process.env.E2E_DATABASE_URL ?? '',
+      // Neon Auth stays available through .env; these overrides are for CI.
+      ...(process.env.NEON_AUTH_BASE_URL
+        ? {
+            NEON_AUTH_BASE_URL: process.env.NEON_AUTH_BASE_URL,
+            NEON_AUTH_JWKS_URL: process.env.NEON_AUTH_JWKS_URL ?? '',
+          }
+        : {}),
       SAGE_ENABLED: 'false',
     },
   },

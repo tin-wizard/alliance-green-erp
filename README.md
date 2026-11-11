@@ -47,8 +47,11 @@ pnpm dev                       # Vite dev server with HMR
 Without a database the app still boots: `/api/health` returns `degraded`, the login page renders
 and `/api/ready` returns 503. That is intentional.
 
-On first use there is no admin. Create the identity in Neon Auth, verify its email, set
-`SEED_ADMIN_EMAIL`, run `pnpm db:seed`, and sign in once. See `platform/AUTH-RBAC.md`.
+Public sign-up is disabled; identities are created by an administrator. On a new install, create
+the identity in Neon Auth, verify the address, set `SEED_ADMIN_EMAIL`, run `pnpm db:seed`, and sign
+in once to link the admin row. On this machine the first admin is `developer@tin.info`; its
+password lives only in the gitignored `.secrets/neon-auth-admin.txt`. See
+`platform/AUTH-RBAC.md` §3.
 
 ## Scripts
 

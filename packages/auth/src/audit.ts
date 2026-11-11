@@ -16,6 +16,12 @@ export interface AuditEvent {
   entityType?: string | null
   entityId?: string | null
   summary?: string | null
+  /**
+   * Permission key that authorised the action, e.g. `invoice.calculate`.
+   * Recorded inside `after` so a financial decision is attributable to a
+   * capability rather than to a hard-coded username.
+   */
+  permission?: string | null
   before?: Record<string, unknown> | null
   after?: Record<string, unknown> | null
   requestId?: string | null
@@ -33,7 +39,9 @@ export async function writeAudit(executor: Executor, event: AuditEvent): Promise
     entityId: event.entityId ?? null,
     summary: event.summary ?? null,
     before: event.before ?? null,
-    after: event.after ?? null,
+    after: event.permission
+      ? { ...(event.after ?? {}), permission: event.permission }
+      : (event.after ?? null),
     requestId: event.requestId ?? null,
     ip: event.ip ?? null,
     userAgent: event.userAgent ?? null,

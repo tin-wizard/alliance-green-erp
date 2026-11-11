@@ -14,7 +14,7 @@
 | Service | State | Wired through |
 |---|---|---|
 | Postgres | Provisioned, schema applied, seed catalogue loaded, **no business data** | `@cls/db` → `postgres.js` |
-| Neon Auth (Managed Better Auth) | Provisioned, JWKS live, no app users yet | `@cls/auth` → REST + `jose` |
+| Neon Auth (Managed Better Auth) | Provisioned, JWKS live, **public sign-up disabled**, first admin provisioned | `@cls/auth` → REST + `jose` |
 | Object Storage | Two private buckets reachable, put/get/delete verified | `@cls/storage` → AWS S3 SDK |
 | AI Gateway | Endpoint and model catalogue reachable, **inference blocked: `credits_required`** | `@cls/ai`, feature-flagged off |
 
@@ -45,11 +45,12 @@
 | `SESSION_SECRET` | seals the app cookie (AES-256-GCM) | 32+ chars; rotating it ends app sessions |
 | `SESSION_TTL_HOURS` | app session cap | default 12 |
 | `APP_URL` | public app origin | **must be a trusted domain in Neon Auth** |
-| `SEED_ADMIN_EMAIL` | optional bootstrap admin | no default; requires a verified Neon email |
+| `SEED_ADMIN_EMAIL` | optional bootstrap admin | `developer@tin.info` on this host; requires a verified Neon email |
 
-`SEED_ADMIN_EMAIL` is deliberately unset. A default address would let anyone who signs up with
-it claim the admin row. Set it to a real address you control, enable email verification in Neon
-Auth, and sign in once.
+`SEED_ADMIN_EMAIL` has no default in code. A default address would let anyone who could sign up
+with it claim the admin row; sign-up is now disabled, but the address stays explicit. The generated
+password is not in this document: it lives at `.secrets/neon-auth-admin.txt` on the host (mode
+`600`, gitignored). See `AUTH-RBAC.md` §3 for provisioning and rotation.
 
 ---
 
@@ -110,9 +111,12 @@ The 175-table contract reconciles as 171 mirrored + 4 do-not-carry tables; see
 neon neon-auth domain add http://192.168.1.50:3000
 ```
 
-**Access control:** Neon allows public sign-up by default. The provisioning gate — a linked
-`app.users` row — is the control. Enable email verification before go-live, and disable open
-sign-up if the provider exposes that setting.
+**Access control:** public sign-up is **disabled** (`Disable Sign Up: true`; a sign-up attempt
+returns `400 EMAIL_PASSWORD_SIGN_UP_DISABLED`). Accounts are created only by an administrator,
+through the provider admin API (`POST /admin/create-user`) or the Neon Console, and still need a
+linked `app.users` row. Trusted domains currently include `http://localhost:3000` (the local app)
+and `http://127.0.0.1:3100` (the Playwright production server); add the real LAN origin before
+go-live.
 
 **Live checks performed:**
 
@@ -120,10 +124,14 @@ sign-up if the provider exposes that setting.
 GET  {NEON_AUTH_JWKS_URL}            → 200, 1 key, OKP/Ed25519/EdDSA
 POST /sign-in/email (unknown user)   → 401 {"code":"INVALID_EMAIL_OR_PASSWORD"}
 JWT signed with a random EdDSA key   → rejected by the live JWKS
+POST /sign-up/email                  → 400 {"code":"EMAIL_PASSWORD_SIGN_UP_DISABLED"}
+POST /sign-in/email (admin)          → 200; /get-session 200; JWT emailVerified=true
+POST /admin/create-user              → 200 (throwaway, deleted with /admin/remove-user)
 ```
 
-No test user was created. End-to-end sign-in requires a provisioned Neon user; create it in the
-Neon Console or via the Auth API, then set `SEED_ADMIN_EMAIL` if it is the bootstrap admin.
+`developer@tin.info` is the provisioned administrator (provider id
+`283f66b8-1f20-4422-b813-b75af38d42ec`). The signed-in Playwright flow passes with it; the
+password is only in the host's ignored `.secrets/neon-auth-admin.txt`.
 
 **Offline behaviour:** a user with an unexpired JWT keeps working without Neon. Once it expires,
 the refresh fails and the session middleware returns `null`, redirecting to `/login`. No provider,
@@ -203,7 +211,7 @@ Nothing in the app fabricates a model response. Enabling it is a billing step pl
 - No production app user yet; sign-in is implemented but untested end-to-end against a real Neon
   identity.
 - AI inference is unfunded.
-- Neon Auth's public sign-up remains enabled; the provisioning gate protects the app, but
-  verification should be turned on before go-live.
+- Neon Auth: public sign-up is disabled; `developer@tin.info` exists as a verified provider admin
+  and an application admin. The signed-in Playwright flow passes with that account.
 - The Sage business sync (reads/writes) is still the Sage module's work; discovery and connection
   verification are done.

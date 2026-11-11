@@ -30,9 +30,23 @@ export function permissionMiddleware(permission: PermissionKey) {
     .middleware([authMiddleware])
     .server(async ({ next, context }) => {
       if (!grantsInclude(context.session.user.grants, permission)) {
+        // Audit the capability, not the person's username. Best effort: a
+        // failed audit write must not turn a 403 into a 500.
+        const { getDb } = await import('@cls/db')
+        const { writeAudit } = await import('@cls/auth')
+        await writeAudit(getDb(), {
+          action: 'auth.permission_denied',
+          actorUserId: context.session.user.id,
+          actorLabel: context.session.user.username,
+          actorRole: context.session.user.role,
+          entityType: 'permission',
+          entityId: permission,
+          summary: `Denied ${permission}`,
+          permission,
+        }).catch(() => undefined)
         throw new ForbiddenError(permission)
       }
-      return next()
+      return next({ context: { permission } })
     })
 }
 

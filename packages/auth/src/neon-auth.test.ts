@@ -41,9 +41,11 @@ beforeAll(async () => {
       }
       const mode = url.pathname.startsWith('/neondb/auth-body')
         ? 'body'
-        : url.pathname.startsWith('/neondb/auth-invalid')
-          ? 'invalid'
-          : 'header'
+        : url.pathname.startsWith('/neondb/auth-opaque')
+          ? 'opaque'
+          : url.pathname.startsWith('/neondb/auth-invalid')
+            ? 'invalid'
+            : 'header'
       if (mode === 'invalid') {
         response.writeHead(401, { 'content-type': 'application/json' })
         response.end(JSON.stringify({ message: 'Invalid email or password', code: 'INVALID_EMAIL_OR_PASSWORD' }))
@@ -58,6 +60,7 @@ beforeAll(async () => {
         response.writeHead(200, headers)
         response.end(
           JSON.stringify({
+            ...(mode === 'opaque' ? { token: 'opaque-session-token' } : {}),
             user: { id: 'neon-user-1', email: 'tech@example.com', name: 'Tech', emailVerified: true },
           }),
         )
@@ -151,6 +154,16 @@ describe('NeonAuthClient.signIn', () => {
   it('falls back to /get-session when sign-in omits the JWT header', async () => {
     const session = await new NeonAuthClient({
       baseUrl: `${origin}/neondb/auth-body`,
+      jwksUrl: `${origin}/jwks.json`,
+    }).signIn('tech@example.com', 'correct-password')
+    expect(session.jwt.split('.')).toHaveLength(3)
+    expect(session.cookie).toContain('session-abc')
+    expect(session.claims.sub).toBe('neon-user-1')
+  })
+
+  it('treats an opaque body token as a session token and refreshes', async () => {
+    const session = await new NeonAuthClient({
+      baseUrl: `${origin}/neondb/auth-opaque`,
       jwksUrl: `${origin}/jwks.json`,
     }).signIn('tech@example.com', 'correct-password')
     expect(session.jwt.split('.')).toHaveLength(3)

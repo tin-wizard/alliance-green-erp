@@ -1,5 +1,31 @@
 import { describe, expect, it } from 'vitest'
+import { PERMISSIONS, defaultGrantedPermissions } from '@cls/core'
 import { evaluatePermissions, grantsInclude, grantsIncludeScoped } from './permissions'
+
+describe('role matrix', () => {
+  it('gives invoice.calculate to admins and to no other role', () => {
+    expect(defaultGrantedPermissions('admin')).toContain('invoice.calculate')
+    expect(defaultGrantedPermissions('technician')).not.toContain('invoice.calculate')
+    expect(defaultGrantedPermissions('subcontractor')).not.toContain('invoice.calculate')
+    expect(defaultGrantedPermissions('supplier')).not.toContain('invoice.calculate')
+  })
+
+  it('reserves the module gates without granting them to a role', () => {
+    const reserved = [
+      'invoice.post_sage',
+      'po.approve',
+      'po.issue',
+      'report.download_rates',
+      'pma.certificate.download',
+      'subcontractor.rates.download',
+    ]
+    for (const key of reserved) {
+      const definition = PERMISSIONS.find((permission) => permission.key === key)
+      expect(definition, key).toBeDefined()
+      expect(definition?.defaultRoles, key).toEqual([])
+    }
+  })
+})
 
 describe('evaluatePermissions', () => {
   const now = new Date('2026-11-11T12:00:00Z')

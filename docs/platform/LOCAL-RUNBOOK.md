@@ -63,13 +63,18 @@ Open `http://<server-name>:3000/`. Probes:
 
 There is no default admin. To create one:
 
-1. Create the identity in Neon Auth (Console → Auth, or the Auth API) with an address you control.
-2. Enable email verification in Neon Auth and verify that address.
-3. Put the same address in `SEED_ADMIN_EMAIL` in `.env`, run `pnpm db:seed`.
-4. Sign in once. The verified identity is linked to an `app.users` row with role `admin`.
+1. Confirm public sign-up is disabled:
+   `neonctl neon-auth config email-password get` must report `Disable Sign Up: true`.
+2. Create the identity as an administrator: Neon Console → Auth, or
+   `POST {NEON_AUTH_BASE_URL}/admin/create-user` with an existing admin session (see
+   `platform/AUTH-RBAC.md` §3.1). The CLI `user create` makes an identity without a password.
+3. Verify the address (Console, or the break-glass SQL in `AUTH-RBAC.md` §3.1).
+4. Put the same address in `SEED_ADMIN_EMAIL` in `.env`, run `pnpm db:seed`.
+5. Sign in once. The verified identity is linked to an `app.users` row with role `admin`.
 
-`SEED_ADMIN_EMAIL` is empty by default on purpose: a default address would be claimable by anyone
-who signs up with it. See `platform/AUTH-RBAC.md` §3.
+`SEED_ADMIN_EMAIL` is empty by default on purpose: a default address could be claimed during a
+future sign-up. On this host it is `developer@tin.info`; the password is only in the gitignored
+`.secrets/neon-auth-admin.txt`. See `platform/AUTH-RBAC.md` §3.
 
 ---
 
@@ -302,7 +307,8 @@ name. Start with `grep '"level":"error"'`.
 - [ ] `.env` is not in git and is readable only by the service account.
 - [ ] `SESSION_SECRET` is unique, 32+ characters, and backed up.
 - [ ] `APP_URL` is an exact Neon Auth trusted domain; no wildcard.
-- [ ] Email verification is enabled in Neon Auth, and public sign-up is restricted if available.
+- [ ] Public sign-up is disabled in Neon Auth; only administrators can create identities.
+- [ ] Email verification is enabled or invited addresses are verified before linking.
 - [ ] The bootstrap admin address is real, verified, and not `admin@example.com`.
 - [ ] The firewall allows the app port from the LAN subnet only.
 - [ ] No port forwarding, tunnel or public DNS entry exists.
