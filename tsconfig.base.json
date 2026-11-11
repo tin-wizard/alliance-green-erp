@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "moduleDetection": "force",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "useUnknownInCatchVariables": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "types": ["node"],
+    "baseUrl": ".",
+    "paths": {
+      "@cls/core": ["packages/core/src/index.ts"],
+      "@cls/core/*": ["packages/core/src/*"],
+      "@cls/db": ["packages/db/src/index.ts"],
+      "@cls/db/*": ["packages/db/src/*"],
+      "@cls/auth": ["packages/auth/src/index.ts"],
+      "@cls/auth/*": ["packages/auth/src/*"],
+      "@cls/sage": ["packages/sage/src/index.ts"],
+      "@cls/sage/*": ["packages/sage/src/*"],
+      "@cls/ui": ["packages/ui/src/index.ts"],
+      "@cls/ui/*": ["packages/ui/src/*"]
+    }
+  }
+}

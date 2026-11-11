@@ -1,0 +1,12 @@
+packages:
+  - apps/*
+  - packages/*
+
+# Dependency build scripts are denied by default in pnpm. These are the only
+# packages the repo needs to run one: esbuild (used by drizzle-kit and tsx)
+# fetches/compiles its native binary on install.
+allowBuilds:
+  esbuild: true
+
+minimumReleaseAgeExclude:
+  - vite@8.3.8

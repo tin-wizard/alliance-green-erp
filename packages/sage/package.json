@@ -1,0 +1,13 @@
+{
+  "name": "@cls/sage",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@cls/core": "workspace:*",
+    "mysql2": "^3.24.6"
+  }
+}

@@ -1,0 +1,559 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   CLS Green System ERP — Design Tokens
+   ───────────────────────────────────────────────────────────────────────────
+   v1.0 · 11 November 2026
+   Layer 1  primitives  (raw values, never used by components)
+   Layer 2  semantic    (surfaces, text, borders, actions, status, data-viz)
+   Layer 3  component   (geometry and density contracts)
+   ───────────────────────────────────────────────────────────────────────────
+   Source of truth for values: DESIGN-LANGUAGE.md and ERP-DESIGN-SYSTEM.md.
+   The reference storefront does not use Tailwind; an optional @theme block is
+   at the end for a rebuild that chooses Tailwind v4.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── LAYER 1 · PRIMITIVES ─────────────────────────────────────────────── */
+
+  /* Brand */
+  --cls-red: #CB0A0B;          /* approved brand red, sampled from the logo */
+  --cls-red-hover: #A50808;
+  --cls-red-soft: #FCEDED;
+  --cls-red-bright: #E8625F;   /* red text on ink only */
+  --cls-logo-gray: #6E6D6B;
+
+  /* Warm editorial neutrals (v1) */
+  --cls-ivory-50: #FBF8F2;
+  --cls-ivory-100: #F5F1EA;
+  --cls-ivory-200: #EDE7DB;
+  --cls-plaster: #E8E1D5;
+  --cls-sand: #D9D1C2;
+  --cls-stone: #B4AB9B;
+  --cls-mud: #6B625A;
+  --cls-char: #2A2622;
+  --cls-ink: #1A1A18;
+  --cls-obsidian: #0A0907;
+
+  /* v2 storefront neutrals */
+  --cls-white: #FFFFFF;
+  --cls-offwhite: #F5F5F3;
+  --cls-light: #EEEEEC;
+  --cls-border: #E0DFDC;
+  --cls-muted: #888884;        /* not an ERP text token: 3.47:1 on white */
+  --cls-body: #3A3A38;
+
+  /* ERP neutral ramp (derived and contrast-checked) */
+  --erp-neutral-0: #FFFFFF;
+  --erp-neutral-25: #FAFAF8;
+  --erp-neutral-50: #F4F4F1;
+  --erp-neutral-100: #EFEFEC;
+  --erp-neutral-200: #E3E2DE;
+  --erp-neutral-300: #C9C7C1;
+  --erp-neutral-400: #A3A19A;
+  --erp-neutral-500: #8A8A84;
+  --erp-neutral-600: #6A6A64;
+  --erp-neutral-700: #4A4A45;
+  --erp-neutral-800: #2E2E2A;
+  --erp-neutral-900: #1A1A18;
+  --erp-neutral-950: #121210;
+
+  /* Feedback */
+  --cls-green: #2F5D3A;
+  --cls-amber: #8A5A00;
+  --cls-blue: #1E4A7A;
+  --cls-violet: #4B3F7A;
+  --cls-teal: #1F5D50;
+  --cls-brick: #8B2E1F;
+
+  /* Space — 4px base */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --space-32: 128px;
+
+  /* Radii */
+  --radius-0: 0px;
+  --radius-1: 2px;
+  --radius-2: 4px;
+  --radius-3: 6px;
+  --radius-pill: 999px;
+
+  /* ── LAYER 2 · SEMANTIC ROLES ─────────────────────────────────────────── */
+
+  /* Surfaces */
+  --surface-app: var(--erp-neutral-50);
+  --surface-canvas: var(--erp-neutral-0);
+  --surface-subtle: var(--erp-neutral-25);
+  --surface-muted: var(--erp-neutral-100);
+  --surface-selected: #FDF5F4;
+  --surface-inverse: #171614;
+  --surface-inverse-raised: #211F1D;
+  --surface-overlay: rgba(20, 18, 16, 0.55);
+  --surface-danger-soft: #FAEEEB;
+  --surface-warning-soft: #FBF3E2;
+  --surface-success-soft: #EAF1EA;
+  --surface-info-soft: #E9EFF6;
+
+  /* Text */
+  --text-primary: var(--erp-neutral-900);
+  --text-secondary: var(--erp-neutral-700);
+  --text-muted: var(--erp-neutral-600);
+  --text-faint: var(--erp-neutral-500);
+  --text-inverse: #F5F5F3;
+  --text-inverse-muted: #B9B7B1;
+  --text-inverse-faint: #8C8A84;
+  --text-brand: var(--cls-red);
+  --text-danger: var(--cls-brick);
+  --text-inverse-brand: var(--cls-red-bright);
+
+  /* Borders */
+  --border-hair: var(--erp-neutral-200);
+  --border-strong: var(--erp-neutral-300);
+  --border-inverse: rgba(245, 245, 243, 0.14);
+  --border-brand: var(--cls-red);
+  --border-danger: var(--cls-brick);
+
+  /* Focus */
+  --focus-ring: var(--cls-red);
+  --focus-ring-inverse: var(--cls-red-bright);
+  --focus-halo: rgba(203, 10, 11, 0.16);
+  --focus-offset: 2px;
+
+  /* Actions */
+  --action-primary-bg: var(--cls-red);
+  --action-primary-bg-hover: var(--cls-red-hover);
+  --action-primary-bg-active: #8F0708;
+  --action-primary-fg: #FFFFFF;
+  --action-secondary-bg: var(--erp-neutral-0);
+  --action-secondary-bg-hover: var(--erp-neutral-25);
+  --action-secondary-fg: var(--text-primary);
+  --action-secondary-border: var(--border-strong);
+  --action-ghost-fg: var(--text-primary);
+  --action-ghost-hover: var(--erp-neutral-100);
+  --action-danger-bg: var(--cls-brick);
+  --action-danger-bg-hover: #701F14;
+  --action-danger-fg: #FFFFFF;
+  --action-danger-border: var(--cls-brick);
+  --action-disabled-bg: var(--erp-neutral-100);
+  --action-disabled-fg: var(--erp-neutral-400);
+
+  /* ── Status triples ─────────────────────────────────────────────────────
+     Every chip/banner uses fg + bg + bd together. Sentence-case labels.
+     Contrast of every fg on bg is ≥ 5.3:1.                              */
+
+  --status-draft-fg: #55554F;
+  --status-draft-bg: #F2F2EF;
+  --status-draft-bd: #DEDDD8;
+
+  --status-pending-fg: #7A5200;
+  --status-pending-bg: #FBF3E2;
+  --status-pending-bd: #EBD9B4;
+
+  --status-approved-fg: #1F5D50;
+  --status-approved-bg: #E7F1EE;
+  --status-approved-bd: #C6DED8;
+
+  --status-ordered-fg: #1E4A7A;
+  --status-ordered-bg: #E9EFF6;
+  --status-ordered-bd: #C9D8E6;
+
+  --status-transit-fg: #4B3F7A;
+  --status-transit-bg: #EFEDF8;
+  --status-transit-bd: #D8D2EA;
+
+  --status-received-fg: #2F5D3A;
+  --status-received-bg: #EAF1EA;
+  --status-received-bd: #CADCC9;
+
+  --status-progress-fg: #164E73;
+  --status-progress-bg: #E6F0F6;
+  --status-progress-bd: #C2D9E6;
+
+  --status-complete-fg: #245C2E;
+  --status-complete-bg: #E6F1E7;
+  --status-complete-bd: #C4DDC6;
+
+  --status-invoiced-fg: #3F4552;
+  --status-invoiced-bg: #EDEEF1;
+  --status-invoiced-bd: #D5D7DD;
+
+  --status-cancelled-fg: #5E5E59;
+  --status-cancelled-bg: #F1F1EE;
+  --status-cancelled-bd: #DCDCD7;
+
+  --status-rejected-fg: #8B2E1F;
+  --status-rejected-bg: #FAEEEB;
+  --status-rejected-bd: #E8CFC9;
+
+  /* ── Typography ───────────────────────────────────────────────────────── */
+
+  --font-sans: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: "Libre Caslon Text", "Times New Roman", Georgia, serif;
+  --font-serif-italic: "Instrument Serif", "Libre Caslon Text", Georgia, serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --text-2xs: 10px;
+  --text-xs: 11px;
+  --text-sm: 12px;
+  --text-ui: 13px;
+  --text-md: 14px;
+  --text-base: 15px;
+  --text-lg: 17px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+  --text-3xl: 32px;
+  --text-display: 40px;
+  --text-brand: 52px;
+
+  --leading-tight: 1.05;
+  --leading-heading: 1.15;
+  --leading-snug: 1.3;
+  --leading-normal: 1.45;
+  --leading-body: 1.55;
+
+  --tracking-tight: -0.02em;
+  --tracking-snug: -0.01em;
+  --tracking-normal: 0;
+  --tracking-label: 0.08em;
+  --tracking-caps: 0.12em;
+  --tracking-eyebrow: 0.16em;
+  --tracking-lockup: 0.22em;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* ── Motion ───────────────────────────────────────────────────────────── */
+
+  --dur-1: 120ms;
+  --dur-2: 180ms;
+  --dur-3: 240ms;
+  --dur-4: 320ms;
+  --dur-5: 480ms;              /* brand moments only */
+  --ease-std: cubic-bezier(0.2, 0.6, 0.2, 1);
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* ── Elevation ────────────────────────────────────────────────────────── */
+
+  --shadow-xs: 0 1px 2px rgba(20, 18, 16, 0.06);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.07);
+  --shadow-md: 0 4px 16px -4px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 16px 40px -12px rgba(0, 0, 0, 0.18);
+  --shadow-focus: 0 0 0 4px var(--focus-halo);
+
+  /* ── Layout ───────────────────────────────────────────────────────────── */
+
+  --shell-sidebar-w: 256px;
+  --shell-sidebar-w-collapsed: 64px;
+  --shell-topbar-h: 60px;
+  --shell-gutter: 32px;
+  --shell-header-gap: 24px;
+  --content-max: none;
+  --prose-max: 68ch;
+  --rail-w: 320px;
+
+  /* ── Z-index ──────────────────────────────────────────────────────────── */
+
+  --z-sticky: 30;
+  --z-dropdown: 40;
+  --z-overlay: 50;
+  --z-modal: 60;
+  --z-toast: 70;
+  --z-palette: 80;
+
+  /* ── Data visualisation ───────────────────────────────────────────────── */
+
+  --viz-1: #CB0A0B;   /* primary / current period */
+  --viz-2: #1E4A7A;   /* comparison */
+  --viz-3: #2F5D3A;   /* complete / positive */
+  --viz-4: #996A00;   /* pending / warning */
+  --viz-5: #4B3F7A;   /* transit */
+  --viz-6: #1F5D50;   /* approved */
+  --viz-7: #8B5E3C;   /* neutral category */
+  --viz-8: #6A6A64;   /* other / benchmark */
+
+  --viz-grid: #EFEFEC;
+  --viz-axis: var(--text-muted);
+  --viz-tooltip-bg: var(--surface-canvas);
+  --viz-tooltip-border: var(--border-hair);
+
+  --viz-seq-1: #FCEDED;
+  --viz-seq-2: #F6D3D2;
+  --viz-seq-3: #EDA7A5;
+  --viz-seq-4: #DF6E6B;
+  --viz-seq-5: #CB0A0B;
+  --viz-seq-6: #8F0708;
+  --viz-seq-7: #5C0405;
+
+  /* ── LAYER 3 · COMPONENT / DENSITY CONTRACTS ──────────────────────────── */
+
+  --control-h-sm: 32px;
+  --control-h-md: 40px;
+  --control-h-lg: 44px;
+  --control-px: 12px;
+  --control-radius: var(--radius-2);
+
+  --table-row-h: 48px;
+  --table-cell-py: 12px;
+  --table-cell-px: 16px;
+  --table-header-h: 36px;
+  --table-font: var(--text-ui);
+
+  --card-pad-sm: 16px;
+  --card-pad-md: 20px;
+  --card-pad-lg: 24px;
+  --card-radius: var(--radius-2);
+  --card-gap: 16px;
+
+  --modal-w-sm: 480px;
+  --modal-w-md: 640px;
+  --modal-w-lg: 800px;
+  --drawer-w-sm: 400px;
+  --drawer-w-md: 480px;
+  --drawer-w-lg: 720px;
+
+  --toast-w: 380px;
+  --palette-w: 640px;
+  --popover-radius: var(--radius-2);
+}
+
+/* ── Density mode ──────────────────────────────────────────────────────── */
+[data-density="compact"] {
+  --table-row-h: 36px;
+  --table-cell-py: 6px;
+  --table-cell-px: 12px;
+  --table-header-h: 32px;
+  --table-font: var(--text-sm);
+  --control-h-md: 36px;
+  --card-pad-sm: 12px;
+  --card-pad-md: 16px;
+  --card-pad-lg: 20px;
+  --card-gap: 12px;
+}
+
+/* ── Optional dim theme, phase 2 ───────────────────────────────────────── */
+[data-theme="dim"] {
+  --surface-app: #121211;
+  --surface-canvas: #1B1B19;
+  --surface-subtle: #20201E;
+  --surface-muted: #262624;
+  --surface-selected: #2A1D1C;
+  --surface-inverse: #0C0C0B;
+  --text-primary: #F2F1ED;
+  --text-secondary: #C9C7C1;
+  --text-muted: #A3A19A;
+  --text-faint: #7A7872;
+  --border-hair: #2E2D2A;
+  --border-strong: #45443F;
+  --action-secondary-bg: #1B1B19;
+  --action-secondary-bg-hover: #232321;
+  --action-ghost-hover: #262624;
+  --text-brand: #E8625F;
+  --text-danger: #E7A198;
+  --focus-ring: #E8625F;
+  --focus-ring-inverse: #E8625F;
+  --border-brand: #E8625F;
+
+  --status-draft-fg: #C9C7C1;
+  --status-draft-bg: #2A2A27;
+  --status-draft-bd: #3A3A36;
+
+  --status-pending-fg: #E5B65A;
+  --status-pending-bg: #2E2515;
+  --status-pending-bd: #4A3B20;
+
+  --status-approved-fg: #7FC6B6;
+  --status-approved-bg: #152A26;
+  --status-approved-bd: #24443D;
+
+  --status-ordered-fg: #8FB7DD;
+  --status-ordered-bg: #16222E;
+  --status-ordered-bd: #263A4D;
+
+  --status-transit-fg: #B6A9E8;
+  --status-transit-bg: #211C31;
+  --status-transit-bd: #373052;
+
+  --status-received-fg: #8FC49A;
+  --status-received-bg: #182717;
+  --status-received-bd: #2B4229;
+
+  --status-progress-fg: #8CC6E8;
+  --status-progress-bg: #14242D;
+  --status-progress-bd: #233D4C;
+
+  --status-complete-fg: #93CB9C;
+  --status-complete-bg: #172818;
+  --status-complete-bd: #2A442C;
+
+  --status-invoiced-fg: #C2C6CF;
+  --status-invoiced-bg: #24262B;
+  --status-invoiced-bd: #383B43;
+
+  --status-cancelled-fg: #B0AEA8;
+  --status-cancelled-bg: #242422;
+  --status-cancelled-bd: #373733;
+
+  --status-rejected-fg: #E7A198;
+  --status-rejected-bg: #2C1916;
+  --status-rejected-bd: #482A25;
+
+  --viz-1: #E8625F;
+  --viz-2: #6EA8D8;
+  --viz-3: #6FAF7B;
+  --viz-4: #D6A23A;
+  --viz-5: #9E8FD8;
+  --viz-6: #59B3A2;
+  --viz-7: #C98F6B;
+  --viz-8: #A3A19A;
+  --viz-grid: #2A2A27;
+}
+
+/* ── Base layer ────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--surface-app);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-synthesis-weight: none;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--surface-app);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  color: var(--text-brand);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+::selection {
+  background: var(--cls-red);
+  color: #fff;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   OPTIONAL · Tailwind v4 theme mapping
+   ───────────────────────────────────────────────────────────────────────────
+   The reference storefront does not use Tailwind; these are inline styles and
+   CSS variables. Include this block only if the rebuild adopts Tailwind v4.
+   Uncomment and place after `@import "tailwindcss";`.
+
+@theme {
+  --color-surface-app: #F4F4F1;
+  --color-surface-canvas: #FFFFFF;
+  --color-surface-subtle: #FAFAF8;
+  --color-surface-muted: #EFEFEC;
+  --color-surface-inverse: #171614;
+  --color-ink: #1A1A18;
+  --color-body: #4A4A45;
+  --color-muted: #6A6A64;
+  --color-faint: #8A8A84;
+  --color-brand: #CB0A0B;
+  --color-brand-hover: #A50808;
+  --color-brand-soft: #FCEDED;
+  --color-danger: #8B2E1F;
+  --color-success: #2F5D3A;
+  --color-warning: #8A5A00;
+  --color-info: #1E4A7A;
+  --color-violet: #4B3F7A;
+  --color-teal: #1F5D50;
+  --color-border: #E3E2DE;
+  --color-border-strong: #C9C7C1;
+
+  --font-sans: "Instrument Sans", system-ui, sans-serif;
+  --font-serif: "Libre Caslon Text", Georgia, serif;
+  --font-serif-italic: "Instrument Serif", Georgia, serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+
+  --shadow-xs: 0 1px 2px rgba(20,18,16,.06);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.07);
+  --shadow-md: 0 4px 16px -4px rgba(0,0,0,.12);
+  --shadow-lg: 0 16px 40px -12px rgba(0,0,0,.18);
+
+  --ease-std: cubic-bezier(.2,.6,.2,1);
+  --ease-out: cubic-bezier(.2,.8,.2,1);
+}
+   ═══════════════════════════════════════════════════════════════════════════ */

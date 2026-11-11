@@ -1,0 +1,15 @@
+{
+  "name": "@cls/core",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./env.server": "./src/env.server.ts",
+    "./errors": "./src/errors.ts",
+    "./logger": "./src/logger.ts"
+  },
+  "dependencies": {
+    "zod": "^4.6.7"
+  }
+}

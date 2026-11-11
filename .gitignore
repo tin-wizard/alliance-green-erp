@@ -1,0 +1,33 @@
+node_modules/
+.output/
+dist/
+dist-ssr/
+.tanstack/
+.vite/
+coverage/
+test-results/
+playwright-report/
+blob-report/
+.playwright/
+
+# secrets and local state
+.env
+.env.*
+!.env.example
+*.local
+*.log
+logs/
+
+# editor / OS
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+Thumbs.db
+
+# generated route tree is committed on purpose (build works without codegen step)
+# src/routeTree.gen.ts is tracked
+
+# drizzle
+packages/db/.drizzle/
+.neon

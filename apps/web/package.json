@@ -1,0 +1,41 @@
+{
+  "name": "@cls/web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@cls/ai": "workspace:*",
+    "@cls/auth": "workspace:*",
+    "@cls/core": "workspace:*",
+    "@cls/db": "workspace:*",
+    "@cls/sage": "workspace:*",
+    "@cls/storage": "workspace:*",
+    "@cls/ui": "workspace:*",
+    "@tanstack/react-form": "^1.23.0",
+    "@tanstack/react-query": "^5.107.1",
+    "@tanstack/react-router": "^1.170.46",
+    "@tanstack/react-start": "^1.169.5",
+    "@tanstack/react-table": "^8.21.3",
+    "drizzle-orm": "^0.45.4",
+    "lucide-react": "^0.545.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.5",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "nitro": "^3.0.261103-rc",
+    "tailwindcss": "^4.3.5",
+    "typescript": "~5.9.3",
+    "vite": "^8.3.8"
+  }
+}
