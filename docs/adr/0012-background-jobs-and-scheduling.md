@@ -8,6 +8,15 @@
 - **Relates to:** ADR 0002 (single local process), ADR 0013 (notifications), ADR 0005 (Sage adapter),
   `plan/CUTOVER-AND-MIGRATION.md` §4 (Sage single-writer gate)
 
+> **Post-D18 amendment (2026-11-11).** The rebuild now runs in the cloud (ADR 0014). The scheduler
+> collection is unchanged — registry in code, `app.job_runs` ledger, per-job advisory locks,
+> bounded catch-up, authenticated trigger — but the *wake-up* changes: a serverless platform has no
+> resident process, so a platform cron calls the trigger route and the in-process ticker is only
+> used on a long-lived Node host. "One instance owns the schedule" becomes "one environment holds
+> the scheduler lease", enforced by the same Postgres advisory lock. Any handler that assumed a
+> `setInterval` timer, process memory surviving between runs, or a local filesystem must be
+> rewritten to read and write state in Postgres.
+
 ## Context
 
 The legacy system schedules its background work as nine PHP scripts on the host's crontab, plus a

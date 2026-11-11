@@ -25,10 +25,16 @@ parity, and switching each module without a big-bang cutover.
 3. **The legacy database has no foreign keys, no transactions on MyISAM, latin1 text, money in
    `varchar`, and 117 dated backup tables.** The migration must normalise deliberately and must
    never guess an id.
-4. **Sage is a second database with no distributed transaction.** Legacy and the rebuild both
-   write the same Sage 50 `simply` tables. They must never write at the same time. The Sage switch
-   is a separate, explicit gate inside the financial cutover, not an automatic consequence of
-   deploying a module.
+4. **Sage is a separate system reached over a cloud API, and it is still not one transaction with
+   this app.** This plan originally assumed the rebuild would write the same Sage 50 `simply`
+   tables as the legacy. Under D18 (2026-11-11) the rebuild posts to a **Sage cloud API** instead,
+   so the legacy Sage 50 company and the new cloud ledger are two different systems, not two
+   writers on one database. The principle survives: one writer per document, one direction per
+   field, and a signed reconciliation before anyone claims the books agree. The gate changes shape:
+   there is no `sageuser` grant to revoke and no company file to freeze at the switch. The risks
+   move to OAuth consent and refresh-token custody, API quota exhaustion, idempotency of an HTTP
+   retry, and the history gap between the frozen Sage 50 company and the new cloud ledger. See
+   `plan/modules/SAGE-CLOUD.md` and §4.4.
 5. **Not every target table exists yet.** Master Data, Work Orders and Quotes have `app` tables;
    Purchasing is landing now; Invoicing, Inventory and TJX do not. The harness therefore runs from
    a **target mapping manifest**. A module whose manifest cannot resolve its target tables is
@@ -49,9 +55,9 @@ No migration run is promoted, and no module is switched, until all of these are 
 | G2 Target manifest resolves | Every entity maps to existing `app` tables and columns; unresolved modules are listed as blocked | Module owners |
 | G3 Rehearsal passes | Full migration + parity on the restored dump; run report with zero unexplained differences | Data platform + module owners |
 | G4 Exceptions signed | Every row in `migration.exceptions` has a decision and named owner | Business owner |
-| G5 Backups tested | Restore rehearsal of Neon branch, legacy MySQL, Sage company file, and object storage | Platform |
+| G5 Backups tested | Restore rehearsal of Neon branch, legacy MySQL, the Sage 50 company file kept as the history archive, object storage, and the new Sage cloud consent record plus opening-balance snapshot | Platform |
 | G6 Rollback rehearsed | One module rolled back without touching another module; documented elapsed time | Data platform |
-| G7 Single-writer plan signed | Legacy scheduler and Sage transfer routes stopped for the module; MySQL grants and Sage grants frozen | Operations |
+| G7 One-writer plan signed | Legacy scheduler and Sage transfer routes stopped for the module; MySQL grants frozen; exactly one Sage API credential set active and the legacy posting path confirmed stopped | Operations |
 
 A module with a failed gate stays on legacy. A cutover date is not a reason to waive a gate.
 
@@ -579,6 +585,40 @@ A module passes only when:
 - every exception has `decision in ('accepted','fixed','excluded')` and an owner;
 - the module owner signs the run report and the finance owner signs money modules.
 
+### 3.6 Sage reconciliation under the cloud API
+
+The old parity idea — "the rebuild writes the same `simply` tables, so compare rows" — is void
+under D18. The replacement compares **money at the boundary**, not tables, because the legacy Sage
+50 company and the cloud ledger never share a document id again.
+
+Three artefacts, captured and signed together:
+
+1. **Legacy ledger snapshot at the opening-balance date.** Taken from Sage 50's own reports, not
+   from the MySQL tables: aged receivables and payables by customer and vendor, trial balance,
+   tax collected by code and period. Reports are the accounting truth; `tcustr` is only the
+   storage that produced them. A signed PDF/CSV pair per report, dated, with the person who pulled
+   it.
+2. **Opening-balance load.** Contacts, their balances and the GL opening positions are loaded
+   through the cloud API and the request log is kept: request id, external reference, API id,
+   amount. `migrated` / `source_guid` / external-reference fields exist for exactly this and must
+   be set, so a reload is recognisable rather than duplicated.
+3. **Reconciliation queries, run daily after the switch.** Per customer: opening balance plus
+   invoices posted since, minus payments, equals the ledger balance. Per period: invoice count and
+   total by date, tax by rate, and the count of posting attempts per status. Per document: our
+   external reference maps to exactly one API id, never two.
+
+The verdict is a trial balance and an aged-receivables total that agree exactly at the boundary,
+followed by document-level agreement on everything posted after it. A one-cent drift fails the
+run: it is the signature of a rounding or tax-model difference that will grow every month it is
+left alone.
+
+The ambiguity that has to be resolved by the human, not by the harness, is *what the cloud ledger
+is expected to contain*. If it is a clean opening position plus future documents, the conversion
+is small and the history stays in Sage 50 as an archive. If finance expects per-document history
+in the cloud product, the exercise becomes a data conversion of 71,087 invoice lines and 45,390
+work-order part rows into a product that may not accept historical inventory movement — and that
+is a different project. `plan/modules/SAGE-CLOUD.md` §7 states the choice.
+
 ---
 
 ## 4. Cutover sequence
@@ -609,7 +649,7 @@ single-module rollback possible.
 | 2 | Work Orders + Quotes | both modules complete; numbering; PDFs; outbox for WO/quote tables | purchasing, inventory, invoicing, TJX |
 | 3 | Purchasing | POs, RFQs, preorders, receipts, supplier invoices; outbox for PO tables | inventory, invoicing, TJX |
 | 4 | Inventory and price management | counters, ledger, adjustments, price lock; outbox for inventory | invoicing, TJX |
-| 5 | Invoicing and RGAs | invoice snapshots, tax, PO/sub invoices, Sage staging; **Sage writer switch is a gate inside this wave** | TJX |
+| 5 | Invoicing and RGAs | invoice snapshots, tax, PO/sub invoices, Sage posting staging; **the Sage cutover is a gate inside this wave: opening balances, API consent, one reconciled test document** | TJX |
 | 6 | TJX | fixtures, rooms, quotes, sub-invoices | messaging/compliance/admin |
 | 7 | Messaging, compliance, reports, admin | history and new notifications/jobs; no financial writes | none |
 
@@ -693,24 +733,38 @@ company file is a last resort and requires the Sage owner. A module that has pos
 The rollback does not touch other waves. The legacy outbox and per-unit grants are what isolate
 them.
 
-### 4.4 Sage single-writer decision
+### 4.4 Sage cutover: one writer, one direction, one reconciliation
 
-The rebuild writes the same Sage 50 tables as the legacy. Two writers are forbidden.
+Under D18 the legacy writes Sage 50's `simply` tables and the rebuild writes a **Sage cloud API**.
+They are separate ledgers, so "two writers on one database" is no longer the hazard. What replaces
+it:
 
-- **Until the Sage gate:** legacy is the only Sage writer. The new app may create invoices and
-  stage a Sage posting request, but it must not insert into `simply`.
-- **Sage gate:** stop the legacy portal and its Sage transfer routes, stop the legacy scheduler,
-  wait for in-flight postings, verify the last `tcustr.sSource`/`sgsales_done` state, and back up
-  the Sage company file.
-- **Switch:** disable the legacy `sageuser` grants used by the portal (use a separate new writer
-  user if Sage permits), enable the new `@cls/sage` writer with one advisory lock and one worker,
-  and post a known test invoice. The idempotency guard remains
-  `tcustr.sSource = woid and nTranType = 0`.
-- **Rollback:** disable the new writer first, reconcile what it posted, then restore legacy grants.
-  Never have both enabled while reconciling by hand.
+- **One posting path per document, chosen by date.** Invoices and bills up to the opening-balance
+  date are posted by the legacy into Sage 50 and never re-posted by the new system. Documents after
+  that date are posted by the rebuild into the cloud ledger and never by the legacy. A document
+  crossing the boundary is the failure case, so the opening-balance date is fixed, published, and
+  enforced by a `posting_period` row that both systems respect during the overlap.
+- **One credential set, one token custodian.** There is no grant to revoke at the switch; there is
+  an OAuth 2.0 consent to obtain, a rotating refresh token to store, and a keep-alive refresh so
+  the integration does not silently expire. Exactly one environment holds the active token pair
+  for the company, and a second holder is the new version of the two-writer bug.
+- **The legacy posting path is still stopped at the gate.** Not because of a shared table, but
+  because a legacy posting after the opening-balance snapshot breaks the reconciliation baseline.
+  Stop the portal's Sage transfer routes and scheduler, wait for in-flight postings, and take the
+  final snapshot of open items and balances.
+- **Reconciliation, not parity, is the acceptance test.** After the first posting, the new system
+  compares its document to what the API returned and to the expected ledger effect, by external
+  reference. The legacy cannot be compared to the API at all; the comparison is *legacy ledger
+  totals at the snapshot date* versus *opening balances loaded into the cloud ledger*, plus
+  document-level agreement on everything posted since.
+- **Rollback stops short of the accounting.** Disable the new posting worker, reconcile what it
+  posted, reverse it with credit notes or journals if it is wrong. There is no company file to
+  restore and no grants to swap. A document that has posted is forward-fix only until the finance
+  owner signs the reconciliation.
 
 The new system must not use the legacy `under_maintenance.php` behaviour: a Sage outage degrades
-Sage features and shows status, but does not take down the ERP.
+Sage features and shows status, but does not take the ERP down. Postings queue in the outbox and
+drain when the API returns.
 
 ---
 
@@ -846,10 +900,15 @@ can be tested before a cutover date is promised.
    remain live.** Master data and work-order writes are mostly mappable; invoices, receipts, price
    changes and calculated totals are not. If a write cannot be mapped, the dependent wave must be
    bundled, not forced.
-3. **Sage can be frozen long enough for one final dump and the writer switch.** Sage 50 is a
-   desktop product with its own counters and no transactions. If the business cannot stop posting
-   for the window, a "single writer" switch is not achievable and the financial waves must move to
-   a maintenance window.
+3. **The Sage target is a cloud ledger that was never reconciled to the Sage 50 books, and the
+   cutover accepts an opening-balance date.** The freeze risk is gone (no company file, no
+   counters, no shared tables), and it is replaced by three others: the cloud product must support
+   the documents this business posts (Canadian tax, customer invoices, supplier bills),
+   its API quota must cover a month of posting plus polling, and finance must accept Sage 50 as a
+   closed history archive rather than a system that keeps agreeing to the cent. If the chosen
+   product differs from Sage 50 in a way that matters — no project costing, no purchase orders, or
+   a different tax model — the affected wave must bundle that gap rather than invent a workaround
+   at cutover. See `plan/modules/SAGE-CLOUD.md`.
 4. **The target modules will publish stable natural keys and ID policies before their cutover.**
    Quotes currently use a serial `id` for a customer-facing number; PO uses the PO number;
    work orders preserve the legacy number. If those rules change after migration, the row map and

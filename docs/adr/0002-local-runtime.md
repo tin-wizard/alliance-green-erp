@@ -1,8 +1,30 @@
 # ADR 0002 — Local runtime topology
 
-- **Status:** Accepted
+- **Status:** Superseded (2026-11-11) by D18 and ADR 0014. Kept for history; do not implement.
+- **Superseded by:** `plan/REBUILD-PLAN.md` D18 (cloud strategy) and
+  `plan/adr/0014-cloud-hosting.md` (hosting recommendation)
 - **Date:** 2026-11-11
 - **Owners:** Platform
+
+> ## Supersession note
+>
+> The human changed strategy on 2026-11-11 (D18): the rebuild runs **in the cloud**, not on a
+> LAN host. Neon Postgres remains primary, and there is no local or offline mode to unwind
+> because none was built.
+>
+> What still holds from this ADR: one managed Postgres over TLS, a single server process per
+> instance, env-file-free secret management in production, and the health endpoint contract.
+>
+> What no longer holds: the LAN-only exposure model, `HOST=0.0.0.0` on the company network, the
+> Windows/NSSM or systemd process manager as the production deployment, and the claim that the
+> app must run on the same host as Sage 50. With a cloud Sage API there is no localhost MySQL to
+> reach, so the topology constraint that forced co-location is gone. The replacement is
+> `plan/adr/0014-cloud-hosting.md`; the security consequences (HTTPS-only cookies, secrets in a
+> platform store, rate limiting, forwarded-header trust, audit integrity) are recorded there.
+>
+> The in-process scheduler decision survives in ADR 0012, but the "single instance on the LAN
+> host" reasoning is replaced by "one scheduler lease per environment", which works the same way
+> on a platform with several concurrent function instances.
 
 ## Context
 

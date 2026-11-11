@@ -8,6 +8,16 @@
 - **Relates to:** ADR 0012 (jobs runner), ADR 0004 (auth/RBAC), ADR 0011 (PDF attachments),
   `green-system/MODULES.md` §13
 
+> **Post-D18 amendment (2026-11-11).** The rebuild now runs on a serverless host (ADR 0014). Three
+> things tighten and nothing reverses: the outbox stays the single path to a mail provider and the
+> drain job stays the only sender. (1) **A send must be awaited inside the invocation.** A
+> serverless function pauses background work after it responds, so fire-and-forget loses mail
+> mid-handshake; each drain invocation sends a bounded batch (25 messages), awaits every send, and
+> returns counts, leaving the rest for the next tick. (2) **Outbound SMTP works on ports 465/587
+> and not 25**, which suits the Office 365 STARTTLS endpoint; an HTTP provider API is the preferred
+> swap if SMTP proves unreliable. (3) **The transport interface is unchanged**, so `memory` in
+> tests, `file` locally and a provider API in production differ only in one adapter.
+
 ## Context
 
 Email is not a garnish in this business: dispatch confirmations, purchase-order follow-ups,

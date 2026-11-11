@@ -1,8 +1,36 @@
 # ADR 0005 — Sage 50 adapter boundary and the documented MySQL protocol
 
-- **Status:** Accepted; discovery and connection verification implemented, business sync pending
+- **Status:** Superseded (2026-11-11) by D18 and `plan/modules/SAGE-CLOUD.md`. Kept for history
+  and for the legacy behaviour it documents; the MySQL implementation is not to be extended.
+- **Superseded by:** `plan/REBUILD-PLAN.md` D18 (cloud strategy),
+  `plan/modules/SAGE-CLOUD.md` (cloud API mapping)
 - **Date:** 2026-11-11
 - **Owners:** Platform
+
+> ## Supersession note
+>
+> The human changed strategy on 2026-11-11 (D18). The integration target is now a **Sage cloud
+> API**, not the local Sage 50 MySQL listener. The original context below reverses one sentence:
+> "Do not replace it with a cloud integration" was the constraint when this ADR was written, and
+> it has been explicitly withdrawn.
+>
+> **What survives unchanged:** the boundary. `packages/sage` still owns everything Sage, no module
+> imports a driver or reads `SAGE_*`, credentials come from the environment, health reports
+> `disabled | unreachable | unverified | verified | error` rather than faking success, and a Sage
+> outage degrades Sage features instead of taking the ERP down. The `SageAdapter` interface is the
+> seam that makes this a re-implementation rather than a rewrite.
+>
+> **What is deleted:** sentinel port discovery, the `tvendor` id 663 `SagePort` probe, the
+> `simply` schema, latin1/empty-SQL-mode coercion rules, `tNxtPIds` counter bumping, the
+> `tcustr.sSource` existence guard as the idempotency mechanism, and the co-location requirement.
+> Their replacements are OAuth 2.0 authorisation with stored refresh tokens, API-assigned opaque
+> ids with our own external references, request idempotency keys, and explicit quota budgeting —
+> see `plan/modules/SAGE-CLOUD.md`.
+>
+> **What is now a risk rather than a rule:** the legacy write sequence and the `simply` table
+> contents remain the authoritative description of *what* must be posted (invoice header, lines,
+> tax, journal, customer balance), and they are the source for reconciling migrated history. They
+> are no longer a specification of *how* to post it.
 
 ## Context
 
