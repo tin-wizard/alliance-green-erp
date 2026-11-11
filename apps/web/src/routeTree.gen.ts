@@ -18,28 +18,41 @@ import { Route as ApiReadyRouteImport } from './routes/api/ready'
 import { Route as AppAdminAuditRouteImport } from './routes/_app/admin/audit'
 import { Route as AppAdminUsersRouteImport } from './routes/_app/admin/users'
 import { Route as AppMasterDataIndexRouteImport } from './routes/_app/master-data/index'
+import { Route as AppMasterDataImportRouteImport } from './routes/_app/master-data/import'
 import { Route as AppQuotesIndexRouteImport } from './routes/_app/quotes/index'
 import { Route as AppQuotesNewRouteImport } from './routes/_app/quotes/new'
 import { Route as AppWorkOrdersIndexRouteImport } from './routes/_app/work-orders/index'
 import { Route as AppWorkOrdersNewRouteImport } from './routes/_app/work-orders/new'
+import { Route as ApiCronComplianceExpiryRouteImport } from './routes/api/cron/compliance-expiry'
 import { Route as AppMaintenanceWorkOrdersIndexRouteImport } from './routes/_app/maintenance/work-orders/index'
 import { Route as AppMaintenanceWorkOrdersNewRouteImport } from './routes/_app/maintenance/work-orders/new'
 import { Route as AppMasterDataCustomersIndexRouteImport } from './routes/_app/master-data/customers/index'
 import { Route as AppMasterDataCustomersIdRouteImport } from './routes/_app/master-data/customers/$id'
+import { Route as AppMasterDataCustomersNewRouteImport } from './routes/_app/master-data/customers/new'
 import { Route as AppMasterDataPartsIndexRouteImport } from './routes/_app/master-data/parts/index'
 import { Route as AppMasterDataPartsIdRouteImport } from './routes/_app/master-data/parts/$id'
+import { Route as AppMasterDataPartsNewRouteImport } from './routes/_app/master-data/parts/new'
 import { Route as AppMasterDataSitesIndexRouteImport } from './routes/_app/master-data/sites/index'
 import { Route as AppMasterDataSitesIdRouteImport } from './routes/_app/master-data/sites/$id'
+import { Route as AppMasterDataSitesNewRouteImport } from './routes/_app/master-data/sites/new'
 import { Route as AppMasterDataSubcontractorsIndexRouteImport } from './routes/_app/master-data/subcontractors/index'
 import { Route as AppMasterDataSubcontractorsIdRouteImport } from './routes/_app/master-data/subcontractors/$id'
+import { Route as AppMasterDataSubcontractorsNewRouteImport } from './routes/_app/master-data/subcontractors/new'
 import { Route as AppMasterDataSuppliersIndexRouteImport } from './routes/_app/master-data/suppliers/index'
 import { Route as AppMasterDataSuppliersIdRouteImport } from './routes/_app/master-data/suppliers/$id'
+import { Route as AppMasterDataSuppliersNewRouteImport } from './routes/_app/master-data/suppliers/new'
 import { Route as AppPortalTechIndexRouteImport } from './routes/_app/portal/tech/index'
 import { Route as AppQuotesIdIndexRouteImport } from './routes/_app/quotes/$id/index'
 import { Route as AppQuotesIdEditRouteImport } from './routes/_app/quotes/$id/edit'
 import { Route as AppWorkOrdersIdIndexRouteImport } from './routes/_app/work-orders/$id/index'
 import { Route as AppWorkOrdersIdRevisionsRouteImport } from './routes/_app/work-orders/$id/revisions'
+import { Route as ApiMasterDataDocumentsIdRouteImport } from './routes/api/master-data/documents/$id'
 import { Route as AppMaintenanceWorkOrdersIdIndexRouteImport } from './routes/_app/maintenance/work-orders/$id/index'
+import { Route as AppMasterDataCustomersEditIdRouteImport } from './routes/_app/master-data/customers/edit/$id'
+import { Route as AppMasterDataPartsEditIdRouteImport } from './routes/_app/master-data/parts/edit/$id'
+import { Route as AppMasterDataSitesEditIdRouteImport } from './routes/_app/master-data/sites/edit/$id'
+import { Route as AppMasterDataSubcontractorsEditIdRouteImport } from './routes/_app/master-data/subcontractors/edit/$id'
+import { Route as AppMasterDataSuppliersEditIdRouteImport } from './routes/_app/master-data/suppliers/edit/$id'
 import { Route as AppPortalSubWorkOrdersIndexRouteImport } from './routes/_app/portal/sub/work-orders/index'
 import { Route as AppPortalTechIdIndexRouteImport } from './routes/_app/portal/tech/$id/index'
 import { Route as AppPortalSubWorkOrdersIdIndexRouteImport } from './routes/_app/portal/sub/work-orders/$id/index'
@@ -88,6 +101,11 @@ const AppMasterDataIndexRoute = AppMasterDataIndexRouteImport.update({
   path: '/master-data/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppMasterDataImportRoute = AppMasterDataImportRouteImport.update({
+  id: '/master-data/import',
+  path: '/master-data/import',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppQuotesIndexRoute = AppQuotesIndexRouteImport.update({
   id: '/quotes/',
   path: '/quotes/',
@@ -107,6 +125,11 @@ const AppWorkOrdersNewRoute = AppWorkOrdersNewRouteImport.update({
   id: '/work-orders/new',
   path: '/work-orders/new',
   getParentRoute: () => AppRoute,
+} as any)
+const ApiCronComplianceExpiryRoute = ApiCronComplianceExpiryRouteImport.update({
+  id: '/api/cron/compliance-expiry',
+  path: '/api/cron/compliance-expiry',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AppMaintenanceWorkOrdersIndexRoute =
   AppMaintenanceWorkOrdersIndexRouteImport.update({
@@ -132,6 +155,12 @@ const AppMasterDataCustomersIdRoute =
     path: '/master-data/customers/$id',
     getParentRoute: () => AppRoute,
   } as any)
+const AppMasterDataCustomersNewRoute =
+  AppMasterDataCustomersNewRouteImport.update({
+    id: '/master-data/customers/new',
+    path: '/master-data/customers/new',
+    getParentRoute: () => AppRoute,
+  } as any)
 const AppMasterDataPartsIndexRoute = AppMasterDataPartsIndexRouteImport.update({
   id: '/master-data/parts/',
   path: '/master-data/parts/',
@@ -142,6 +171,11 @@ const AppMasterDataPartsIdRoute = AppMasterDataPartsIdRouteImport.update({
   path: '/master-data/parts/$id',
   getParentRoute: () => AppRoute,
 } as any)
+const AppMasterDataPartsNewRoute = AppMasterDataPartsNewRouteImport.update({
+  id: '/master-data/parts/new',
+  path: '/master-data/parts/new',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppMasterDataSitesIndexRoute = AppMasterDataSitesIndexRouteImport.update({
   id: '/master-data/sites/',
   path: '/master-data/sites/',
@@ -150,6 +184,11 @@ const AppMasterDataSitesIndexRoute = AppMasterDataSitesIndexRouteImport.update({
 const AppMasterDataSitesIdRoute = AppMasterDataSitesIdRouteImport.update({
   id: '/master-data/sites/$id',
   path: '/master-data/sites/$id',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMasterDataSitesNewRoute = AppMasterDataSitesNewRouteImport.update({
+  id: '/master-data/sites/new',
+  path: '/master-data/sites/new',
   getParentRoute: () => AppRoute,
 } as any)
 const AppMasterDataSubcontractorsIndexRoute =
@@ -164,6 +203,12 @@ const AppMasterDataSubcontractorsIdRoute =
     path: '/master-data/subcontractors/$id',
     getParentRoute: () => AppRoute,
   } as any)
+const AppMasterDataSubcontractorsNewRoute =
+  AppMasterDataSubcontractorsNewRouteImport.update({
+    id: '/master-data/subcontractors/new',
+    path: '/master-data/subcontractors/new',
+    getParentRoute: () => AppRoute,
+  } as any)
 const AppMasterDataSuppliersIndexRoute =
   AppMasterDataSuppliersIndexRouteImport.update({
     id: '/master-data/suppliers/',
@@ -174,6 +219,12 @@ const AppMasterDataSuppliersIdRoute =
   AppMasterDataSuppliersIdRouteImport.update({
     id: '/master-data/suppliers/$id',
     path: '/master-data/suppliers/$id',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppMasterDataSuppliersNewRoute =
+  AppMasterDataSuppliersNewRouteImport.update({
+    id: '/master-data/suppliers/new',
+    path: '/master-data/suppliers/new',
     getParentRoute: () => AppRoute,
   } as any)
 const AppPortalTechIndexRoute = AppPortalTechIndexRouteImport.update({
@@ -202,10 +253,46 @@ const AppWorkOrdersIdRevisionsRoute =
     path: '/work-orders/$id/revisions',
     getParentRoute: () => AppRoute,
   } as any)
+const ApiMasterDataDocumentsIdRoute =
+  ApiMasterDataDocumentsIdRouteImport.update({
+    id: '/api/master-data/documents/$id',
+    path: '/api/master-data/documents/$id',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AppMaintenanceWorkOrdersIdIndexRoute =
   AppMaintenanceWorkOrdersIdIndexRouteImport.update({
     id: '/maintenance/work-orders/$id/',
     path: '/maintenance/work-orders/$id/',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppMasterDataCustomersEditIdRoute =
+  AppMasterDataCustomersEditIdRouteImport.update({
+    id: '/master-data/customers/edit/$id',
+    path: '/master-data/customers/edit/$id',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppMasterDataPartsEditIdRoute =
+  AppMasterDataPartsEditIdRouteImport.update({
+    id: '/master-data/parts/edit/$id',
+    path: '/master-data/parts/edit/$id',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppMasterDataSitesEditIdRoute =
+  AppMasterDataSitesEditIdRouteImport.update({
+    id: '/master-data/sites/edit/$id',
+    path: '/master-data/sites/edit/$id',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppMasterDataSubcontractorsEditIdRoute =
+  AppMasterDataSubcontractorsEditIdRouteImport.update({
+    id: '/master-data/subcontractors/edit/$id',
+    path: '/master-data/subcontractors/edit/$id',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppMasterDataSuppliersEditIdRoute =
+  AppMasterDataSuppliersEditIdRouteImport.update({
+    id: '/master-data/suppliers/edit/$id',
+    path: '/master-data/suppliers/edit/$id',
     getParentRoute: () => AppRoute,
   } as any)
 const AppPortalSubWorkOrdersIndexRoute =
@@ -234,19 +321,27 @@ export interface FileRoutesByFullPath {
   '/api/ready': typeof ApiReadyRoute
   '/admin/audit': typeof AppAdminAuditRoute
   '/admin/users': typeof AppAdminUsersRoute
+  '/master-data/import': typeof AppMasterDataImportRoute
   '/quotes/new': typeof AppQuotesNewRoute
   '/work-orders/new': typeof AppWorkOrdersNewRoute
+  '/api/cron/compliance-expiry': typeof ApiCronComplianceExpiryRoute
   '/master-data/': typeof AppMasterDataIndexRoute
   '/quotes/': typeof AppQuotesIndexRoute
   '/work-orders/': typeof AppWorkOrdersIndexRoute
   '/maintenance/work-orders/new': typeof AppMaintenanceWorkOrdersNewRoute
   '/master-data/customers/$id': typeof AppMasterDataCustomersIdRoute
+  '/master-data/customers/new': typeof AppMasterDataCustomersNewRoute
   '/master-data/parts/$id': typeof AppMasterDataPartsIdRoute
+  '/master-data/parts/new': typeof AppMasterDataPartsNewRoute
   '/master-data/sites/$id': typeof AppMasterDataSitesIdRoute
+  '/master-data/sites/new': typeof AppMasterDataSitesNewRoute
   '/master-data/subcontractors/$id': typeof AppMasterDataSubcontractorsIdRoute
+  '/master-data/subcontractors/new': typeof AppMasterDataSubcontractorsNewRoute
   '/master-data/suppliers/$id': typeof AppMasterDataSuppliersIdRoute
+  '/master-data/suppliers/new': typeof AppMasterDataSuppliersNewRoute
   '/quotes/$id/edit': typeof AppQuotesIdEditRoute
   '/work-orders/$id/revisions': typeof AppWorkOrdersIdRevisionsRoute
+  '/api/master-data/documents/$id': typeof ApiMasterDataDocumentsIdRoute
   '/maintenance/work-orders/': typeof AppMaintenanceWorkOrdersIndexRoute
   '/master-data/customers/': typeof AppMasterDataCustomersIndexRoute
   '/master-data/parts/': typeof AppMasterDataPartsIndexRoute
@@ -256,6 +351,11 @@ export interface FileRoutesByFullPath {
   '/portal/tech/': typeof AppPortalTechIndexRoute
   '/quotes/$id/': typeof AppQuotesIdIndexRoute
   '/work-orders/$id/': typeof AppWorkOrdersIdIndexRoute
+  '/master-data/customers/edit/$id': typeof AppMasterDataCustomersEditIdRoute
+  '/master-data/parts/edit/$id': typeof AppMasterDataPartsEditIdRoute
+  '/master-data/sites/edit/$id': typeof AppMasterDataSitesEditIdRoute
+  '/master-data/subcontractors/edit/$id': typeof AppMasterDataSubcontractorsEditIdRoute
+  '/master-data/suppliers/edit/$id': typeof AppMasterDataSuppliersEditIdRoute
   '/maintenance/work-orders/$id/': typeof AppMaintenanceWorkOrdersIdIndexRoute
   '/portal/sub/work-orders/': typeof AppPortalSubWorkOrdersIndexRoute
   '/portal/tech/$id/': typeof AppPortalTechIdIndexRoute
@@ -269,19 +369,27 @@ export interface FileRoutesByTo {
   '/': typeof AppIndexRoute
   '/admin/audit': typeof AppAdminAuditRoute
   '/admin/users': typeof AppAdminUsersRoute
+  '/master-data/import': typeof AppMasterDataImportRoute
   '/quotes/new': typeof AppQuotesNewRoute
   '/work-orders/new': typeof AppWorkOrdersNewRoute
+  '/api/cron/compliance-expiry': typeof ApiCronComplianceExpiryRoute
   '/master-data': typeof AppMasterDataIndexRoute
   '/quotes': typeof AppQuotesIndexRoute
   '/work-orders': typeof AppWorkOrdersIndexRoute
   '/maintenance/work-orders/new': typeof AppMaintenanceWorkOrdersNewRoute
   '/master-data/customers/$id': typeof AppMasterDataCustomersIdRoute
+  '/master-data/customers/new': typeof AppMasterDataCustomersNewRoute
   '/master-data/parts/$id': typeof AppMasterDataPartsIdRoute
+  '/master-data/parts/new': typeof AppMasterDataPartsNewRoute
   '/master-data/sites/$id': typeof AppMasterDataSitesIdRoute
+  '/master-data/sites/new': typeof AppMasterDataSitesNewRoute
   '/master-data/subcontractors/$id': typeof AppMasterDataSubcontractorsIdRoute
+  '/master-data/subcontractors/new': typeof AppMasterDataSubcontractorsNewRoute
   '/master-data/suppliers/$id': typeof AppMasterDataSuppliersIdRoute
+  '/master-data/suppliers/new': typeof AppMasterDataSuppliersNewRoute
   '/quotes/$id/edit': typeof AppQuotesIdEditRoute
   '/work-orders/$id/revisions': typeof AppWorkOrdersIdRevisionsRoute
+  '/api/master-data/documents/$id': typeof ApiMasterDataDocumentsIdRoute
   '/maintenance/work-orders': typeof AppMaintenanceWorkOrdersIndexRoute
   '/master-data/customers': typeof AppMasterDataCustomersIndexRoute
   '/master-data/parts': typeof AppMasterDataPartsIndexRoute
@@ -291,6 +399,11 @@ export interface FileRoutesByTo {
   '/portal/tech': typeof AppPortalTechIndexRoute
   '/quotes/$id': typeof AppQuotesIdIndexRoute
   '/work-orders/$id': typeof AppWorkOrdersIdIndexRoute
+  '/master-data/customers/edit/$id': typeof AppMasterDataCustomersEditIdRoute
+  '/master-data/parts/edit/$id': typeof AppMasterDataPartsEditIdRoute
+  '/master-data/sites/edit/$id': typeof AppMasterDataSitesEditIdRoute
+  '/master-data/subcontractors/edit/$id': typeof AppMasterDataSubcontractorsEditIdRoute
+  '/master-data/suppliers/edit/$id': typeof AppMasterDataSuppliersEditIdRoute
   '/maintenance/work-orders/$id': typeof AppMaintenanceWorkOrdersIdIndexRoute
   '/portal/sub/work-orders': typeof AppPortalSubWorkOrdersIndexRoute
   '/portal/tech/$id': typeof AppPortalTechIdIndexRoute
@@ -306,19 +419,27 @@ export interface FileRoutesById {
   '/_app/': typeof AppIndexRoute
   '/_app/admin/audit': typeof AppAdminAuditRoute
   '/_app/admin/users': typeof AppAdminUsersRoute
+  '/_app/master-data/import': typeof AppMasterDataImportRoute
   '/_app/quotes/new': typeof AppQuotesNewRoute
   '/_app/work-orders/new': typeof AppWorkOrdersNewRoute
+  '/api/cron/compliance-expiry': typeof ApiCronComplianceExpiryRoute
   '/_app/master-data/': typeof AppMasterDataIndexRoute
   '/_app/quotes/': typeof AppQuotesIndexRoute
   '/_app/work-orders/': typeof AppWorkOrdersIndexRoute
   '/_app/maintenance/work-orders/new': typeof AppMaintenanceWorkOrdersNewRoute
   '/_app/master-data/customers/$id': typeof AppMasterDataCustomersIdRoute
+  '/_app/master-data/customers/new': typeof AppMasterDataCustomersNewRoute
   '/_app/master-data/parts/$id': typeof AppMasterDataPartsIdRoute
+  '/_app/master-data/parts/new': typeof AppMasterDataPartsNewRoute
   '/_app/master-data/sites/$id': typeof AppMasterDataSitesIdRoute
+  '/_app/master-data/sites/new': typeof AppMasterDataSitesNewRoute
   '/_app/master-data/subcontractors/$id': typeof AppMasterDataSubcontractorsIdRoute
+  '/_app/master-data/subcontractors/new': typeof AppMasterDataSubcontractorsNewRoute
   '/_app/master-data/suppliers/$id': typeof AppMasterDataSuppliersIdRoute
+  '/_app/master-data/suppliers/new': typeof AppMasterDataSuppliersNewRoute
   '/_app/quotes/$id/edit': typeof AppQuotesIdEditRoute
   '/_app/work-orders/$id/revisions': typeof AppWorkOrdersIdRevisionsRoute
+  '/api/master-data/documents/$id': typeof ApiMasterDataDocumentsIdRoute
   '/_app/maintenance/work-orders/': typeof AppMaintenanceWorkOrdersIndexRoute
   '/_app/master-data/customers/': typeof AppMasterDataCustomersIndexRoute
   '/_app/master-data/parts/': typeof AppMasterDataPartsIndexRoute
@@ -328,6 +449,11 @@ export interface FileRoutesById {
   '/_app/portal/tech/': typeof AppPortalTechIndexRoute
   '/_app/quotes/$id/': typeof AppQuotesIdIndexRoute
   '/_app/work-orders/$id/': typeof AppWorkOrdersIdIndexRoute
+  '/_app/master-data/customers/edit/$id': typeof AppMasterDataCustomersEditIdRoute
+  '/_app/master-data/parts/edit/$id': typeof AppMasterDataPartsEditIdRoute
+  '/_app/master-data/sites/edit/$id': typeof AppMasterDataSitesEditIdRoute
+  '/_app/master-data/subcontractors/edit/$id': typeof AppMasterDataSubcontractorsEditIdRoute
+  '/_app/master-data/suppliers/edit/$id': typeof AppMasterDataSuppliersEditIdRoute
   '/_app/maintenance/work-orders/$id/': typeof AppMaintenanceWorkOrdersIdIndexRoute
   '/_app/portal/sub/work-orders/': typeof AppPortalSubWorkOrdersIndexRoute
   '/_app/portal/tech/$id/': typeof AppPortalTechIdIndexRoute
@@ -343,19 +469,27 @@ export interface FileRouteTypes {
     | '/api/ready'
     | '/admin/audit'
     | '/admin/users'
+    | '/master-data/import'
     | '/quotes/new'
     | '/work-orders/new'
+    | '/api/cron/compliance-expiry'
     | '/master-data/'
     | '/quotes/'
     | '/work-orders/'
     | '/maintenance/work-orders/new'
     | '/master-data/customers/$id'
+    | '/master-data/customers/new'
     | '/master-data/parts/$id'
+    | '/master-data/parts/new'
     | '/master-data/sites/$id'
+    | '/master-data/sites/new'
     | '/master-data/subcontractors/$id'
+    | '/master-data/subcontractors/new'
     | '/master-data/suppliers/$id'
+    | '/master-data/suppliers/new'
     | '/quotes/$id/edit'
     | '/work-orders/$id/revisions'
+    | '/api/master-data/documents/$id'
     | '/maintenance/work-orders/'
     | '/master-data/customers/'
     | '/master-data/parts/'
@@ -365,6 +499,11 @@ export interface FileRouteTypes {
     | '/portal/tech/'
     | '/quotes/$id/'
     | '/work-orders/$id/'
+    | '/master-data/customers/edit/$id'
+    | '/master-data/parts/edit/$id'
+    | '/master-data/sites/edit/$id'
+    | '/master-data/subcontractors/edit/$id'
+    | '/master-data/suppliers/edit/$id'
     | '/maintenance/work-orders/$id/'
     | '/portal/sub/work-orders/'
     | '/portal/tech/$id/'
@@ -378,19 +517,27 @@ export interface FileRouteTypes {
     | '/'
     | '/admin/audit'
     | '/admin/users'
+    | '/master-data/import'
     | '/quotes/new'
     | '/work-orders/new'
+    | '/api/cron/compliance-expiry'
     | '/master-data'
     | '/quotes'
     | '/work-orders'
     | '/maintenance/work-orders/new'
     | '/master-data/customers/$id'
+    | '/master-data/customers/new'
     | '/master-data/parts/$id'
+    | '/master-data/parts/new'
     | '/master-data/sites/$id'
+    | '/master-data/sites/new'
     | '/master-data/subcontractors/$id'
+    | '/master-data/subcontractors/new'
     | '/master-data/suppliers/$id'
+    | '/master-data/suppliers/new'
     | '/quotes/$id/edit'
     | '/work-orders/$id/revisions'
+    | '/api/master-data/documents/$id'
     | '/maintenance/work-orders'
     | '/master-data/customers'
     | '/master-data/parts'
@@ -400,6 +547,11 @@ export interface FileRouteTypes {
     | '/portal/tech'
     | '/quotes/$id'
     | '/work-orders/$id'
+    | '/master-data/customers/edit/$id'
+    | '/master-data/parts/edit/$id'
+    | '/master-data/sites/edit/$id'
+    | '/master-data/subcontractors/edit/$id'
+    | '/master-data/suppliers/edit/$id'
     | '/maintenance/work-orders/$id'
     | '/portal/sub/work-orders'
     | '/portal/tech/$id'
@@ -414,19 +566,27 @@ export interface FileRouteTypes {
     | '/_app/'
     | '/_app/admin/audit'
     | '/_app/admin/users'
+    | '/_app/master-data/import'
     | '/_app/quotes/new'
     | '/_app/work-orders/new'
+    | '/api/cron/compliance-expiry'
     | '/_app/master-data/'
     | '/_app/quotes/'
     | '/_app/work-orders/'
     | '/_app/maintenance/work-orders/new'
     | '/_app/master-data/customers/$id'
+    | '/_app/master-data/customers/new'
     | '/_app/master-data/parts/$id'
+    | '/_app/master-data/parts/new'
     | '/_app/master-data/sites/$id'
+    | '/_app/master-data/sites/new'
     | '/_app/master-data/subcontractors/$id'
+    | '/_app/master-data/subcontractors/new'
     | '/_app/master-data/suppliers/$id'
+    | '/_app/master-data/suppliers/new'
     | '/_app/quotes/$id/edit'
     | '/_app/work-orders/$id/revisions'
+    | '/api/master-data/documents/$id'
     | '/_app/maintenance/work-orders/'
     | '/_app/master-data/customers/'
     | '/_app/master-data/parts/'
@@ -436,6 +596,11 @@ export interface FileRouteTypes {
     | '/_app/portal/tech/'
     | '/_app/quotes/$id/'
     | '/_app/work-orders/$id/'
+    | '/_app/master-data/customers/edit/$id'
+    | '/_app/master-data/parts/edit/$id'
+    | '/_app/master-data/sites/edit/$id'
+    | '/_app/master-data/subcontractors/edit/$id'
+    | '/_app/master-data/suppliers/edit/$id'
     | '/_app/maintenance/work-orders/$id/'
     | '/_app/portal/sub/work-orders/'
     | '/_app/portal/tech/$id/'
@@ -448,6 +613,8 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   ApiHealthRoute: typeof ApiHealthRoute
   ApiReadyRoute: typeof ApiReadyRoute
+  ApiCronComplianceExpiryRoute: typeof ApiCronComplianceExpiryRoute
+  ApiMasterDataDocumentsIdRoute: typeof ApiMasterDataDocumentsIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -515,6 +682,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMasterDataIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/master-data/import': {
+      id: '/_app/master-data/import'
+      path: '/master-data/import'
+      fullPath: '/master-data/import'
+      preLoaderRoute: typeof AppMasterDataImportRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/quotes/': {
       id: '/_app/quotes/'
       path: '/quotes'
@@ -542,6 +716,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/work-orders/new'
       preLoaderRoute: typeof AppWorkOrdersNewRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/api/cron/compliance-expiry': {
+      id: '/api/cron/compliance-expiry'
+      path: '/api/cron/compliance-expiry'
+      fullPath: '/api/cron/compliance-expiry'
+      preLoaderRoute: typeof ApiCronComplianceExpiryRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_app/maintenance/work-orders/': {
       id: '/_app/maintenance/work-orders/'
@@ -571,6 +752,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMasterDataCustomersIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/master-data/customers/new': {
+      id: '/_app/master-data/customers/new'
+      path: '/master-data/customers/new'
+      fullPath: '/master-data/customers/new'
+      preLoaderRoute: typeof AppMasterDataCustomersNewRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/master-data/parts/': {
       id: '/_app/master-data/parts/'
       path: '/master-data/parts'
@@ -583,6 +771,13 @@ declare module '@tanstack/react-router' {
       path: '/master-data/parts/$id'
       fullPath: '/master-data/parts/$id'
       preLoaderRoute: typeof AppMasterDataPartsIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/master-data/parts/new': {
+      id: '/_app/master-data/parts/new'
+      path: '/master-data/parts/new'
+      fullPath: '/master-data/parts/new'
+      preLoaderRoute: typeof AppMasterDataPartsNewRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/master-data/sites/': {
@@ -599,6 +794,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMasterDataSitesIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/master-data/sites/new': {
+      id: '/_app/master-data/sites/new'
+      path: '/master-data/sites/new'
+      fullPath: '/master-data/sites/new'
+      preLoaderRoute: typeof AppMasterDataSitesNewRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/master-data/subcontractors/': {
       id: '/_app/master-data/subcontractors/'
       path: '/master-data/subcontractors'
@@ -613,6 +815,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMasterDataSubcontractorsIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/master-data/subcontractors/new': {
+      id: '/_app/master-data/subcontractors/new'
+      path: '/master-data/subcontractors/new'
+      fullPath: '/master-data/subcontractors/new'
+      preLoaderRoute: typeof AppMasterDataSubcontractorsNewRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/master-data/suppliers/': {
       id: '/_app/master-data/suppliers/'
       path: '/master-data/suppliers'
@@ -625,6 +834,13 @@ declare module '@tanstack/react-router' {
       path: '/master-data/suppliers/$id'
       fullPath: '/master-data/suppliers/$id'
       preLoaderRoute: typeof AppMasterDataSuppliersIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/master-data/suppliers/new': {
+      id: '/_app/master-data/suppliers/new'
+      path: '/master-data/suppliers/new'
+      fullPath: '/master-data/suppliers/new'
+      preLoaderRoute: typeof AppMasterDataSuppliersNewRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/portal/tech/': {
@@ -662,11 +878,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppWorkOrdersIdRevisionsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/api/master-data/documents/$id': {
+      id: '/api/master-data/documents/$id'
+      path: '/api/master-data/documents/$id'
+      fullPath: '/api/master-data/documents/$id'
+      preLoaderRoute: typeof ApiMasterDataDocumentsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_app/maintenance/work-orders/$id/': {
       id: '/_app/maintenance/work-orders/$id/'
       path: '/maintenance/work-orders/$id'
       fullPath: '/maintenance/work-orders/$id/'
       preLoaderRoute: typeof AppMaintenanceWorkOrdersIdIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/master-data/customers/edit/$id': {
+      id: '/_app/master-data/customers/edit/$id'
+      path: '/master-data/customers/edit/$id'
+      fullPath: '/master-data/customers/edit/$id'
+      preLoaderRoute: typeof AppMasterDataCustomersEditIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/master-data/parts/edit/$id': {
+      id: '/_app/master-data/parts/edit/$id'
+      path: '/master-data/parts/edit/$id'
+      fullPath: '/master-data/parts/edit/$id'
+      preLoaderRoute: typeof AppMasterDataPartsEditIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/master-data/sites/edit/$id': {
+      id: '/_app/master-data/sites/edit/$id'
+      path: '/master-data/sites/edit/$id'
+      fullPath: '/master-data/sites/edit/$id'
+      preLoaderRoute: typeof AppMasterDataSitesEditIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/master-data/subcontractors/edit/$id': {
+      id: '/_app/master-data/subcontractors/edit/$id'
+      path: '/master-data/subcontractors/edit/$id'
+      fullPath: '/master-data/subcontractors/edit/$id'
+      preLoaderRoute: typeof AppMasterDataSubcontractorsEditIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/master-data/suppliers/edit/$id': {
+      id: '/_app/master-data/suppliers/edit/$id'
+      path: '/master-data/suppliers/edit/$id'
+      fullPath: '/master-data/suppliers/edit/$id'
+      preLoaderRoute: typeof AppMasterDataSuppliersEditIdRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/portal/sub/work-orders/': {
@@ -697,6 +955,7 @@ interface AppRouteChildren {
   AppIndexRoute: typeof AppIndexRoute
   AppAdminAuditRoute: typeof AppAdminAuditRoute
   AppAdminUsersRoute: typeof AppAdminUsersRoute
+  AppMasterDataImportRoute: typeof AppMasterDataImportRoute
   AppQuotesNewRoute: typeof AppQuotesNewRoute
   AppWorkOrdersNewRoute: typeof AppWorkOrdersNewRoute
   AppMasterDataIndexRoute: typeof AppMasterDataIndexRoute
@@ -704,10 +963,15 @@ interface AppRouteChildren {
   AppWorkOrdersIndexRoute: typeof AppWorkOrdersIndexRoute
   AppMaintenanceWorkOrdersNewRoute: typeof AppMaintenanceWorkOrdersNewRoute
   AppMasterDataCustomersIdRoute: typeof AppMasterDataCustomersIdRoute
+  AppMasterDataCustomersNewRoute: typeof AppMasterDataCustomersNewRoute
   AppMasterDataPartsIdRoute: typeof AppMasterDataPartsIdRoute
+  AppMasterDataPartsNewRoute: typeof AppMasterDataPartsNewRoute
   AppMasterDataSitesIdRoute: typeof AppMasterDataSitesIdRoute
+  AppMasterDataSitesNewRoute: typeof AppMasterDataSitesNewRoute
   AppMasterDataSubcontractorsIdRoute: typeof AppMasterDataSubcontractorsIdRoute
+  AppMasterDataSubcontractorsNewRoute: typeof AppMasterDataSubcontractorsNewRoute
   AppMasterDataSuppliersIdRoute: typeof AppMasterDataSuppliersIdRoute
+  AppMasterDataSuppliersNewRoute: typeof AppMasterDataSuppliersNewRoute
   AppQuotesIdEditRoute: typeof AppQuotesIdEditRoute
   AppWorkOrdersIdRevisionsRoute: typeof AppWorkOrdersIdRevisionsRoute
   AppMaintenanceWorkOrdersIndexRoute: typeof AppMaintenanceWorkOrdersIndexRoute
@@ -719,6 +983,11 @@ interface AppRouteChildren {
   AppPortalTechIndexRoute: typeof AppPortalTechIndexRoute
   AppQuotesIdIndexRoute: typeof AppQuotesIdIndexRoute
   AppWorkOrdersIdIndexRoute: typeof AppWorkOrdersIdIndexRoute
+  AppMasterDataCustomersEditIdRoute: typeof AppMasterDataCustomersEditIdRoute
+  AppMasterDataPartsEditIdRoute: typeof AppMasterDataPartsEditIdRoute
+  AppMasterDataSitesEditIdRoute: typeof AppMasterDataSitesEditIdRoute
+  AppMasterDataSubcontractorsEditIdRoute: typeof AppMasterDataSubcontractorsEditIdRoute
+  AppMasterDataSuppliersEditIdRoute: typeof AppMasterDataSuppliersEditIdRoute
   AppMaintenanceWorkOrdersIdIndexRoute: typeof AppMaintenanceWorkOrdersIdIndexRoute
   AppPortalSubWorkOrdersIndexRoute: typeof AppPortalSubWorkOrdersIndexRoute
   AppPortalTechIdIndexRoute: typeof AppPortalTechIdIndexRoute
@@ -729,6 +998,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppIndexRoute: AppIndexRoute,
   AppAdminAuditRoute: AppAdminAuditRoute,
   AppAdminUsersRoute: AppAdminUsersRoute,
+  AppMasterDataImportRoute: AppMasterDataImportRoute,
   AppQuotesNewRoute: AppQuotesNewRoute,
   AppWorkOrdersNewRoute: AppWorkOrdersNewRoute,
   AppMasterDataIndexRoute: AppMasterDataIndexRoute,
@@ -736,10 +1006,15 @@ const AppRouteChildren: AppRouteChildren = {
   AppWorkOrdersIndexRoute: AppWorkOrdersIndexRoute,
   AppMaintenanceWorkOrdersNewRoute: AppMaintenanceWorkOrdersNewRoute,
   AppMasterDataCustomersIdRoute: AppMasterDataCustomersIdRoute,
+  AppMasterDataCustomersNewRoute: AppMasterDataCustomersNewRoute,
   AppMasterDataPartsIdRoute: AppMasterDataPartsIdRoute,
+  AppMasterDataPartsNewRoute: AppMasterDataPartsNewRoute,
   AppMasterDataSitesIdRoute: AppMasterDataSitesIdRoute,
+  AppMasterDataSitesNewRoute: AppMasterDataSitesNewRoute,
   AppMasterDataSubcontractorsIdRoute: AppMasterDataSubcontractorsIdRoute,
+  AppMasterDataSubcontractorsNewRoute: AppMasterDataSubcontractorsNewRoute,
   AppMasterDataSuppliersIdRoute: AppMasterDataSuppliersIdRoute,
+  AppMasterDataSuppliersNewRoute: AppMasterDataSuppliersNewRoute,
   AppQuotesIdEditRoute: AppQuotesIdEditRoute,
   AppWorkOrdersIdRevisionsRoute: AppWorkOrdersIdRevisionsRoute,
   AppMaintenanceWorkOrdersIndexRoute: AppMaintenanceWorkOrdersIndexRoute,
@@ -751,6 +1026,12 @@ const AppRouteChildren: AppRouteChildren = {
   AppPortalTechIndexRoute: AppPortalTechIndexRoute,
   AppQuotesIdIndexRoute: AppQuotesIdIndexRoute,
   AppWorkOrdersIdIndexRoute: AppWorkOrdersIdIndexRoute,
+  AppMasterDataCustomersEditIdRoute: AppMasterDataCustomersEditIdRoute,
+  AppMasterDataPartsEditIdRoute: AppMasterDataPartsEditIdRoute,
+  AppMasterDataSitesEditIdRoute: AppMasterDataSitesEditIdRoute,
+  AppMasterDataSubcontractorsEditIdRoute:
+    AppMasterDataSubcontractorsEditIdRoute,
+  AppMasterDataSuppliersEditIdRoute: AppMasterDataSuppliersEditIdRoute,
   AppMaintenanceWorkOrdersIdIndexRoute: AppMaintenanceWorkOrdersIdIndexRoute,
   AppPortalSubWorkOrdersIndexRoute: AppPortalSubWorkOrdersIndexRoute,
   AppPortalTechIdIndexRoute: AppPortalTechIdIndexRoute,
@@ -765,6 +1046,8 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   ApiHealthRoute: ApiHealthRoute,
   ApiReadyRoute: ApiReadyRoute,
+  ApiCronComplianceExpiryRoute: ApiCronComplianceExpiryRoute,
+  ApiMasterDataDocumentsIdRoute: ApiMasterDataDocumentsIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

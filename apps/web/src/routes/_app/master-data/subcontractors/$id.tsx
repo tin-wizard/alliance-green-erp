@@ -16,7 +16,9 @@ export const Route = createFileRoute('/_app/master-data/subcontractors/$id')({
 
 function SubcontractorPage() {
   const { id } = Route.useParams()
+  const { session } = Route.useRouteContext()
+  const canWrite = session.user.grants.some((grant) => grant.key === 'subcontractor:write')
   const numeric = Number(id)
-  if (!Number.isInteger(numeric) || numeric <= 0) throw notFound()
-  return <SubcontractorDetailScreen id={numeric} />
+  if (!Number.isInteger(numeric) || numeric === 0) throw notFound()
+  return <SubcontractorDetailScreen id={numeric} canWrite={canWrite} canManageCompliance={session.user.grants.some((grant) => grant.key === 'compliance:write')} />
 }

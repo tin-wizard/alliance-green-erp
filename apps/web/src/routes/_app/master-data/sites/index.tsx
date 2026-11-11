@@ -18,6 +18,8 @@ export const Route = createFileRoute('/_app/master-data/sites/')({
 
 function SitesPage() {
   const { q, page, parent } = Route.useSearch()
+  const { session } = Route.useRouteContext()
+  const canWrite = session.user.grants.some((grant) => grant.key === 'customer:write')
   const navigate = useNavigate({ from: Route.fullPath })
   return (
     <SiteListScreen
@@ -31,6 +33,7 @@ function SitesPage() {
         void navigate({ search: (prev) => ({ ...prev, parent: value, page: 1 }) })
       }
       onPage={(next) => void navigate({ search: (prev) => ({ ...prev, page: next }) })}
+      canWrite={canWrite}
     />
   )
 }

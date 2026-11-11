@@ -29,6 +29,13 @@
       "when": 1794396218429,
       "tag": "0003_wild_veda",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794398156307,
+      "tag": "0004_uneven_pete_wisdom",
+      "breakpoints": true
     }
   ]
 }

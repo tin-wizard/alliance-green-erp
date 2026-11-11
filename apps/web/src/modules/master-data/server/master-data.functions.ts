@@ -7,7 +7,8 @@
  */
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
-import { permissionMiddleware } from '../../../server/middleware'
+import { ValidationError } from '@cls/core'
+import { assertPermission, authMiddleware, permissionMiddleware } from '../../../server/middleware'
 import type {
   CustomerDetail,
   CustomerListRow,
@@ -21,6 +22,23 @@ import type {
   SupplierDetail,
   SupplierListRow,
 } from '../types'
+import {
+  customerCreateSchema,
+  customerUpdateSchema,
+  documentUploadSchema,
+  duplicateCheckSchema,
+  findPriceFields,
+  importRunSchema,
+  partCreateSchema,
+  partUpdateSchema,
+  recordIdSchema,
+  siteCreateSchema,
+  siteUpdateSchema,
+  subcontractorCreateSchema,
+  subcontractorUpdateSchema,
+  supplierCreateSchema,
+  supplierUpdateSchema,
+} from '../lib/write-validation'
 
 const listSchema = z.object({
   search: z.string().trim().max(200).optional(),
@@ -28,7 +46,7 @@ const listSchema = z.object({
   pageSize: z.coerce.number().int().min(1).max(50).default(25),
 })
 
-const idSchema = z.object({ id: z.coerce.number().int().positive() })
+const idSchema = z.object({ id: recordIdSchema })
 
 const siteListSchema = listSchema.extend({
   parent: z.enum(['all', 'present', 'missing']).default('all'),
@@ -116,4 +134,188 @@ export const getPartFn = createServerFn({ method: 'GET' })
   .handler(async ({ data }): Promise<PartDetail | null> => {
     const { getPart } = await import('./master-data.server')
     return getPart(data.id)
+  })
+
+/* -------------------------------- writes -------------------------------- */
+
+function rejectPricePayload(input: unknown): void {
+  const fields = findPriceFields(input)
+  if (fields.length > 0) {
+    throw new ValidationError('Prices and rate cards cannot be written from Master Data.', {
+      code: 'PRICE_FIELD_NOT_WRITABLE',
+      fields,
+    })
+  }
+}
+
+export const createCustomerFn = createServerFn({ method: 'POST' })
+  .validator((input: unknown) => customerCreateSchema.parse(input))
+  .middleware([permissionMiddleware('customer:write')])
+  .handler(async ({ data, context }) => {
+    const { createCustomer } = await import('./master-data.write.server')
+    const { getDb } = await import('@cls/db')
+    return getDb().transaction((tx) => createCustomer(tx, data, context.session))
+  })
+
+export const updateCustomerFn = createServerFn({ method: 'POST' })
+  .validator((input: unknown) => customerUpdateSchema.parse(input))
+  .middleware([permissionMiddleware('customer:write')])
+  .handler(async ({ data, context }) => {
+    const { updateCustomer } = await import('./master-data.write.server')
+    const { getDb } = await import('@cls/db')
+    return getDb().transaction((tx) => updateCustomer(tx, data, context.session))
+  })
+
+export const createSiteFn = createServerFn({ method: 'POST' })
+  .validator((input: unknown) => siteCreateSchema.parse(input))
+  .middleware([permissionMiddleware('customer:write')])
+  .handler(async ({ data, context }) => {
+    const { createSite } = await import('./master-data.write.server')
+    const { getDb } = await import('@cls/db')
+    return getDb().transaction((tx) => createSite(tx, data, context.session))
+  })
+
+export const updateSiteFn = createServerFn({ method: 'POST' })
+  .validator((input: unknown) => siteUpdateSchema.parse(input))
+  .middleware([permissionMiddleware('customer:write')])
+  .handler(async ({ data, context }) => {
+    const { updateSite } = await import('./master-data.write.server')
+    const { getDb } = await import('@cls/db')
+    return getDb().transaction((tx) => updateSite(tx, data, context.session))
+  })
+
+export const createSubcontractorFn = createServerFn({ method: 'POST' })
+  .validator((input: unknown) => subcontractorCreateSchema.parse(input))
+  .middleware([permissionMiddleware('subcontractor:write')])
+  .handler(async ({ data, context }) => {
+    const { createSubcontractor } = await import('./master-data.write.server')
+    const { getDb } = await import('@cls/db')
+    return getDb().transaction((tx) => createSubcontractor(tx, data, context.session))
+  })
+
+export const updateSubcontractorFn = createServerFn({ method: 'POST' })
+  .validator((input: unknown) => subcontractorUpdateSchema.parse(input))
+  .middleware([permissionMiddleware('subcontractor:write')])
+  .handler(async ({ data, context }) => {
+    const { updateSubcontractor } = await import('./master-data.write.server')
+    const { getDb } = await import('@cls/db')
+    return getDb().transaction((tx) => updateSubcontractor(tx, data, context.session))
+  })
+
+export const createSupplierFn = createServerFn({ method: 'POST' })
+  .validator((input: unknown) => supplierCreateSchema.parse(input))
+  .middleware([permissionMiddleware('supplier:write')])
+  .handler(async ({ data, context }) => {
+    const { createSupplier } = await import('./master-data.write.server')
+    const { getDb } = await import('@cls/db')
+    return getDb().transaction((tx) => createSupplier(tx, data, context.session))
+  })
+
+export const updateSupplierFn = createServerFn({ method: 'POST' })
+  .validator((input: unknown) => supplierUpdateSchema.parse(input))
+  .middleware([permissionMiddleware('supplier:write')])
+  .handler(async ({ data, context }) => {
+    const { updateSupplier } = await import('./master-data.write.server')
+    const { getDb } = await import('@cls/db')
+    return getDb().transaction((tx) => updateSupplier(tx, data, context.session))
+  })
+
+export const createPartFn = createServerFn({ method: 'POST' })
+  .validator((input: unknown) => {
+    rejectPricePayload(input)
+    return partCreateSchema.parse(input)
+  })
+  .middleware([permissionMiddleware('inventory:write')])
+  .handler(async ({ data, context }) => {
+    const { createPart } = await import('./master-data.write.server')
+    const { getDb } = await import('@cls/db')
+    return getDb().transaction((tx) => createPart(tx, data, context.session))
+  })
+
+export const updatePartFn = createServerFn({ method: 'POST' })
+  .validator((input: unknown) => {
+    rejectPricePayload(input)
+    return partUpdateSchema.parse(input)
+  })
+  .middleware([permissionMiddleware('inventory:write')])
+  .handler(async ({ data, context }) => {
+    const { updatePart } = await import('./master-data.write.server')
+    const { getDb } = await import('@cls/db')
+    return getDb().transaction((tx) => updatePart(tx, data, context.session))
+  })
+
+export const checkDuplicatesFn = createServerFn({ method: 'POST' })
+  .validator((input: unknown) => duplicateCheckSchema.parse(input))
+  .middleware([authMiddleware])
+  .handler(async ({ data, context }) => {
+    const permission =
+      data.entity === 'part'
+        ? 'inventory:read'
+        : data.entity === 'subcontractor'
+          ? 'subcontractor:read'
+          : data.entity === 'supplier'
+            ? 'supplier:read'
+            : 'customer:read'
+    assertPermission(context.session, permission)
+    const {
+      checkCustomerDuplicates,
+      checkPartDuplicates,
+      checkSiteDuplicates,
+      checkVendorDuplicates,
+    } = await import('./duplicates.server')
+    const { getDb } = await import('@cls/db')
+    const db = getDb()
+    if (data.entity === 'part') {
+      if (!data.partNumber) throw new ValidationError('Enter a part number.')
+      return checkPartDuplicates(db, { ...data, partNumber: data.partNumber })
+    }
+    if (!data.name) throw new ValidationError('Enter a name.')
+    const named = { ...data, name: data.name }
+    if (data.entity === 'customer') return checkCustomerDuplicates(db, named)
+    if (data.entity === 'site') return checkSiteDuplicates(db, named)
+    return checkVendorDuplicates(
+      db,
+      data.entity === 'subcontractor' ? 'subcontractor' : 'supplier',
+      named,
+    )
+  })
+
+/* ------------------------------- documents ------------------------------- */
+
+export const uploadSubcontractorDocumentFn = createServerFn({ method: 'POST' })
+  .validator((input: unknown) => documentUploadSchema.parse(input))
+  .middleware([permissionMiddleware('compliance:write')])
+  .handler(async ({ data, context }) => {
+    const { uploadSubcontractorDocument } = await import('./documents.server')
+    const { getDb } = await import('@cls/db')
+    return getDb().transaction((tx) => uploadSubcontractorDocument(tx, data, context.session))
+  })
+
+export const getDocumentUrlFn = createServerFn({ method: 'GET' })
+  .validator((input: unknown) => z.object({ id: z.uuid() }).parse(input))
+  .middleware([permissionMiddleware('compliance:read')])
+  .handler(async ({ data }) => {
+    const { signedDocumentUrl } = await import('./documents.server')
+    const { getDb } = await import('@cls/db')
+    return signedDocumentUrl(data.id, getDb())
+  })
+
+/* -------------------------------- jobs ---------------------------------- */
+
+export const runComplianceRemindersFn = createServerFn({ method: 'POST' })
+  .validator((input: unknown) => z.object({}).parse(input ?? {}))
+  .middleware([permissionMiddleware('compliance:write')])
+  .handler(async () => {
+    const { runExpiryReminders } = await import('./reminders.server')
+    const { getDb } = await import('@cls/db')
+    return runExpiryReminders(getDb())
+  })
+
+export const runSageImportFn = createServerFn({ method: 'POST' })
+  .validator((input: unknown) => importRunSchema.parse(input ?? {}))
+  .middleware([permissionMiddleware('customer:write')])
+  .handler(async ({ data, context }) => {
+    const { runSageImport } = await import('./import.server')
+    const { getDb } = await import('@cls/db')
+    return getDb().transaction((tx) => runSageImport(tx, data, context.session))
   })

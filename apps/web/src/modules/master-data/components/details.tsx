@@ -1,14 +1,17 @@
 import type { ReactNode } from 'react'
+import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
-import { useQuery } from '@tanstack/react-query'
-import { Card, EmptyState, ErrorPanel, Field, Tag, formatDate, formatDateTime, formatMoney } from './ui'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Button, Card, EmptyState, ErrorPanel, Field, Input, Select, Tag, formatDate, formatDateTime, formatMoney } from './ui'
 import { DetailHeader } from './master-list'
 import {
   getCustomerFn,
+  getDocumentUrlFn,
   getPartFn,
   getSiteFn,
   getSubcontractorFn,
   getSupplierFn,
+  uploadSubcontractorDocumentFn,
 } from '../server/master-data.functions'
 
 function Loading() {
@@ -42,9 +45,29 @@ function Identity({
   return <Field label={label} value={children} className={className} />
 }
 
+function SageState({ id, sageId }: { id: number; sageId: number | null }) {
+  if (id < 0) {
+    return (
+      <div className="flex flex-col gap-1.5">
+        <Tag tone="warning">Local — not in Sage</Tag>
+        <p className="text-[11.5px] leading-relaxed text-fg-muted">
+          Sage posting is blocked until the Sage import links this record. Its negative id is permanent
+          and will not be renumbered.
+        </p>
+      </div>
+    )
+  }
+  return (
+    <div className="flex flex-col gap-1.5">
+      <Tag tone="info">Sage linked</Tag>
+      <p className="text-[11.5px] text-fg-muted">Sage id {sageId ?? '—'}</p>
+    </div>
+  )
+}
+
 /* ------------------------------ customer ------------------------------ */
 
-export function CustomerDetailScreen({ id }: { id: number }) {
+export function CustomerDetailScreen({ id, canWrite }: { id: number; canWrite?: boolean }) {
   const query = useQuery({
     queryKey: ['master-data', 'customer', id],
     queryFn: () => getCustomerFn({ data: { id } }),
@@ -57,13 +80,20 @@ export function CustomerDetailScreen({ id }: { id: number }) {
   return (
     <div className="flex flex-col gap-6">
       <DetailHeader
-        eyebrow={`Master Data · Customer · Sage id ${customer.id}`}
+        eyebrow={`Master Data · Customer · ${customer.id < 0 ? 'local id' : 'Sage id'} ${customer.id}`}
         title={customer.name}
         description={`${customer.city ?? 'No city'}${customer.province ? `, ${customer.province}` : ''} · ${customer.sites.length} linked site${customer.sites.length === 1 ? '' : 's'}`}
         actions={
-          <Link to="/master-data/customers" className="text-[13px] text-brand hover:underline">
-            All customers
-          </Link>
+          <>
+            {canWrite ? (
+              <Link to="/master-data/customers/edit/$id" params={{ id: String(customer.id) }} className="text-[13px] text-brand hover:underline">
+                Edit customer
+              </Link>
+            ) : null}
+            <Link to="/master-data/customers" className="text-[13px] text-brand hover:underline">
+              All customers
+            </Link>
+          </>
         }
       />
 
@@ -80,6 +110,7 @@ export function CustomerDetailScreen({ id }: { id: number }) {
             <Identity label="Status">
               {customer.isActive ? <Tag tone="info">Active</Tag> : <Tag tone="warning">Inactive</Tag>}
             </Identity>
+            <Identity label="Sage state"><SageState id={customer.id} sageId={customer.sageCustomerId} /></Identity>
           </dl>
         </Card>
 
@@ -136,7 +167,7 @@ export function CustomerDetailScreen({ id }: { id: number }) {
 
 /* -------------------------------- site -------------------------------- */
 
-export function SiteDetailScreen({ id }: { id: number }) {
+export function SiteDetailScreen({ id, canWrite }: { id: number; canWrite?: boolean }) {
   const query = useQuery({
     queryKey: ['master-data', 'site', id],
     queryFn: () => getSiteFn({ data: { id } }),
@@ -149,13 +180,14 @@ export function SiteDetailScreen({ id }: { id: number }) {
   return (
     <div className="flex flex-col gap-6">
       <DetailHeader
-        eyebrow={`Master Data · Site · Sage id ${site.id}`}
+        eyebrow={`Master Data · Site · ${site.id < 0 ? 'local id' : 'Sage id'} ${site.id}`}
         title={site.name}
         description={`${site.street ?? 'No street'} · ${site.city ?? 'No city'}${site.province ? `, ${site.province}` : ''}`}
         actions={
-          <Link to="/master-data/sites" className="text-[13px] text-brand hover:underline">
-            All sites
-          </Link>
+          <>
+            {canWrite ? <Link to="/master-data/sites/edit/$id" params={{ id: String(site.id) }} className="text-[13px] text-brand hover:underline">Edit site</Link> : null}
+            <Link to="/master-data/sites" className="text-[13px] text-brand hover:underline">All sites</Link>
+          </>
         }
       />
 
@@ -197,6 +229,7 @@ export function SiteDetailScreen({ id }: { id: number }) {
             </Identity>
             <Identity label="Site contact">{site.contactName ?? '—'}</Identity>
             <Identity label="Site phone">{site.contactNumber ?? '—'}</Identity>
+            <Identity label="Sage state" className="sm:col-span-2"><SageState id={site.id} sageId={site.sageSiteId} /></Identity>
           </dl>
         </Card>
       </div>
@@ -256,7 +289,152 @@ export function SiteDetailScreen({ id }: { id: number }) {
 
 /* ---------------------------- subcontractor ---------------------------- */
 
-export function SubcontractorDetailScreen({ id }: { id: number }) {
+function readFileBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onerror = () => reject(new Error('The file could not be read.'))
+    reader.onload = () => {
+      const result = String(reader.result ?? '')
+      resolve(result.includes(',') ? result.slice(result.indexOf(',') + 1) : result)
+    }
+    reader.readAsDataURL(file)
+  })
+}
+
+function ComplianceDocuments({
+  subcontractorId,
+  documents,
+  canManage,
+}: {
+  subcontractorId: number
+  documents: Array<{
+    id: string
+    kind: string
+    documentType: string | null
+    documentName: string | null
+    fileName: string | null
+    contentType: string | null
+    checksumSha256: string | null
+    expiresOn: string | null
+    isExpired: boolean
+    supersededAt: string | null
+  }>
+  canManage: boolean
+}) {
+  const client = useQueryClient()
+  const [kind, setKind] = useState<'wsib' | 'insurance' | 'other'>('wsib')
+  const [documentName, setDocumentName] = useState('')
+  const [expiresOn, setExpiresOn] = useState('')
+  const [replaces, setReplaces] = useState('')
+  const [file, setFile] = useState<File | null>(null)
+  const upload = useMutation({
+    mutationFn: async () => {
+      if (!file) throw new Error('Choose a PDF, JPEG or PNG file.')
+      const contentType = file.type
+      if (contentType !== 'application/pdf' && contentType !== 'image/jpeg' && contentType !== 'image/png') {
+        throw new Error('Only PDF, JPEG or PNG files are accepted.')
+      }
+      return uploadSubcontractorDocumentFn({
+        data: {
+          subcontractorId,
+          kind,
+          documentType: kind === 'other' ? 'Other' : kind.toUpperCase(),
+          documentName: documentName || file.name,
+          expiresOn: expiresOn || null,
+          replacesDocumentId: replaces || null,
+          fileName: file.name,
+          contentType,
+          data: await readFileBase64(file),
+        },
+      })
+    },
+    onSuccess: () => {
+      setFile(null)
+      setDocumentName('')
+      setExpiresOn('')
+      setReplaces('')
+      void client.invalidateQueries({ queryKey: ['master-data', 'subcontractor', subcontractorId] })
+    },
+  })
+  const view = useMutation({
+    mutationFn: (id: string) => getDocumentUrlFn({ data: { id } }),
+    onSuccess: (result) => {
+      if (result?.url) window.open(result.url, '_blank', 'noopener,noreferrer')
+    },
+  })
+  const current = documents.filter((document) => !document.supersededAt)
+  const history = documents.filter((document) => document.supersededAt)
+  return (
+    <div className="flex flex-col gap-4">
+      {canManage ? (
+        <form
+          className="grid gap-3 rounded-[4px] border border-hair bg-[var(--surface-subtle)] p-3 sm:grid-cols-2"
+          onSubmit={(event) => {
+            event.preventDefault()
+            upload.mutate()
+          }}
+        >
+          <label className="text-[11.5px] text-fg-muted">Kind
+            <Select value={kind} onChange={(e) => setKind(e.target.value as typeof kind)}>
+              <option value="wsib">WSIB</option>
+              <option value="insurance">Insurance</option>
+              <option value="other">Other</option>
+            </Select>
+          </label>
+          <label className="text-[11.5px] text-fg-muted">Expiry {kind !== 'other' ? '(required)' : ''}
+            <Input type="date" value={expiresOn} onChange={(e) => setExpiresOn(e.target.value)} required={kind !== 'other'} />
+          </label>
+          <label className="text-[11.5px] text-fg-muted">Document name
+            <Input value={documentName} onChange={(e) => setDocumentName(e.target.value)} placeholder="Certificate label" />
+          </label>
+          <label className="text-[11.5px] text-fg-muted">File (PDF, JPEG, PNG; max 10 MiB)
+            <Input type="file" accept="application/pdf,image/jpeg,image/png" onChange={(e) => setFile(e.target.files?.[0] ?? null)} required />
+          </label>
+          <label className="text-[11.5px] text-fg-muted">Replace current document
+            <Select value={replaces} onChange={(e) => setReplaces(e.target.value)}>
+              <option value="">No — add a new document</option>
+              {current.map((document) => <option key={document.id} value={document.id}>{document.kind} · {document.documentName ?? document.fileName ?? document.id}</option>)}
+            </Select>
+          </label>
+          <div className="flex items-end"><Button type="submit" variant="primary" size="sm" disabled={upload.isPending}>{upload.isPending ? 'Uploading…' : 'Upload document'}</Button></div>
+          {upload.error ? <div className="sm:col-span-2"><ErrorPanel message={(upload.error as Error).message} /></div> : null}
+        </form>
+      ) : null}
+      {documents.length === 0 ? (
+        <EmptyState title="No compliance documents" description="A vendor with zero documents is not valid for assignment. Upload a WSIB or insurance certificate." />
+      ) : (
+        <table className="w-full text-left text-[13px]">
+          <thead>
+            <tr className="border-b border-hair bg-[var(--surface-subtle)]">
+              <th className="px-4 py-2.5 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-fg-muted">Type</th>
+              <th className="px-4 py-2.5 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-fg-muted">Expires</th>
+              <th className="px-4 py-2.5 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-fg-muted">State</th>
+              <th className="px-4 py-2.5 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-fg-muted">File</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[...current, ...history].map((document) => (
+              <tr key={document.id} className="border-b border-hair last:border-0">
+                <td className="px-4 py-2.5">{document.documentType ?? document.documentName ?? document.kind}</td>
+                <td className="px-4 py-2.5">{formatDate(document.expiresOn)}</td>
+                <td className="px-4 py-2.5">
+                  {document.supersededAt ? <Tag tone="neutral">Superseded</Tag> : document.isExpired ? <Tag tone="danger">Expired</Tag> : <Tag tone="info">Current</Tag>}
+                </td>
+                <td className="px-4 py-2.5">
+                  <Button size="sm" onClick={() => view.mutate(document.id)} disabled={view.isPending}>View {document.fileName ?? 'file'}</Button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      {view.error ? <ErrorPanel message={(view.error as Error).message} /> : null}
+    </div>
+  )
+}
+
+
+export function SubcontractorDetailScreen({ id, canWrite, canManageCompliance }: { id: number; canWrite?: boolean; canManageCompliance?: boolean }) {
   const query = useQuery({
     queryKey: ['master-data', 'subcontractor', id],
     queryFn: () => getSubcontractorFn({ data: { id } }),
@@ -269,13 +447,14 @@ export function SubcontractorDetailScreen({ id }: { id: number }) {
   return (
     <div className="flex flex-col gap-6">
       <DetailHeader
-        eyebrow={`Master Data · Subcontractor · Sage id ${sub.id}`}
+        eyebrow={`Master Data · Subcontractor · ${sub.id < 0 ? 'local id' : 'Sage id'} ${sub.id}`}
         title={sub.name}
         description={`${sub.city ?? 'No city'}${sub.province ? `, ${sub.province}` : ''}`}
         actions={
-          <Link to="/master-data/subcontractors" className="text-[13px] text-brand hover:underline">
-            All subcontractors
-          </Link>
+          <>
+            {canWrite ? <Link to="/master-data/subcontractors/edit/$id" params={{ id: String(sub.id) }} className="text-[13px] text-brand hover:underline">Edit subcontractor</Link> : null}
+            <Link to="/master-data/subcontractors" className="text-[13px] text-brand hover:underline">All subcontractors</Link>
+          </>
         }
       />
 
@@ -302,6 +481,7 @@ export function SubcontractorDetailScreen({ id }: { id: number }) {
             <Identity label="Alt emails">
               {[sub.email2, sub.email3].filter(Boolean).join(', ') || '—'}
             </Identity>
+            <Identity label="Sage state" className="sm:col-span-2"><SageState id={sub.id} sageId={sub.sageSubcontractorId} /></Identity>
           </dl>
         </Card>
       </div>
@@ -334,35 +514,13 @@ export function SubcontractorDetailScreen({ id }: { id: number }) {
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card title="Documents" padded={false}>
-          {sub.documents.length === 0 ? (
-            <EmptyState
-              title="No compliance documents"
-              description="Uploading documents is not part of this Master Data slice; the record stays visibly incomplete."
+          <div className="p-4">
+            <ComplianceDocuments
+              subcontractorId={sub.id}
+              documents={sub.documents}
+              canManage={Boolean(canManageCompliance)}
             />
-          ) : (
-            <table className="w-full text-left text-[13px]">
-              <thead>
-                <tr className="border-b border-hair bg-[var(--surface-subtle)]">
-                  <th className="px-4 py-2.5 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-fg-muted">Type</th>
-                  <th className="px-4 py-2.5 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-fg-muted">Expires</th>
-                  <th className="px-4 py-2.5 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-fg-muted">State</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sub.documents.map((document) => (
-                  <tr key={document.id} className="border-b border-hair last:border-0">
-                    <td className="px-4 py-2.5">
-                      {document.documentType ?? document.documentName ?? document.kind}
-                    </td>
-                    <td className="px-4 py-2.5">{formatDate(document.expiresOn)}</td>
-                    <td className="px-4 py-2.5">
-                      {document.isExpired ? <Tag tone="danger">Expired</Tag> : <Tag tone="neutral">Current</Tag>}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+          </div>
         </Card>
 
         <Card title="Additional contacts">
@@ -389,7 +547,7 @@ export function SubcontractorDetailScreen({ id }: { id: number }) {
 
 /* ------------------------------- supplier ------------------------------- */
 
-export function SupplierDetailScreen({ id }: { id: number }) {
+export function SupplierDetailScreen({ id, canWrite }: { id: number; canWrite?: boolean }) {
   const query = useQuery({
     queryKey: ['master-data', 'supplier', id],
     queryFn: () => getSupplierFn({ data: { id } }),
@@ -402,13 +560,14 @@ export function SupplierDetailScreen({ id }: { id: number }) {
   return (
     <div className="flex flex-col gap-6">
       <DetailHeader
-        eyebrow={`Master Data · Supplier · Sage id ${supplier.id}`}
+        eyebrow={`Master Data · Supplier · ${supplier.id < 0 ? 'local id' : 'Sage id'} ${supplier.id}`}
         title={supplier.name}
         description={`Sage vendor ${supplier.sageVendorId ?? '—'} · ${supplier.city ?? 'No city'}${supplier.province ? `, ${supplier.province}` : ''}`}
         actions={
-          <Link to="/master-data/suppliers" className="text-[13px] text-brand hover:underline">
-            All suppliers
-          </Link>
+          <>
+            {canWrite ? <Link to="/master-data/suppliers/edit/$id" params={{ id: String(supplier.id) }} className="text-[13px] text-brand hover:underline">Edit supplier</Link> : null}
+            <Link to="/master-data/suppliers" className="text-[13px] text-brand hover:underline">All suppliers</Link>
+          </>
         }
       />
 
@@ -423,6 +582,7 @@ export function SupplierDetailScreen({ id }: { id: number }) {
             <Identity label="Status">
               {supplier.isActive ? <Tag tone="info">Active</Tag> : <Tag tone="warning">Inactive</Tag>}
             </Identity>
+            <Identity label="Sage state" className="sm:col-span-2"><SageState id={supplier.id} sageId={supplier.sageVendorId} /></Identity>
           </dl>
         </Card>
 
@@ -460,7 +620,7 @@ export function SupplierDetailScreen({ id }: { id: number }) {
 
 /* --------------------------------- part --------------------------------- */
 
-export function PartDetailScreen({ id }: { id: number }) {
+export function PartDetailScreen({ id, canWrite }: { id: number; canWrite?: boolean }) {
   const query = useQuery({
     queryKey: ['master-data', 'part', id],
     queryFn: () => getPartFn({ data: { id } }),
@@ -473,13 +633,14 @@ export function PartDetailScreen({ id }: { id: number }) {
   return (
     <div className="flex flex-col gap-6">
       <DetailHeader
-        eyebrow={`Master Data · Part · Sage id ${part.id}`}
+        eyebrow={`Master Data · Part · ${part.id < 0 ? 'local id' : 'Sage id'} ${part.id}`}
         title={part.partNumber}
         description={part.name ?? 'No description'}
         actions={
-          <Link to="/master-data/parts" className="text-[13px] text-brand hover:underline">
-            Parts catalogue
-          </Link>
+          <>
+            {canWrite ? <Link to="/master-data/parts/edit/$id" params={{ id: String(part.id) }} className="text-[13px] text-brand hover:underline">Edit part</Link> : null}
+            <Link to="/master-data/parts" className="text-[13px] text-brand hover:underline">Parts catalogue</Link>
+          </>
         }
       />
 
@@ -495,6 +656,7 @@ export function PartDetailScreen({ id }: { id: number }) {
             <Identity label="Part number">{part.partNumber}</Identity>
             <Identity label="Group">{part.groupName ?? '—'}</Identity>
             <Identity label="Sage item id">{part.sageItemId ?? '—'}</Identity>
+            <Identity label="Sage state"><SageState id={part.id} sageId={part.sageItemId} /></Identity>
             <Identity label="Sage status">
               {part.activeInSage ? <Tag tone="info">Active</Tag> : <Tag tone="warning">Inactive</Tag>}
             </Identity>

@@ -15,6 +15,7 @@ export interface PageResult<T> {
 
 export interface CustomerListRow {
   id: number
+  sageCustomerId: number | null
   name: string
   city: string | null
   province: string | null
@@ -25,6 +26,7 @@ export interface CustomerListRow {
 
 export interface CustomerDetail {
   id: number
+  sageCustomerId: number | null
   name: string
   street: string | null
   city: string | null
@@ -48,6 +50,7 @@ export interface CustomerDetail {
 
 export interface SiteListRow {
   id: number
+  sageSiteId: number | null
   name: string
   street: string | null
   city: string | null
@@ -60,6 +63,7 @@ export interface SiteListRow {
 
 export interface SiteDetail {
   id: number
+  sageSiteId: number | null
   name: string
   street: string | null
   street2: string | null
@@ -90,6 +94,7 @@ export interface SiteDetail {
 
 export interface SubcontractorListRow {
   id: number
+  sageSubcontractorId: number | null
   name: string
   city: string | null
   province: string | null
@@ -106,13 +111,18 @@ export interface SubcontractorDocumentView {
   documentName: string | null
   fileName: string | null
   storageKey: string | null
+  contentType: string | null
+  sizeBytes: number | null
+  checksumSha256: string | null
   expiresOn: string | null
   isExpired: boolean
+  supersededAt: string | null
   uploadedAt: string
 }
 
 export interface SubcontractorDetail {
   id: number
+  sageSubcontractorId: number | null
   name: string
   street: string | null
   city: string | null
@@ -163,6 +173,13 @@ export interface SupplierDetail {
   bypassPoApproval: boolean
   poNotes: string | null
   isActive: boolean
+  contacts: Array<{
+    id: string
+    contactName: string | null
+    phone: string | null
+    phoneExt: string | null
+    email: string | null
+  }>
   createdAt: string
   updatedAt: string
 }
@@ -181,6 +198,7 @@ export interface PartDetail {
   id: number
   partNumber: string
   name: string | null
+  partGroupId: number | null
   groupName: string | null
   cost: string | null
   sellPrice: string | null

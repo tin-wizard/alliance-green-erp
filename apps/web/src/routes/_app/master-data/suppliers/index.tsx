@@ -18,6 +18,8 @@ export const Route = createFileRoute('/_app/master-data/suppliers/')({
 
 function SuppliersPage() {
   const { q, page } = Route.useSearch()
+  const { session } = Route.useRouteContext()
+  const canWrite = session.user.grants.some((grant) => grant.key === 'supplier:write')
   const navigate = useNavigate({ from: Route.fullPath })
   return (
     <SupplierListScreen
@@ -27,6 +29,7 @@ function SuppliersPage() {
         void navigate({ search: (prev) => ({ ...prev, q: value || undefined, page: 1 }) })
       }
       onPage={(next) => void navigate({ search: (prev) => ({ ...prev, page: next }) })}
+      canWrite={canWrite}
     />
   )
 }

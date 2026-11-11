@@ -36,6 +36,8 @@ export const customers = app.table(
   {
     /** Sage `tcustomr.lId`; immutable. */
     id: integer('id').primaryKey(),
+    /** Sage id once linked. Local records have a negative id and no link. */
+    sageCustomerId: integer('sage_customer_id'),
     name: text('name').notNull(),
     street: text('street'),
     city: text('city'),
@@ -50,6 +52,7 @@ export const customers = app.table(
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
+    uniqueIndex('customers_sage_customer_unique').on(table.sageCustomerId),
     index('customers_name_idx').on(sql`lower(${table.name})`),
     index('customers_city_idx').on(sql`lower(${table.city})`),
   ],
@@ -60,6 +63,8 @@ export const sites = app.table(
   {
     /** Sage `tcustomr.lId`; immutable, shares the id space with customers. */
     id: integer('id').primaryKey(),
+    /** Sage site id once linked. Local records have a negative id and no link. */
+    sageSiteId: integer('sage_site_id'),
     /**
      * Billing parent (`tcustshp.lCustId`). Nullable because parent customers
      * were never imported for 1,086 legacy rows. Never inner-join this.
@@ -86,6 +91,7 @@ export const sites = app.table(
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
+    uniqueIndex('sites_sage_site_unique').on(table.sageSiteId),
     index('sites_customer_idx').on(table.customerId),
     index('sites_name_idx').on(sql`lower(${table.name})`),
     index('sites_city_idx').on(sql`lower(${table.city})`),
@@ -113,6 +119,8 @@ export const subcontractors = app.table(
   {
     /** Legacy `subcontractor.id`; immutable because users/WOs reference it. */
     id: integer('id').primaryKey(),
+    /** Sage subcontractor id once linked. Local records have a negative id. */
+    sageSubcontractorId: integer('sage_subcontractor_id'),
     name: text('name').notNull(),
     street: text('street'),
     city: text('city'),
@@ -132,6 +140,7 @@ export const subcontractors = app.table(
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
+    uniqueIndex('subcontractors_sage_subcontractor_unique').on(table.sageSubcontractorId),
     index('subcontractors_name_idx').on(sql`lower(${table.name})`),
     index('subcontractors_city_idx').on(sql`lower(${table.city})`),
   ],
@@ -170,6 +179,11 @@ export const subcontractorDocuments = app.table(
     /** Object-storage key; never a local filesystem path. */
     storageKey: text('storage_key'),
     fileName: text('file_name'),
+    contentType: text('content_type'),
+    sizeBytes: integer('size_bytes'),
+    checksumSha256: text('checksum_sha256'),
+    uploadedBy: uuid('uploaded_by'),
+    supersededAt: timestamp('superseded_at', { withTimezone: true }),
     expiresOn: date('expires_on'),
     /** Written at upload and re-evaluated by the expiry job. */
     isExpired: boolean('is_expired').notNull().default(false),
@@ -214,6 +228,21 @@ export const suppliers = app.table(
   ],
 )
 
+export const supplierContacts = app.table(
+  'supplier_contacts',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    supplierId: integer('supplier_id')
+      .notNull()
+      .references(() => suppliers.id, { onDelete: 'cascade' }),
+    contactName: text('contact_name'),
+    phone: text('phone'),
+    phoneExt: text('phone_ext'),
+    email: text('email'),
+  },
+  (table) => [index('supplier_contacts_supplier_idx').on(table.supplierId)],
+)
+
 export const partGroups = app.table(
   'part_groups',
   {
@@ -253,6 +282,7 @@ export const parts = app.table(
   },
   (table) => [
     uniqueIndex('parts_part_number_unique').on(table.partNumber),
+    uniqueIndex('parts_sage_item_unique').on(table.sageItemId),
     index('parts_name_idx').on(sql`lower(${table.name})`),
     index('parts_group_idx').on(table.partGroupId),
   ],
@@ -367,6 +397,102 @@ export const sharedParts = app.table('shared_parts', {
   partCode: text('part_code').primaryKey(),
   mainPartCode: text('main_part_code').notNull(),
 })
+
+/* ------------------------ local ids and idempotency ------------------------ */
+
+/**
+ * One row per entity. New records take the next negative integer, so a local
+ * record can never collide with a Sage id and is never renumbered when linked.
+ */
+export const localIdAllocations = app.table('local_id_allocations', {
+  entity: text('entity').primaryKey(),
+  nextId: integer('next_id').notNull().default(0),
+})
+
+/** A create retried with the same key returns the first record. */
+export const masterDataRequests = app.table(
+  'master_data_requests',
+  {
+    key: uuid('key').primaryKey(),
+    entity: text('entity').notNull(),
+    entityId: integer('entity_id').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index('master_data_requests_entity_idx').on(table.entity, table.entityId)],
+)
+
+/* --------------------------- Sage reconciliation --------------------------- */
+
+export const importState = app.table(
+  'import_state',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    entity: text('entity').notNull(),
+    localId: integer('local_id').notNull(),
+    sageId: integer('sage_id').notNull(),
+    /** Source values written by the previous import, used for field ownership. */
+    lastSnapshot: jsonb('last_snapshot').$type<Record<string, unknown> | null>(),
+    lastImportHash: text('last_import_hash'),
+    lastSeenAt: timestamp('last_seen_at', { withTimezone: true }).notNull().defaultNow(),
+    lastImportedAt: timestamp('last_imported_at', { withTimezone: true }).notNull().defaultNow(),
+    sageMissingSince: timestamp('sage_missing_since', { withTimezone: true }),
+  },
+  (table) => [
+    uniqueIndex('import_state_entity_local_unique').on(table.entity, table.localId),
+    uniqueIndex('import_state_entity_sage_unique').on(table.entity, table.sageId),
+  ],
+)
+
+export const importConflicts = app.table(
+  'import_conflicts',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    entity: text('entity').notNull(),
+    localId: integer('local_id').notNull(),
+    sageId: integer('sage_id').notNull(),
+    field: text('field').notNull(),
+    sageValue: text('sage_value'),
+    localValue: text('local_value'),
+    status: text('status').notNull().default('open'),
+    detectedAt: timestamp('detected_at', { withTimezone: true }).notNull().defaultNow(),
+    resolvedAt: timestamp('resolved_at', { withTimezone: true }),
+    resolvedBy: uuid('resolved_by'),
+  },
+  (table) => [
+    index('import_conflicts_status_idx').on(table.status, table.detectedAt),
+    uniqueIndex('import_conflicts_open_unique').on(
+      table.entity,
+      table.localId,
+      table.field,
+      table.status,
+    ),
+  ],
+)
+
+/* --------------------------- compliance reminders --------------------------- */
+
+export const complianceReminders = app.table(
+  'compliance_reminders',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    subcontractorId: integer('subcontractor_id').notNull(),
+    documentId: uuid('document_id')
+      .notNull()
+      .references(() => subcontractorDocuments.id, { onDelete: 'cascade' }),
+    windowDays: integer('window_days').notNull(),
+    dueOn: date('due_on').notNull(),
+    status: text('status').notNull().default('queued'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    sentAt: timestamp('sent_at', { withTimezone: true }),
+  },
+  (table) => [
+    uniqueIndex('compliance_reminders_document_window_unique').on(
+      table.documentId,
+      table.windowDays,
+    ),
+    index('compliance_reminders_status_idx').on(table.status, table.createdAt),
+  ],
+)
 
 export type Customer = typeof customers.$inferSelect
 export type Site = typeof sites.$inferSelect

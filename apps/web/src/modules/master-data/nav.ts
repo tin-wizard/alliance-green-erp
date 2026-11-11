@@ -14,6 +14,7 @@ export const nav: ModuleNav[] = [
       { label: 'Customers', to: '/master-data/customers', icon: Users, permission: 'customer:read' },
       { label: 'Sites', to: '/master-data/sites', icon: MapPin, permission: 'customer:read' },
       { label: 'Parts catalogue', to: '/master-data/parts', icon: Package, permission: 'inventory:read' },
+      { label: 'Sage reconciliation', to: '/master-data/import', icon: Truck, permission: 'customer:write' },
     ],
   },
   {

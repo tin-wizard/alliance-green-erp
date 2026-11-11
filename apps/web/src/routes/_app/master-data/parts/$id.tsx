@@ -16,7 +16,9 @@ export const Route = createFileRoute('/_app/master-data/parts/$id')({
 
 function PartPage() {
   const { id } = Route.useParams()
+  const { session } = Route.useRouteContext()
+  const canWrite = session.user.grants.some((grant) => grant.key === 'inventory:write')
   const numeric = Number(id)
-  if (!Number.isInteger(numeric) || numeric <= 0) throw notFound()
-  return <PartDetailScreen id={numeric} />
+  if (!Number.isInteger(numeric) || numeric === 0) throw notFound()
+  return <PartDetailScreen id={numeric} canWrite={canWrite} />
 }

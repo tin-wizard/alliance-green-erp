@@ -35,6 +35,7 @@ export function MasterList<T>({
   rowHref,
   emptyTitle,
   emptyDescription,
+  actions,
 }: {
   eyebrow: string
   title: string
@@ -56,6 +57,7 @@ export function MasterList<T>({
   rowHref: (row: T) => string
   emptyTitle: string
   emptyDescription: string
+  actions?: ReactNode
 }) {
   const [draft, setDraft] = useState(search)
   const [lastSearch, setLastSearch] = useState(search)
@@ -75,7 +77,7 @@ export function MasterList<T>({
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader eyebrow={eyebrow} title={title} description={description} />
+      <PageHeader eyebrow={eyebrow} title={title} description={description} actions={actions} />
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="w-full sm:max-w-[360px]">

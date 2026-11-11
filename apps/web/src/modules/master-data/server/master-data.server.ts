@@ -20,6 +20,7 @@ import {
   subcontractorContacts,
   subcontractorDocuments,
   subcontractors,
+  supplierContacts,
   suppliers,
 } from '@cls/db/schema'
 import type {
@@ -65,6 +66,7 @@ export async function listCustomers(
   const rows = await db
     .select({
       id: customers.id,
+      sageCustomerId: customers.sageCustomerId,
       name: customers.name,
       city: customers.city,
       province: customers.province,
@@ -101,6 +103,7 @@ export async function getCustomer(id: number, db: Db = getDb()): Promise<Custome
 
   return {
     id: row.id,
+    sageCustomerId: row.sageCustomerId,
     name: row.name,
     street: row.street,
     city: row.city,
@@ -148,6 +151,7 @@ export async function listSites(
   const rows = await db
     .select({
       id: sites.id,
+      sageSiteId: sites.sageSiteId,
       name: sites.name,
       street: sites.street,
       city: sites.city,
@@ -197,6 +201,7 @@ export async function getSite(id: number, db: Db = getDb()): Promise<SiteDetail 
   const site = row.site
   return {
     id: site.id,
+    sageSiteId: site.sageSiteId,
     name: site.name,
     street: site.street,
     street2: site.street2,
@@ -260,6 +265,7 @@ export async function listSubcontractors(
   const rows = await db
     .select({
       id: subcontractors.id,
+      sageSubcontractorId: subcontractors.sageSubcontractorId,
       name: subcontractors.name,
       city: subcontractors.city,
       province: subcontractors.province,
@@ -352,6 +358,7 @@ export async function getSubcontractor(
 
   return {
     id: row.id,
+    sageSubcontractorId: row.sageSubcontractorId,
     name: row.name,
     street: row.street,
     city: row.city,
@@ -381,8 +388,12 @@ export async function getSubcontractor(
       documentName: document.documentName,
       fileName: document.fileName,
       storageKey: document.storageKey,
+      contentType: document.contentType,
+      sizeBytes: document.sizeBytes,
+      checksumSha256: document.checksumSha256,
       expiresOn: document.expiresOn,
       isExpired: document.isExpired,
+      supersededAt: document.supersededAt?.toISOString() ?? null,
       uploadedAt: document.uploadedAt.toISOString(),
     })),
     createdAt: row.createdAt.toISOString(),
@@ -428,8 +439,20 @@ export async function listSuppliers(
 export async function getSupplier(id: number, db: Db = getDb()): Promise<SupplierDetail | null> {
   const [row] = await db.select().from(suppliers).where(eq(suppliers.id, id)).limit(1)
   if (!row) return null
+  const contacts = await db
+    .select()
+    .from(supplierContacts)
+    .where(eq(supplierContacts.supplierId, id))
+    .orderBy(asc(supplierContacts.contactName))
   return {
     ...row,
+    contacts: contacts.map((contact) => ({
+      id: contact.id,
+      contactName: contact.contactName,
+      phone: contact.phone,
+      phoneExt: contact.phoneExt,
+      email: contact.email,
+    })),
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   } as SupplierDetail
@@ -528,6 +551,7 @@ export async function getPart(id: number, db: Db = getDb()): Promise<PartDetail 
     id: part.id,
     partNumber: part.partNumber,
     name: part.name,
+    partGroupId: part.partGroupId,
     groupName: row.groupName,
     cost: part.cost,
     sellPrice: part.sellPrice,

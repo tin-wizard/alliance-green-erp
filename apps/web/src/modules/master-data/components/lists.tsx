@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
-import { Tag } from './ui'
+import { Link } from '@tanstack/react-router'
+import { Button, Tag } from './ui'
 import { formatMoney } from './ui'
 import { MasterList, type MasterColumn } from './master-list'
 import {
@@ -30,11 +31,13 @@ export function CustomerListScreen({
   page,
   onSearch,
   onPage,
+  canWrite,
 }: {
   search: string
   page: number
   onSearch: (value: string) => void
   onPage: (page: number) => void
+  canWrite: boolean
 }) {
   const query = useQuery({
     queryKey: ['master-data', 'customers', search, page],
@@ -74,6 +77,13 @@ export function CustomerListScreen({
       rowHref={(row) => `/master-data/customers/${row.id}`}
       emptyTitle="No customers match"
       emptyDescription="Clear the search, or check whether the Sage import has run. Master Data does not invent customer numbers."
+      actions={
+        canWrite ? (
+          <Link to="/master-data/customers/new">
+            <Button variant="primary" size="sm">New customer</Button>
+          </Link>
+        ) : null
+      }
     />
   )
 }
@@ -87,6 +97,7 @@ export function SiteListScreen({
   onSearch,
   onPage,
   onParent,
+  canWrite,
 }: {
   search: string
   page: number
@@ -94,6 +105,7 @@ export function SiteListScreen({
   onSearch: (value: string) => void
   onPage: (page: number) => void
   onParent: (value: 'all' | 'present' | 'missing') => void
+  canWrite: boolean
 }) {
   const query = useQuery({
     queryKey: ['master-data', 'sites', search, page, parent],
@@ -158,6 +170,13 @@ export function SiteListScreen({
       rowHref={(row) => `/master-data/sites/${row.id}`}
       emptyTitle="No sites match"
       emptyDescription="Clear the search or change the billing-parent filter. Sites are listed even when their customer is missing."
+      actions={
+        canWrite ? (
+          <Link to="/master-data/sites/new">
+            <Button variant="primary" size="sm">New site</Button>
+          </Link>
+        ) : null
+      }
     />
   )
 }
@@ -171,6 +190,7 @@ export function SubcontractorListScreen({
   onSearch,
   onPage,
   onWsib,
+  canWrite,
 }: {
   search: string
   page: number
@@ -178,6 +198,7 @@ export function SubcontractorListScreen({
   onSearch: (value: string) => void
   onPage: (page: number) => void
   onWsib: (value: 'all' | 'valid' | 'missing') => void
+  canWrite: boolean
 }) {
   const query = useQuery({
     queryKey: ['master-data', 'subcontractors', search, page, wsib],
@@ -238,6 +259,13 @@ export function SubcontractorListScreen({
       rowHref={(row) => `/master-data/subcontractors/${row.id}`}
       emptyTitle="No subcontractors match"
       emptyDescription="Clear the search or compliance filter. A vendor with zero documents appears under “Missing or expired”."
+      actions={
+        canWrite ? (
+          <Link to="/master-data/subcontractors/new">
+            <Button variant="primary" size="sm">New subcontractor</Button>
+          </Link>
+        ) : null
+      }
     />
   )
 }
@@ -249,11 +277,13 @@ export function SupplierListScreen({
   page,
   onSearch,
   onPage,
+  canWrite,
 }: {
   search: string
   page: number
   onSearch: (value: string) => void
   onPage: (page: number) => void
+  canWrite: boolean
 }) {
   const query = useQuery({
     queryKey: ['master-data', 'suppliers', search, page],
@@ -296,6 +326,13 @@ export function SupplierListScreen({
       rowHref={(row) => `/master-data/suppliers/${row.id}`}
       emptyTitle="No suppliers match"
       emptyDescription="Clear the search. Supplier ids come from Sage and are never renumbered."
+      actions={
+        canWrite ? (
+          <Link to="/master-data/suppliers/new">
+            <Button variant="primary" size="sm">New supplier</Button>
+          </Link>
+        ) : null
+      }
     />
   )
 }
@@ -307,11 +344,13 @@ export function PartListScreen({
   page,
   onSearch,
   onPage,
+  canWrite,
 }: {
   search: string
   page: number
   onSearch: (value: string) => void
   onPage: (page: number) => void
+  canWrite: boolean
 }) {
   const query = useQuery({
     queryKey: ['master-data', 'parts', search, page],
@@ -349,6 +388,13 @@ export function PartListScreen({
       rowHref={(row) => `/master-data/parts/${row.id}`}
       emptyTitle="No parts match"
       emptyDescription="Clear the search. Parts arrive from the Sage catalogue; Master Data does not create part numbers."
+      actions={
+        canWrite ? (
+          <Link to="/master-data/parts/new">
+            <Button variant="primary" size="sm">New part</Button>
+          </Link>
+        ) : null
+      }
     />
   )
 }

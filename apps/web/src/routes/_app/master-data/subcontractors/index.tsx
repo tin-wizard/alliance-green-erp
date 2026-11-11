@@ -18,6 +18,8 @@ export const Route = createFileRoute('/_app/master-data/subcontractors/')({
 
 function SubcontractorsPage() {
   const { q, page, wsib } = Route.useSearch()
+  const { session } = Route.useRouteContext()
+  const canWrite = session.user.grants.some((grant) => grant.key === 'subcontractor:write')
   const navigate = useNavigate({ from: Route.fullPath })
   return (
     <SubcontractorListScreen
@@ -29,6 +31,7 @@ function SubcontractorsPage() {
       }
       onWsib={(value) => void navigate({ search: (prev) => ({ ...prev, wsib: value, page: 1 }) })}
       onPage={(next) => void navigate({ search: (prev) => ({ ...prev, page: next }) })}
+      canWrite={canWrite}
     />
   )
 }

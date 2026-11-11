@@ -16,7 +16,9 @@ export const Route = createFileRoute('/_app/master-data/sites/$id')({
 
 function SitePage() {
   const { id } = Route.useParams()
+  const { session } = Route.useRouteContext()
+  const canWrite = session.user.grants.some((grant) => grant.key === 'customer:write')
   const numeric = Number(id)
-  if (!Number.isInteger(numeric) || numeric <= 0) throw notFound()
-  return <SiteDetailScreen id={numeric} />
+  if (!Number.isInteger(numeric) || numeric === 0) throw notFound()
+  return <SiteDetailScreen id={numeric} canWrite={canWrite} />
 }
