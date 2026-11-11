@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test'
 import postgres from 'postgres'
 import { randomBytes } from 'node:crypto'
 import { createThrowaway, deleteThrowaway, e2eConfigured } from './support/throwaway'
+import { dataOnly } from './support/data-only'
 
 /**
  * RGA primary path with real signed-in sessions:
@@ -15,7 +16,7 @@ try {
 }
 
 const DATABASE_URL = process.env.E2E_DATABASE_URL ?? process.env.DATABASE_URL
-const sql = DATABASE_URL ? postgres(DATABASE_URL, { prepare: false, max: 2 }) : null
+const sql = DATABASE_URL ? dataOnly(postgres(DATABASE_URL, { prepare: false, max: 2 })) : null
 
 test.describe('rgas', () => {
   test.describe.configure({ mode: 'serial', timeout: 240_000 })

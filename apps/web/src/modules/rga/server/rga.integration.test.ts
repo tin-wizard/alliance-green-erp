@@ -11,6 +11,7 @@ import { describe, expect, test, vi } from 'vitest'
 vi.setConfig({ testTimeout: 90_000, hookTimeout: 90_000 })
 
 import { ALL_PERMISSIONS, ForbiddenError } from '@cls/core'
+import type { JobContext } from '@cls/core/jobs'
 import { getConfig } from '@cls/core/env.server'
 import { getDb, type Tx } from '@cls/db'
 import {
@@ -33,7 +34,7 @@ import { approveRgaCore, transitionRgaCore } from './transitions.server'
 import { createRgaCore } from './save.server'
 import { getRgaDetail, listRgas } from './get.server'
 import { recordRgaCreditCore } from './credit.server'
-import { runRgaNotificationJobCore } from './notifications.server'
+import { rgaNotificationsHandler } from './job.server'
 import {
   createSiteWarrantyCore,
   listSiteWarranties,
@@ -115,6 +116,20 @@ function dateFromNow(days: number): string {
   const date = new Date()
   date.setUTCDate(date.getUTCDate() + days)
   return date.toISOString().slice(0, 10)
+}
+
+function jobContext(tx: Tx, scheduledFor: Date): JobContext {
+  return {
+    db: tx,
+    runId: 1,
+    idempotencyKey: `purchasing.rga-notifications:${scheduledFor.toISOString()}`,
+    businessDate: scheduledFor.toISOString().slice(0, 10),
+    scheduledFor,
+    attempt: 1,
+    dryRun: false,
+    signal: new AbortController().signal,
+    logger: { debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+  }
 }
 
 async function seed(tx: Tx): Promise<{ partLineId: number }> {
@@ -346,10 +361,10 @@ describe.skipIf(!databaseConfigured())('RGA lifecycle', () => {
       await createRgaCore(tx, createInput(partLineId, WO_SUB_ONE), session)
 
       const monday = new Date('2026-03-09T11:15:00Z')
-      const first = await runRgaNotificationJobCore(tx, { now: monday })
-      expect(first.queued).toBe(1)
-      const retry = await runRgaNotificationJobCore(tx, { now: monday })
-      expect(retry.queued).toBe(0)
+      const first = await rgaNotificationsHandler(jobContext(tx, monday))
+      expect(first?.recordsProcessed).toBe(1)
+      const retry = await rgaNotificationsHandler(jobContext(tx, monday))
+      expect(retry?.recordsProcessed).toBe(0)
 
       const reminders = await tx
         .select()
@@ -359,10 +374,10 @@ describe.skipIf(!databaseConfigured())('RGA lifecycle', () => {
       expect(reminders[0]!.status).toBe('pending')
       expect(reminders[0]!.idempotencyKey).toContain('2026-03-09')
 
-      const nextMonday = await runRgaNotificationJobCore(tx, {
-        now: new Date('2026-03-16T11:15:00Z'),
-      })
-      expect(nextMonday.queued).toBe(1)
+      const nextMonday = await rgaNotificationsHandler(
+        jobContext(tx, new Date('2026-03-16T11:15:00Z')),
+      )
+      expect(nextMonday?.recordsProcessed).toBe(1)
     })
   })
 
