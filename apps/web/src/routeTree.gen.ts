@@ -34,6 +34,7 @@ import { Route as AppQuotesNewRouteImport } from './routes/_app/quotes/new'
 import { Route as AppRgasIndexRouteImport } from './routes/_app/rgas/index'
 import { Route as AppRgasIdRouteImport } from './routes/_app/rgas/$id'
 import { Route as AppRgasNewRouteImport } from './routes/_app/rgas/new'
+import { Route as AppTjxIndexRouteImport } from './routes/_app/tjx/index'
 import { Route as AppWarrantiesIndexRouteImport } from './routes/_app/warranties/index'
 import { Route as AppWorkOrdersIndexRouteImport } from './routes/_app/work-orders/index'
 import { Route as AppWorkOrdersNewRouteImport } from './routes/_app/work-orders/new'
@@ -66,6 +67,10 @@ import { Route as AppPurchasingIdIndexRouteImport } from './routes/_app/purchasi
 import { Route as AppPurchasingIdEditRouteImport } from './routes/_app/purchasing/$id/edit'
 import { Route as AppQuotesIdIndexRouteImport } from './routes/_app/quotes/$id/index'
 import { Route as AppQuotesIdEditRouteImport } from './routes/_app/quotes/$id/edit'
+import { Route as AppTjxMastersFixturesRouteImport } from './routes/_app/tjx/masters/fixtures'
+import { Route as AppTjxMastersRatesRouteImport } from './routes/_app/tjx/masters/rates'
+import { Route as AppTjxMastersRoomsRouteImport } from './routes/_app/tjx/masters/rooms'
+import { Route as AppTjxMastersTemplatesRouteImport } from './routes/_app/tjx/masters/templates'
 import { Route as AppWorkOrdersIdIndexRouteImport } from './routes/_app/work-orders/$id/index'
 import { Route as AppWorkOrdersIdRevisionsRouteImport } from './routes/_app/work-orders/$id/revisions'
 import { Route as ApiInternalJobsKeyRouteImport } from './routes/api/internal/jobs/$key'
@@ -207,6 +212,11 @@ const AppRgasIdRoute = AppRgasIdRouteImport.update({
 const AppRgasNewRoute = AppRgasNewRouteImport.update({
   id: '/rgas/new',
   path: '/rgas/new',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppTjxIndexRoute = AppTjxIndexRouteImport.update({
+  id: '/tjx/',
+  path: '/tjx/',
   getParentRoute: () => AppRoute,
 } as any)
 const AppWarrantiesIndexRoute = AppWarrantiesIndexRouteImport.update({
@@ -380,6 +390,26 @@ const AppQuotesIdEditRoute = AppQuotesIdEditRouteImport.update({
   path: '/quotes/$id/edit',
   getParentRoute: () => AppRoute,
 } as any)
+const AppTjxMastersFixturesRoute = AppTjxMastersFixturesRouteImport.update({
+  id: '/tjx/masters/fixtures',
+  path: '/tjx/masters/fixtures',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppTjxMastersRatesRoute = AppTjxMastersRatesRouteImport.update({
+  id: '/tjx/masters/rates',
+  path: '/tjx/masters/rates',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppTjxMastersRoomsRoute = AppTjxMastersRoomsRouteImport.update({
+  id: '/tjx/masters/rooms',
+  path: '/tjx/masters/rooms',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppTjxMastersTemplatesRoute = AppTjxMastersTemplatesRouteImport.update({
+  id: '/tjx/masters/templates',
+  path: '/tjx/masters/templates',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppWorkOrdersIdIndexRoute = AppWorkOrdersIdIndexRouteImport.update({
   id: '/work-orders/$id/',
   path: '/work-orders/$id/',
@@ -507,6 +537,7 @@ export interface FileRoutesByFullPath {
   '/purchasing/': typeof AppPurchasingIndexRoute
   '/quotes/': typeof AppQuotesIndexRoute
   '/rgas/': typeof AppRgasIndexRoute
+  '/tjx/': typeof AppTjxIndexRoute
   '/warranties/': typeof AppWarrantiesIndexRoute
   '/work-orders/': typeof AppWorkOrdersIndexRoute
   '/maintenance/work-orders/new': typeof AppMaintenanceWorkOrdersNewRoute
@@ -524,6 +555,10 @@ export interface FileRoutesByFullPath {
   '/portal/sub/stock': typeof AppPortalSubStockRoute
   '/purchasing/$id/edit': typeof AppPurchasingIdEditRoute
   '/quotes/$id/edit': typeof AppQuotesIdEditRoute
+  '/tjx/masters/fixtures': typeof AppTjxMastersFixturesRoute
+  '/tjx/masters/rates': typeof AppTjxMastersRatesRoute
+  '/tjx/masters/rooms': typeof AppTjxMastersRoomsRoute
+  '/tjx/masters/templates': typeof AppTjxMastersTemplatesRoute
   '/work-orders/$id/revisions': typeof AppWorkOrdersIdRevisionsRoute
   '/api/internal/jobs/$key': typeof ApiInternalJobsKeyRoute
   '/api/master-data/documents/$id': typeof ApiMasterDataDocumentsIdRoute
@@ -582,6 +617,7 @@ export interface FileRoutesByTo {
   '/purchasing': typeof AppPurchasingIndexRoute
   '/quotes': typeof AppQuotesIndexRoute
   '/rgas': typeof AppRgasIndexRoute
+  '/tjx': typeof AppTjxIndexRoute
   '/warranties': typeof AppWarrantiesIndexRoute
   '/work-orders': typeof AppWorkOrdersIndexRoute
   '/maintenance/work-orders/new': typeof AppMaintenanceWorkOrdersNewRoute
@@ -598,6 +634,10 @@ export interface FileRoutesByTo {
   '/portal/sub/stock': typeof AppPortalSubStockRoute
   '/purchasing/$id/edit': typeof AppPurchasingIdEditRoute
   '/quotes/$id/edit': typeof AppQuotesIdEditRoute
+  '/tjx/masters/fixtures': typeof AppTjxMastersFixturesRoute
+  '/tjx/masters/rates': typeof AppTjxMastersRatesRoute
+  '/tjx/masters/rooms': typeof AppTjxMastersRoomsRoute
+  '/tjx/masters/templates': typeof AppTjxMastersTemplatesRoute
   '/work-orders/$id/revisions': typeof AppWorkOrdersIdRevisionsRoute
   '/api/internal/jobs/$key': typeof ApiInternalJobsKeyRoute
   '/api/master-data/documents/$id': typeof ApiMasterDataDocumentsIdRoute
@@ -658,6 +698,7 @@ export interface FileRoutesById {
   '/_app/purchasing/': typeof AppPurchasingIndexRoute
   '/_app/quotes/': typeof AppQuotesIndexRoute
   '/_app/rgas/': typeof AppRgasIndexRoute
+  '/_app/tjx/': typeof AppTjxIndexRoute
   '/_app/warranties/': typeof AppWarrantiesIndexRoute
   '/_app/work-orders/': typeof AppWorkOrdersIndexRoute
   '/_app/maintenance/work-orders/new': typeof AppMaintenanceWorkOrdersNewRoute
@@ -675,6 +716,10 @@ export interface FileRoutesById {
   '/_app/portal/sub/stock': typeof AppPortalSubStockRoute
   '/_app/purchasing/$id/edit': typeof AppPurchasingIdEditRoute
   '/_app/quotes/$id/edit': typeof AppQuotesIdEditRoute
+  '/_app/tjx/masters/fixtures': typeof AppTjxMastersFixturesRoute
+  '/_app/tjx/masters/rates': typeof AppTjxMastersRatesRoute
+  '/_app/tjx/masters/rooms': typeof AppTjxMastersRoomsRoute
+  '/_app/tjx/masters/templates': typeof AppTjxMastersTemplatesRoute
   '/_app/work-orders/$id/revisions': typeof AppWorkOrdersIdRevisionsRoute
   '/api/internal/jobs/$key': typeof ApiInternalJobsKeyRoute
   '/api/master-data/documents/$id': typeof ApiMasterDataDocumentsIdRoute
@@ -735,6 +780,7 @@ export interface FileRouteTypes {
     | '/purchasing/'
     | '/quotes/'
     | '/rgas/'
+    | '/tjx/'
     | '/warranties/'
     | '/work-orders/'
     | '/maintenance/work-orders/new'
@@ -752,6 +798,10 @@ export interface FileRouteTypes {
     | '/portal/sub/stock'
     | '/purchasing/$id/edit'
     | '/quotes/$id/edit'
+    | '/tjx/masters/fixtures'
+    | '/tjx/masters/rates'
+    | '/tjx/masters/rooms'
+    | '/tjx/masters/templates'
     | '/work-orders/$id/revisions'
     | '/api/internal/jobs/$key'
     | '/api/master-data/documents/$id'
@@ -810,6 +860,7 @@ export interface FileRouteTypes {
     | '/purchasing'
     | '/quotes'
     | '/rgas'
+    | '/tjx'
     | '/warranties'
     | '/work-orders'
     | '/maintenance/work-orders/new'
@@ -826,6 +877,10 @@ export interface FileRouteTypes {
     | '/portal/sub/stock'
     | '/purchasing/$id/edit'
     | '/quotes/$id/edit'
+    | '/tjx/masters/fixtures'
+    | '/tjx/masters/rates'
+    | '/tjx/masters/rooms'
+    | '/tjx/masters/templates'
     | '/work-orders/$id/revisions'
     | '/api/internal/jobs/$key'
     | '/api/master-data/documents/$id'
@@ -885,6 +940,7 @@ export interface FileRouteTypes {
     | '/_app/purchasing/'
     | '/_app/quotes/'
     | '/_app/rgas/'
+    | '/_app/tjx/'
     | '/_app/warranties/'
     | '/_app/work-orders/'
     | '/_app/maintenance/work-orders/new'
@@ -902,6 +958,10 @@ export interface FileRouteTypes {
     | '/_app/portal/sub/stock'
     | '/_app/purchasing/$id/edit'
     | '/_app/quotes/$id/edit'
+    | '/_app/tjx/masters/fixtures'
+    | '/_app/tjx/masters/rates'
+    | '/_app/tjx/masters/rooms'
+    | '/_app/tjx/masters/templates'
     | '/_app/work-orders/$id/revisions'
     | '/api/internal/jobs/$key'
     | '/api/master-data/documents/$id'
@@ -1122,6 +1182,13 @@ declare module '@tanstack/react-router' {
       path: '/rgas/new'
       fullPath: '/rgas/new'
       preLoaderRoute: typeof AppRgasNewRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/tjx/': {
+      id: '/_app/tjx/'
+      path: '/tjx'
+      fullPath: '/tjx/'
+      preLoaderRoute: typeof AppTjxIndexRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/warranties/': {
@@ -1348,6 +1415,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppQuotesIdEditRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/tjx/masters/fixtures': {
+      id: '/_app/tjx/masters/fixtures'
+      path: '/tjx/masters/fixtures'
+      fullPath: '/tjx/masters/fixtures'
+      preLoaderRoute: typeof AppTjxMastersFixturesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/tjx/masters/rates': {
+      id: '/_app/tjx/masters/rates'
+      path: '/tjx/masters/rates'
+      fullPath: '/tjx/masters/rates'
+      preLoaderRoute: typeof AppTjxMastersRatesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/tjx/masters/rooms': {
+      id: '/_app/tjx/masters/rooms'
+      path: '/tjx/masters/rooms'
+      fullPath: '/tjx/masters/rooms'
+      preLoaderRoute: typeof AppTjxMastersRoomsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/tjx/masters/templates': {
+      id: '/_app/tjx/masters/templates'
+      path: '/tjx/masters/templates'
+      fullPath: '/tjx/masters/templates'
+      preLoaderRoute: typeof AppTjxMastersTemplatesRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/work-orders/$id/': {
       id: '/_app/work-orders/$id/'
       path: '/work-orders/$id'
@@ -1505,6 +1600,7 @@ interface AppRouteChildren {
   AppPurchasingIndexRoute: typeof AppPurchasingIndexRoute
   AppQuotesIndexRoute: typeof AppQuotesIndexRoute
   AppRgasIndexRoute: typeof AppRgasIndexRoute
+  AppTjxIndexRoute: typeof AppTjxIndexRoute
   AppWarrantiesIndexRoute: typeof AppWarrantiesIndexRoute
   AppWorkOrdersIndexRoute: typeof AppWorkOrdersIndexRoute
   AppMaintenanceWorkOrdersNewRoute: typeof AppMaintenanceWorkOrdersNewRoute
@@ -1522,6 +1618,10 @@ interface AppRouteChildren {
   AppPortalSubStockRoute: typeof AppPortalSubStockRoute
   AppPurchasingIdEditRoute: typeof AppPurchasingIdEditRoute
   AppQuotesIdEditRoute: typeof AppQuotesIdEditRoute
+  AppTjxMastersFixturesRoute: typeof AppTjxMastersFixturesRoute
+  AppTjxMastersRatesRoute: typeof AppTjxMastersRatesRoute
+  AppTjxMastersRoomsRoute: typeof AppTjxMastersRoomsRoute
+  AppTjxMastersTemplatesRoute: typeof AppTjxMastersTemplatesRoute
   AppWorkOrdersIdRevisionsRoute: typeof AppWorkOrdersIdRevisionsRoute
   AppMaintenanceWorkOrdersIndexRoute: typeof AppMaintenanceWorkOrdersIndexRoute
   AppMasterDataCustomersIndexRoute: typeof AppMasterDataCustomersIndexRoute
@@ -1567,6 +1667,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppPurchasingIndexRoute: AppPurchasingIndexRoute,
   AppQuotesIndexRoute: AppQuotesIndexRoute,
   AppRgasIndexRoute: AppRgasIndexRoute,
+  AppTjxIndexRoute: AppTjxIndexRoute,
   AppWarrantiesIndexRoute: AppWarrantiesIndexRoute,
   AppWorkOrdersIndexRoute: AppWorkOrdersIndexRoute,
   AppMaintenanceWorkOrdersNewRoute: AppMaintenanceWorkOrdersNewRoute,
@@ -1584,6 +1685,10 @@ const AppRouteChildren: AppRouteChildren = {
   AppPortalSubStockRoute: AppPortalSubStockRoute,
   AppPurchasingIdEditRoute: AppPurchasingIdEditRoute,
   AppQuotesIdEditRoute: AppQuotesIdEditRoute,
+  AppTjxMastersFixturesRoute: AppTjxMastersFixturesRoute,
+  AppTjxMastersRatesRoute: AppTjxMastersRatesRoute,
+  AppTjxMastersRoomsRoute: AppTjxMastersRoomsRoute,
+  AppTjxMastersTemplatesRoute: AppTjxMastersTemplatesRoute,
   AppWorkOrdersIdRevisionsRoute: AppWorkOrdersIdRevisionsRoute,
   AppMaintenanceWorkOrdersIndexRoute: AppMaintenanceWorkOrdersIndexRoute,
   AppMasterDataCustomersIndexRoute: AppMasterDataCustomersIndexRoute,

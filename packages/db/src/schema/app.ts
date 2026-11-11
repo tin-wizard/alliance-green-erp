@@ -37,6 +37,7 @@ export * from './app/invoicing'
 export * from './app/sage'
 export * from './app/sage-reconciliation'
 export * from './app/rga'
+export * from './app/tjx'
 export * from './app/jobs'
 
 export const userRoleEnum = app.enum('user_role', [
