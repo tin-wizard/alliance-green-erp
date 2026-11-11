@@ -8,6 +8,13 @@
       "when": 1794391035729,
       "tag": "0000_brave_moira_mactaggert",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1794392138121,
+      "tag": "0001_woozy_mojo",
+      "breakpoints": true
     }
   ]
 }

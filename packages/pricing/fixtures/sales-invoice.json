@@ -1,0 +1,850 @@
+{
+ "fixture_set": "sales-invoice",
+ "method": "http",
+ "legacy_entry_point": "app/ajaxCalcTotal.php",
+ "stored_by": "app/calc_submit.php:100-118 builds appliedtaxrate from the province code; :115 stores fld_subtotal_amount / fld_tax_amount / fld_total_amount exactly as posted, with calc_type = 'sub'",
+ "notes": "Answers come from the endpoint the invoice screen calls, so session.php, db_conn.php and functions.php all ran. Numbers are the exact strings the endpoint returned. Rounding rule: every line is number_format-ed to 2dp, then tax is accumulated line by line with the accumulator rounded at every step, so per-line and total-level rounding differ on purpose and the rebuild must match the accumulated form. A manual tax override only survives when fld_subtotal_amount still equals the computed subtotal. A special-order line whose qty is <= -99999 is dropped silently.",
+ "fixture_file_date": "2026-11-11",
+ "cases": [
+  {
+   "id": "on-single-labour",
+   "note": "one labour line, 2 h x 85.00, ON 13%",
+   "taxprov": "ON",
+   "input": {
+    "hhours": [
+     "2"
+    ],
+    "rrate": [
+     "85.00"
+    ],
+    "part_qty": [],
+    "part_price": [],
+    "so_qty": [],
+    "so_price": [],
+    "fld_tax_amount": null,
+    "fld_subtotal_amount": null,
+    "tax_rate_applied": "0.13"
+   },
+   "expected_stored": {
+    "labour": "170.00",
+    "material": "0.00",
+    "subtotal": "170.00",
+    "tax": "22.10",
+    "total": "192.10"
+   },
+   "agrees_with_independent_model": true,
+   "source": "app/ajaxCalcTotal.php:55-355 (rate table 26-43, override 335-348, totals 350-355)"
+  },
+  {
+   "id": "on-multiline-mixed",
+   "note": "two labour lines + two parts lines + one special-order line, ON 13%",
+   "taxprov": "ON",
+   "input": {
+    "hhours": [
+     "1.5",
+     "0.75"
+    ],
+    "rrate": [
+     "85.00",
+     "92.40"
+    ],
+    "part_qty": [
+     "3",
+     "1"
+    ],
+    "part_price": [
+     "12.99",
+     "0.99"
+    ],
+    "so_qty": [
+     "2"
+    ],
+    "so_price": [
+     "44.44"
+    ],
+    "fld_tax_amount": null,
+    "fld_subtotal_amount": null,
+    "tax_rate_applied": "0.13"
+   },
+   "expected_stored": {
+    "labour": "196.80",
+    "material": "128.84",
+    "subtotal": "325.64",
+    "tax": "42.34",
+    "total": "367.98"
+   },
+   "agrees_with_independent_model": true,
+   "source": "app/ajaxCalcTotal.php:55-355 (rate table 26-43, override 335-348, totals 350-355)"
+  },
+  {
+   "id": "on-per-line-rounding",
+   "note": "three 0.165 lines: per-line rounding gives 0.51, one rounding of the raw sum gives 0.50",
+   "taxprov": "ON",
+   "input": {
+    "hhours": [],
+    "rrate": [],
+    "part_qty": [
+     "1.5",
+     "1.5",
+     "1.5"
+    ],
+    "part_price": [
+     "0.11",
+     "0.11",
+     "0.11"
+    ],
+    "so_qty": [],
+    "so_price": [],
+    "fld_tax_amount": null,
+    "fld_subtotal_amount": null,
+    "tax_rate_applied": "0.13"
+   },
+   "expected_stored": {
+    "labour": "0.00",
+    "material": "0.51",
+    "subtotal": "0.51",
+    "tax": "0.06",
+    "total": "0.57"
+   },
+   "agrees_with_independent_model": true,
+   "source": "app/ajaxCalcTotal.php:55-355 (rate table 26-43, override 335-348, totals 350-355)"
+  },
+  {
+   "id": "on-qty-decimals",
+   "note": "fractional quantity 2.5 x 10.01 = 25.025 -> stored 25.03",
+   "taxprov": "ON",
+   "input": {
+    "hhours": [],
+    "rrate": [],
+    "part_qty": [
+     "2.5"
+    ],
+    "part_price": [
+     "10.01"
+    ],
+    "so_qty": [],
+    "so_price": [],
+    "fld_tax_amount": null,
+    "fld_subtotal_amount": null,
+    "tax_rate_applied": "0.13"
+   },
+   "expected_stored": {
+    "labour": "0.00",
+    "material": "25.03",
+    "subtotal": "25.03",
+    "tax": "3.25",
+    "total": "28.28"
+   },
+   "agrees_with_independent_model": true,
+   "source": "app/ajaxCalcTotal.php:55-355 (rate table 26-43, override 335-348, totals 350-355)"
+  },
+  {
+   "id": "on-zero-line",
+   "note": "zero-value part line stays in the payload but adds nothing",
+   "taxprov": "ON",
+   "input": {
+    "hhours": [
+     "1"
+    ],
+    "rrate": [
+     "50.00"
+    ],
+    "part_qty": [
+     "0"
+    ],
+    "part_price": [
+     "50.00"
+    ],
+    "so_qty": [],
+    "so_price": [],
+    "fld_tax_amount": null,
+    "fld_subtotal_amount": null,
+    "tax_rate_applied": "0.13"
+   },
+   "expected_stored": {
+    "labour": "50.00",
+    "material": "0.00",
+    "subtotal": "50.00",
+    "tax": "6.50",
+    "total": "56.50"
+   },
+   "agrees_with_independent_model": true,
+   "source": "app/ajaxCalcTotal.php:55-355 (rate table 26-43, override 335-348, totals 350-355)"
+  },
+  {
+   "id": "on-negative-line",
+   "note": "negative part price is a credit line and reduces subtotal and tax",
+   "taxprov": "ON",
+   "input": {
+    "hhours": [
+     "1"
+    ],
+    "rrate": [
+     "100.00"
+    ],
+    "part_qty": [
+     "1"
+    ],
+    "part_price": [
+     "-25.00"
+    ],
+    "so_qty": [],
+    "so_price": [],
+    "fld_tax_amount": null,
+    "fld_subtotal_amount": null,
+    "tax_rate_applied": "0.13"
+   },
+   "expected_stored": {
+    "labour": "100.00",
+    "material": "-25.00",
+    "subtotal": "75.00",
+    "tax": "9.75",
+    "total": "84.75"
+   },
+   "agrees_with_independent_model": true,
+   "source": "app/ajaxCalcTotal.php:55-355 (rate table 26-43, override 335-348, totals 350-355)"
+  },
+  {
+   "id": "on-manual-tax-override",
+   "note": "fld_tax_amount honoured because fld_subtotal_amount still matches",
+   "taxprov": "ON",
+   "input": {
+    "hhours": [
+     "2"
+    ],
+    "rrate": [
+     "85.00"
+    ],
+    "part_qty": [],
+    "part_price": [],
+    "so_qty": [],
+    "so_price": [],
+    "fld_tax_amount": "21.50",
+    "fld_subtotal_amount": "170.00",
+    "tax_rate_applied": "0.13"
+   },
+   "expected_stored": {
+    "labour": "170.00",
+    "material": "0.00",
+    "subtotal": "170.00",
+    "tax": "21.50",
+    "total": "191.50"
+   },
+   "agrees_with_independent_model": true,
+   "source": "app/ajaxCalcTotal.php:55-355 (rate table 26-43, override 335-348, totals 350-355)"
+  },
+  {
+   "id": "on-stale-override-discarded",
+   "note": "override ignored because fld_subtotal_amount no longer matches the computed subtotal",
+   "taxprov": "ON",
+   "input": {
+    "hhours": [
+     "2"
+    ],
+    "rrate": [
+     "85.00"
+    ],
+    "part_qty": [],
+    "part_price": [],
+    "so_qty": [],
+    "so_price": [],
+    "fld_tax_amount": "21.50",
+    "fld_subtotal_amount": "999.00",
+    "tax_rate_applied": "0.13"
+   },
+   "expected_stored": {
+    "labour": "170.00",
+    "material": "0.00",
+    "subtotal": "170.00",
+    "tax": "22.10",
+    "total": "192.10"
+   },
+   "agrees_with_independent_model": true,
+   "source": "app/ajaxCalcTotal.php:55-355 (rate table 26-43, override 335-348, totals 350-355)"
+  },
+  {
+   "id": "on-override-blank-subtotal",
+   "note": "override ignored because fld_subtotal_amount is blank",
+   "taxprov": "ON",
+   "input": {
+    "hhours": [
+     "2"
+    ],
+    "rrate": [
+     "85.00"
+    ],
+    "part_qty": [],
+    "part_price": [],
+    "so_qty": [],
+    "so_price": [],
+    "fld_tax_amount": "21.50",
+    "fld_subtotal_amount": "",
+    "tax_rate_applied": "0.13"
+   },
+   "expected_stored": {
+    "labour": "170.00",
+    "material": "0.00",
+    "subtotal": "170.00",
+    "tax": "22.10",
+    "total": "192.10"
+   },
+   "agrees_with_independent_model": true,
+   "source": "app/ajaxCalcTotal.php:55-355 (rate table 26-43, override 335-348, totals 350-355)"
+  },
+  {
+   "id": "on-soqty-sentinel",
+   "note": "so qty -100000 is below the -99999 guard and is silently dropped from the totals",
+   "taxprov": "ON",
+   "input": {
+    "hhours": [
+     "1"
+    ],
+    "rrate": [
+     "100.00"
+    ],
+    "part_qty": [],
+    "part_price": [],
+    "so_qty": [
+     "-100000"
+    ],
+    "so_price": [
+     "5.00"
+    ],
+    "fld_tax_amount": null,
+    "fld_subtotal_amount": null,
+    "tax_rate_applied": "0.13"
+   },
+   "expected_stored": {
+    "labour": "100.00",
+    "material": "0.00",
+    "subtotal": "100.00",
+    "tax": "13.00",
+    "total": "113.00"
+   },
+   "agrees_with_independent_model": true,
+   "source": "app/ajaxCalcTotal.php:55-355 (rate table 26-43, override 335-348, totals 350-355)"
+  },
+  {
+   "id": "province-AB",
+   "note": "tax province AB at 5% on a 200.00 labour line",
+   "taxprov": "AB",
+   "input": {
+    "hhours": [
+     "2"
+    ],
+    "rrate": [
+     "100.00"
+    ],
+    "part_qty": [],
+    "part_price": [],
+    "so_qty": [],
+    "so_price": [],
+    "fld_tax_amount": null,
+    "fld_subtotal_amount": null,
+    "tax_rate_applied": "0.05"
+   },
+   "expected_stored": {
+    "labour": "200.00",
+    "material": "0.00",
+    "subtotal": "200.00",
+    "tax": "10.00",
+    "total": "210.00"
+   },
+   "agrees_with_independent_model": true,
+   "source": "app/ajaxCalcTotal.php:55-355 (rate table 26-43, override 335-348, totals 350-355)"
+  },
+  {
+   "id": "province-BC",
+   "note": "tax province BC at 5% on a 200.00 labour line",
+   "taxprov": "BC",
+   "input": {
+    "hhours": [
+     "2"
+    ],
+    "rrate": [
+     "100.00"
+    ],
+    "part_qty": [],
+    "part_price": [],
+    "so_qty": [],
+    "so_price": [],
+    "fld_tax_amount": null,
+    "fld_subtotal_amount": null,
+    "tax_rate_applied": "0.05"
+   },
+   "expected_stored": {
+    "labour": "200.00",
+    "material": "0.00",
+    "subtotal": "200.00",
+    "tax": "10.00",
+    "total": "210.00"
+   },
+   "agrees_with_independent_model": true,
+   "source": "app/ajaxCalcTotal.php:55-355 (rate table 26-43, override 335-348, totals 350-355)"
+  },
+  {
+   "id": "province-BCG",
+   "note": "tax province BCG at 5% on a 200.00 labour line",
+   "taxprov": "BCG",
+   "input": {
+    "hhours": [
+     "2"
+    ],
+    "rrate": [
+     "100.00"
+    ],
+    "part_qty": [],
+    "part_price": [],
+    "so_qty": [],
+    "so_price": [],
+    "fld_tax_amount": null,
+    "fld_subtotal_amount": null,
+    "tax_rate_applied": "0.05"
+   },
+   "expected_stored": {
+    "labour": "200.00",
+    "material": "0.00",
+    "subtotal": "200.00",
+    "tax": "10.00",
+    "total": "210.00"
+   },
+   "agrees_with_independent_model": true,
+   "source": "app/ajaxCalcTotal.php:55-355 (rate table 26-43, override 335-348, totals 350-355)"
+  },
+  {
+   "id": "province-MB",
+   "note": "tax province MB at 5% on a 200.00 labour line",
+   "taxprov": "MB",
+   "input": {
+    "hhours": [
+     "2"
+    ],
+    "rrate": [
+     "100.00"
+    ],
+    "part_qty": [],
+    "part_price": [],
+    "so_qty": [],
+    "so_price": [],
+    "fld_tax_amount": null,
+    "fld_subtotal_amount": null,
+    "tax_rate_applied": "0.05"
+   },
+   "expected_stored": {
+    "labour": "200.00",
+    "material": "0.00",
+    "subtotal": "200.00",
+    "tax": "10.00",
+    "total": "210.00"
+   },
+   "agrees_with_independent_model": true,
+   "source": "app/ajaxCalcTotal.php:55-355 (rate table 26-43, override 335-348, totals 350-355)"
+  },
+  {
+   "id": "province-MBG",
+   "note": "tax province MBG at 5% on a 200.00 labour line",
+   "taxprov": "MBG",
+   "input": {
+    "hhours": [
+     "2"
+    ],
+    "rrate": [
+     "100.00"
+    ],
+    "part_qty": [],
+    "part_price": [],
+    "so_qty": [],
+    "so_price": [],
+    "fld_tax_amount": null,
+    "fld_subtotal_amount": null,
+    "tax_rate_applied": "0.05"
+   },
+   "expected_stored": {
+    "labour": "200.00",
+    "material": "0.00",
+    "subtotal": "200.00",
+    "tax": "10.00",
+    "total": "210.00"
+   },
+   "agrees_with_independent_model": true,
+   "source": "app/ajaxCalcTotal.php:55-355 (rate table 26-43, override 335-348, totals 350-355)"
+  },
+  {
+   "id": "province-NB",
+   "note": "tax province NB at 15% on a 200.00 labour line",
+   "taxprov": "NB",
+   "input": {
+    "hhours": [
+     "2"
+    ],
+    "rrate": [
+     "100.00"
+    ],
+    "part_qty": [],
+    "part_price": [],
+    "so_qty": [],
+    "so_price": [],
+    "fld_tax_amount": null,
+    "fld_subtotal_amount": null,
+    "tax_rate_applied": "0.15"
+   },
+   "expected_stored": {
+    "labour": "200.00",
+    "material": "0.00",
+    "subtotal": "200.00",
+    "tax": "30.00",
+    "total": "230.00"
+   },
+   "agrees_with_independent_model": true,
+   "source": "app/ajaxCalcTotal.php:55-355 (rate table 26-43, override 335-348, totals 350-355)"
+  },
+  {
+   "id": "province-NL",
+   "note": "tax province NL at 15% on a 200.00 labour line",
+   "taxprov": "NL",
+   "input": {
+    "hhours": [
+     "2"
+    ],
+    "rrate": [
+     "100.00"
+    ],
+    "part_qty": [],
+    "part_price": [],
+    "so_qty": [],
+    "so_price": [],
+    "fld_tax_amount": null,
+    "fld_subtotal_amount": null,
+    "tax_rate_applied": "0.15"
+   },
+   "expected_stored": {
+    "labour": "200.00",
+    "material": "0.00",
+    "subtotal": "200.00",
+    "tax": "30.00",
+    "total": "230.00"
+   },
+   "agrees_with_independent_model": true,
+   "source": "app/ajaxCalcTotal.php:55-355 (rate table 26-43, override 335-348, totals 350-355)"
+  },
+  {
+   "id": "province-NS",
+   "note": "tax province NS at 14% on a 200.00 labour line",
+   "taxprov": "NS",
+   "input": {
+    "hhours": [
+     "2"
+    ],
+    "rrate": [
+     "100.00"
+    ],
+    "part_qty": [],
+    "part_price": [],
+    "so_qty": [],
+    "so_price": [],
+    "fld_tax_amount": null,
+    "fld_subtotal_amount": null,
+    "tax_rate_applied": "0.14"
+   },
+   "expected_stored": {
+    "labour": "200.00",
+    "material": "0.00",
+    "subtotal": "200.00",
+    "tax": "28.00",
+    "total": "228.00"
+   },
+   "agrees_with_independent_model": true,
+   "source": "app/ajaxCalcTotal.php:55-355 (rate table 26-43, override 335-348, totals 350-355)"
+  },
+  {
+   "id": "province-NT",
+   "note": "tax province NT at 5% on a 200.00 labour line",
+   "taxprov": "NT",
+   "input": {
+    "hhours": [
+     "2"
+    ],
+    "rrate": [
+     "100.00"
+    ],
+    "part_qty": [],
+    "part_price": [],
+    "so_qty": [],
+    "so_price": [],
+    "fld_tax_amount": null,
+    "fld_subtotal_amount": null,
+    "tax_rate_applied": "0.05"
+   },
+   "expected_stored": {
+    "labour": "200.00",
+    "material": "0.00",
+    "subtotal": "200.00",
+    "tax": "10.00",
+    "total": "210.00"
+   },
+   "agrees_with_independent_model": true,
+   "source": "app/ajaxCalcTotal.php:55-355 (rate table 26-43, override 335-348, totals 350-355)"
+  },
+  {
+   "id": "province-NU",
+   "note": "tax province NU at 5% on a 200.00 labour line",
+   "taxprov": "NU",
+   "input": {
+    "hhours": [
+     "2"
+    ],
+    "rrate": [
+     "100.00"
+    ],
+    "part_qty": [],
+    "part_price": [],
+    "so_qty": [],
+    "so_price": [],
+    "fld_tax_amount": null,
+    "fld_subtotal_amount": null,
+    "tax_rate_applied": "0.05"
+   },
+   "expected_stored": {
+    "labour": "200.00",
+    "material": "0.00",
+    "subtotal": "200.00",
+    "tax": "10.00",
+    "total": "210.00"
+   },
+   "agrees_with_independent_model": true,
+   "source": "app/ajaxCalcTotal.php:55-355 (rate table 26-43, override 335-348, totals 350-355)"
+  },
+  {
+   "id": "province-ON",
+   "note": "tax province ON at 13% on a 200.00 labour line",
+   "taxprov": "ON",
+   "input": {
+    "hhours": [
+     "2"
+    ],
+    "rrate": [
+     "100.00"
+    ],
+    "part_qty": [],
+    "part_price": [],
+    "so_qty": [],
+    "so_price": [],
+    "fld_tax_amount": null,
+    "fld_subtotal_amount": null,
+    "tax_rate_applied": "0.13"
+   },
+   "expected_stored": {
+    "labour": "200.00",
+    "material": "0.00",
+    "subtotal": "200.00",
+    "tax": "26.00",
+    "total": "226.00"
+   },
+   "agrees_with_independent_model": true,
+   "source": "app/ajaxCalcTotal.php:55-355 (rate table 26-43, override 335-348, totals 350-355)"
+  },
+  {
+   "id": "province-PE",
+   "note": "tax province PE at 15% on a 200.00 labour line",
+   "taxprov": "PE",
+   "input": {
+    "hhours": [
+     "2"
+    ],
+    "rrate": [
+     "100.00"
+    ],
+    "part_qty": [],
+    "part_price": [],
+    "so_qty": [],
+    "so_price": [],
+    "fld_tax_amount": null,
+    "fld_subtotal_amount": null,
+    "tax_rate_applied": "0.15"
+   },
+   "expected_stored": {
+    "labour": "200.00",
+    "material": "0.00",
+    "subtotal": "200.00",
+    "tax": "30.00",
+    "total": "230.00"
+   },
+   "agrees_with_independent_model": true,
+   "source": "app/ajaxCalcTotal.php:55-355 (rate table 26-43, override 335-348, totals 350-355)"
+  },
+  {
+   "id": "province-QC",
+   "note": "tax province QC at 5% on a 200.00 labour line",
+   "taxprov": "QC",
+   "input": {
+    "hhours": [
+     "2"
+    ],
+    "rrate": [
+     "100.00"
+    ],
+    "part_qty": [],
+    "part_price": [],
+    "so_qty": [],
+    "so_price": [],
+    "fld_tax_amount": null,
+    "fld_subtotal_amount": null,
+    "tax_rate_applied": "0.05"
+   },
+   "expected_stored": {
+    "labour": "200.00",
+    "material": "0.00",
+    "subtotal": "200.00",
+    "tax": "10.00",
+    "total": "210.00"
+   },
+   "agrees_with_independent_model": true,
+   "source": "app/ajaxCalcTotal.php:55-355 (rate table 26-43, override 335-348, totals 350-355)"
+  },
+  {
+   "id": "province-QCG",
+   "note": "tax province QCG at 5% on a 200.00 labour line",
+   "taxprov": "QCG",
+   "input": {
+    "hhours": [
+     "2"
+    ],
+    "rrate": [
+     "100.00"
+    ],
+    "part_qty": [],
+    "part_price": [],
+    "so_qty": [],
+    "so_price": [],
+    "fld_tax_amount": null,
+    "fld_subtotal_amount": null,
+    "tax_rate_applied": "0.05"
+   },
+   "expected_stored": {
+    "labour": "200.00",
+    "material": "0.00",
+    "subtotal": "200.00",
+    "tax": "10.00",
+    "total": "210.00"
+   },
+   "agrees_with_independent_model": true,
+   "source": "app/ajaxCalcTotal.php:55-355 (rate table 26-43, override 335-348, totals 350-355)"
+  },
+  {
+   "id": "province-SK",
+   "note": "tax province SK at 5% on a 200.00 labour line",
+   "taxprov": "SK",
+   "input": {
+    "hhours": [
+     "2"
+    ],
+    "rrate": [
+     "100.00"
+    ],
+    "part_qty": [],
+    "part_price": [],
+    "so_qty": [],
+    "so_price": [],
+    "fld_tax_amount": null,
+    "fld_subtotal_amount": null,
+    "tax_rate_applied": "0.05"
+   },
+   "expected_stored": {
+    "labour": "200.00",
+    "material": "0.00",
+    "subtotal": "200.00",
+    "tax": "10.00",
+    "total": "210.00"
+   },
+   "agrees_with_independent_model": true,
+   "source": "app/ajaxCalcTotal.php:55-355 (rate table 26-43, override 335-348, totals 350-355)"
+  },
+  {
+   "id": "province-SKG",
+   "note": "tax province SKG at 5% on a 200.00 labour line",
+   "taxprov": "SKG",
+   "input": {
+    "hhours": [
+     "2"
+    ],
+    "rrate": [
+     "100.00"
+    ],
+    "part_qty": [],
+    "part_price": [],
+    "so_qty": [],
+    "so_price": [],
+    "fld_tax_amount": null,
+    "fld_subtotal_amount": null,
+    "tax_rate_applied": "0.05"
+   },
+   "expected_stored": {
+    "labour": "200.00",
+    "material": "0.00",
+    "subtotal": "200.00",
+    "tax": "10.00",
+    "total": "210.00"
+   },
+   "agrees_with_independent_model": true,
+   "source": "app/ajaxCalcTotal.php:55-355 (rate table 26-43, override 335-348, totals 350-355)"
+  },
+  {
+   "id": "province-YT",
+   "note": "tax province YT at 5% on a 200.00 labour line",
+   "taxprov": "YT",
+   "input": {
+    "hhours": [
+     "2"
+    ],
+    "rrate": [
+     "100.00"
+    ],
+    "part_qty": [],
+    "part_price": [],
+    "so_qty": [],
+    "so_price": [],
+    "fld_tax_amount": null,
+    "fld_subtotal_amount": null,
+    "tax_rate_applied": "0.05"
+   },
+   "expected_stored": {
+    "labour": "200.00",
+    "material": "0.00",
+    "subtotal": "200.00",
+    "tax": "10.00",
+    "total": "210.00"
+   },
+   "agrees_with_independent_model": true,
+   "source": "app/ajaxCalcTotal.php:55-355 (rate table 26-43, override 335-348, totals 350-355)"
+  },
+  {
+   "id": "province-blank",
+   "note": "no province: the calculator falls back to ON / HST 13%",
+   "taxprov": "",
+   "input": {
+    "hhours": [
+     "2"
+    ],
+    "rrate": [
+     "100.00"
+    ],
+    "part_qty": [],
+    "part_price": [],
+    "so_qty": [],
+    "so_price": [],
+    "fld_tax_amount": null,
+    "fld_subtotal_amount": null,
+    "tax_rate_applied": "0.13"
+   },
+   "expected_stored": {
+    "labour": "200.00",
+    "material": "0.00",
+    "subtotal": "200.00",
+    "tax": "26.00",
+    "total": "226.00"
+   },
+   "agrees_with_independent_model": true,
+   "source": "app/ajaxCalcTotal.php:55-355 (rate table 26-43, override 335-348, totals 350-355)"
+  }
+ ]
+}

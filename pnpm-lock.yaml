@@ -197,6 +197,9 @@ importers:
       eslint-plugin-react-hooks:
         specifier: ^7.0.1
         version: 7.1.1(eslint@9.39.5(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)
+      postgres:
+        specifier: ^4.1.0
+        version: 4.1.0
       prettier:
         specifier: ^3.6.2
         version: 3.9.10
@@ -224,6 +227,9 @@ importers:
       '@cls/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@cls/pricing':
+        specifier: workspace:*
+        version: link:../../packages/pricing
       '@cls/sage':
         specifier: workspace:*
         version: link:../../packages/sage
@@ -344,6 +350,8 @@ importers:
       tsx:
         specifier: ^4.20.6
         version: 4.23.15
+
+  packages/pricing: {}
 
   packages/sage:
     dependencies:

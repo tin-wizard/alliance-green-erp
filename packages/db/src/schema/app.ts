@@ -4,7 +4,6 @@ import {
   index,
   integer,
   jsonb,
-  pgSchema,
   primaryKey,
   smallint,
   text,
@@ -13,6 +12,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core'
 import { sql } from 'drizzle-orm'
+import { app } from './app/base'
 
 /**
  * Application schema (`app`). Everything the rebuild owns lives here, separate
@@ -24,7 +24,10 @@ import { sql } from 'drizzle-orm'
  *  - application profile, role and enablement: `app.users`;
  *  - granular authorization and audit: the tables below.
  */
-export const app = pgSchema('app')
+export { app }
+
+// Module slices. Each module owns one file; this index only re-exports.
+export * from './app/workorder'
 
 export const userRoleEnum = app.enum('user_role', [
   'admin',

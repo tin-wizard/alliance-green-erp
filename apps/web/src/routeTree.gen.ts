@@ -17,6 +17,17 @@ import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiReadyRouteImport } from './routes/api/ready'
 import { Route as AppAdminAuditRouteImport } from './routes/_app/admin/audit'
 import { Route as AppAdminUsersRouteImport } from './routes/_app/admin/users'
+import { Route as AppWorkOrdersIndexRouteImport } from './routes/_app/work-orders/index'
+import { Route as AppWorkOrdersNewRouteImport } from './routes/_app/work-orders/new'
+import { Route as AppMaintenanceWorkOrdersIndexRouteImport } from './routes/_app/maintenance/work-orders/index'
+import { Route as AppMaintenanceWorkOrdersNewRouteImport } from './routes/_app/maintenance/work-orders/new'
+import { Route as AppPortalTechIndexRouteImport } from './routes/_app/portal/tech/index'
+import { Route as AppWorkOrdersIdIndexRouteImport } from './routes/_app/work-orders/$id/index'
+import { Route as AppWorkOrdersIdRevisionsRouteImport } from './routes/_app/work-orders/$id/revisions'
+import { Route as AppMaintenanceWorkOrdersIdIndexRouteImport } from './routes/_app/maintenance/work-orders/$id/index'
+import { Route as AppPortalSubWorkOrdersIndexRouteImport } from './routes/_app/portal/sub/work-orders/index'
+import { Route as AppPortalTechIdIndexRouteImport } from './routes/_app/portal/tech/$id/index'
+import { Route as AppPortalSubWorkOrdersIdIndexRouteImport } from './routes/_app/portal/sub/work-orders/$id/index'
 
 const AppRoute = AppRouteImport.update({
   id: '/_app',
@@ -57,6 +68,67 @@ const AppAdminUsersRoute = AppAdminUsersRouteImport.update({
   path: '/admin/users',
   getParentRoute: () => AppRoute,
 } as any)
+const AppWorkOrdersIndexRoute = AppWorkOrdersIndexRouteImport.update({
+  id: '/work-orders/',
+  path: '/work-orders/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppWorkOrdersNewRoute = AppWorkOrdersNewRouteImport.update({
+  id: '/work-orders/new',
+  path: '/work-orders/new',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMaintenanceWorkOrdersIndexRoute =
+  AppMaintenanceWorkOrdersIndexRouteImport.update({
+    id: '/maintenance/work-orders/',
+    path: '/maintenance/work-orders/',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppMaintenanceWorkOrdersNewRoute =
+  AppMaintenanceWorkOrdersNewRouteImport.update({
+    id: '/maintenance/work-orders/new',
+    path: '/maintenance/work-orders/new',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppPortalTechIndexRoute = AppPortalTechIndexRouteImport.update({
+  id: '/portal/tech/',
+  path: '/portal/tech/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppWorkOrdersIdIndexRoute = AppWorkOrdersIdIndexRouteImport.update({
+  id: '/work-orders/$id/',
+  path: '/work-orders/$id/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppWorkOrdersIdRevisionsRoute =
+  AppWorkOrdersIdRevisionsRouteImport.update({
+    id: '/work-orders/$id/revisions',
+    path: '/work-orders/$id/revisions',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppMaintenanceWorkOrdersIdIndexRoute =
+  AppMaintenanceWorkOrdersIdIndexRouteImport.update({
+    id: '/maintenance/work-orders/$id/',
+    path: '/maintenance/work-orders/$id/',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppPortalSubWorkOrdersIndexRoute =
+  AppPortalSubWorkOrdersIndexRouteImport.update({
+    id: '/portal/sub/work-orders/',
+    path: '/portal/sub/work-orders/',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppPortalTechIdIndexRoute = AppPortalTechIdIndexRouteImport.update({
+  id: '/portal/tech/$id/',
+  path: '/portal/tech/$id/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPortalSubWorkOrdersIdIndexRoute =
+  AppPortalSubWorkOrdersIdIndexRouteImport.update({
+    id: '/portal/sub/work-orders/$id/',
+    path: '/portal/sub/work-orders/$id/',
+    getParentRoute: () => AppRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
@@ -66,6 +138,17 @@ export interface FileRoutesByFullPath {
   '/api/ready': typeof ApiReadyRoute
   '/admin/audit': typeof AppAdminAuditRoute
   '/admin/users': typeof AppAdminUsersRoute
+  '/work-orders/new': typeof AppWorkOrdersNewRoute
+  '/work-orders/': typeof AppWorkOrdersIndexRoute
+  '/maintenance/work-orders/new': typeof AppMaintenanceWorkOrdersNewRoute
+  '/work-orders/$id/revisions': typeof AppWorkOrdersIdRevisionsRoute
+  '/maintenance/work-orders/': typeof AppMaintenanceWorkOrdersIndexRoute
+  '/portal/tech/': typeof AppPortalTechIndexRoute
+  '/work-orders/$id/': typeof AppWorkOrdersIdIndexRoute
+  '/maintenance/work-orders/$id/': typeof AppMaintenanceWorkOrdersIdIndexRoute
+  '/portal/sub/work-orders/': typeof AppPortalSubWorkOrdersIndexRoute
+  '/portal/tech/$id/': typeof AppPortalTechIdIndexRoute
+  '/portal/sub/work-orders/$id/': typeof AppPortalSubWorkOrdersIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/healthz': typeof HealthzRoute
@@ -75,6 +158,17 @@ export interface FileRoutesByTo {
   '/': typeof AppIndexRoute
   '/admin/audit': typeof AppAdminAuditRoute
   '/admin/users': typeof AppAdminUsersRoute
+  '/work-orders/new': typeof AppWorkOrdersNewRoute
+  '/work-orders': typeof AppWorkOrdersIndexRoute
+  '/maintenance/work-orders/new': typeof AppMaintenanceWorkOrdersNewRoute
+  '/work-orders/$id/revisions': typeof AppWorkOrdersIdRevisionsRoute
+  '/maintenance/work-orders': typeof AppMaintenanceWorkOrdersIndexRoute
+  '/portal/tech': typeof AppPortalTechIndexRoute
+  '/work-orders/$id': typeof AppWorkOrdersIdIndexRoute
+  '/maintenance/work-orders/$id': typeof AppMaintenanceWorkOrdersIdIndexRoute
+  '/portal/sub/work-orders': typeof AppPortalSubWorkOrdersIndexRoute
+  '/portal/tech/$id': typeof AppPortalTechIdIndexRoute
+  '/portal/sub/work-orders/$id': typeof AppPortalSubWorkOrdersIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -86,6 +180,17 @@ export interface FileRoutesById {
   '/_app/': typeof AppIndexRoute
   '/_app/admin/audit': typeof AppAdminAuditRoute
   '/_app/admin/users': typeof AppAdminUsersRoute
+  '/_app/work-orders/new': typeof AppWorkOrdersNewRoute
+  '/_app/work-orders/': typeof AppWorkOrdersIndexRoute
+  '/_app/maintenance/work-orders/new': typeof AppMaintenanceWorkOrdersNewRoute
+  '/_app/work-orders/$id/revisions': typeof AppWorkOrdersIdRevisionsRoute
+  '/_app/maintenance/work-orders/': typeof AppMaintenanceWorkOrdersIndexRoute
+  '/_app/portal/tech/': typeof AppPortalTechIndexRoute
+  '/_app/work-orders/$id/': typeof AppWorkOrdersIdIndexRoute
+  '/_app/maintenance/work-orders/$id/': typeof AppMaintenanceWorkOrdersIdIndexRoute
+  '/_app/portal/sub/work-orders/': typeof AppPortalSubWorkOrdersIndexRoute
+  '/_app/portal/tech/$id/': typeof AppPortalTechIdIndexRoute
+  '/_app/portal/sub/work-orders/$id/': typeof AppPortalSubWorkOrdersIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -97,6 +202,17 @@ export interface FileRouteTypes {
     | '/api/ready'
     | '/admin/audit'
     | '/admin/users'
+    | '/work-orders/new'
+    | '/work-orders/'
+    | '/maintenance/work-orders/new'
+    | '/work-orders/$id/revisions'
+    | '/maintenance/work-orders/'
+    | '/portal/tech/'
+    | '/work-orders/$id/'
+    | '/maintenance/work-orders/$id/'
+    | '/portal/sub/work-orders/'
+    | '/portal/tech/$id/'
+    | '/portal/sub/work-orders/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/healthz'
@@ -106,6 +222,17 @@ export interface FileRouteTypes {
     | '/'
     | '/admin/audit'
     | '/admin/users'
+    | '/work-orders/new'
+    | '/work-orders'
+    | '/maintenance/work-orders/new'
+    | '/work-orders/$id/revisions'
+    | '/maintenance/work-orders'
+    | '/portal/tech'
+    | '/work-orders/$id'
+    | '/maintenance/work-orders/$id'
+    | '/portal/sub/work-orders'
+    | '/portal/tech/$id'
+    | '/portal/sub/work-orders/$id'
   id:
     | '__root__'
     | '/_app'
@@ -116,6 +243,17 @@ export interface FileRouteTypes {
     | '/_app/'
     | '/_app/admin/audit'
     | '/_app/admin/users'
+    | '/_app/work-orders/new'
+    | '/_app/work-orders/'
+    | '/_app/maintenance/work-orders/new'
+    | '/_app/work-orders/$id/revisions'
+    | '/_app/maintenance/work-orders/'
+    | '/_app/portal/tech/'
+    | '/_app/work-orders/$id/'
+    | '/_app/maintenance/work-orders/$id/'
+    | '/_app/portal/sub/work-orders/'
+    | '/_app/portal/tech/$id/'
+    | '/_app/portal/sub/work-orders/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -184,6 +322,83 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminUsersRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/work-orders/': {
+      id: '/_app/work-orders/'
+      path: '/work-orders'
+      fullPath: '/work-orders/'
+      preLoaderRoute: typeof AppWorkOrdersIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/work-orders/new': {
+      id: '/_app/work-orders/new'
+      path: '/work-orders/new'
+      fullPath: '/work-orders/new'
+      preLoaderRoute: typeof AppWorkOrdersNewRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/maintenance/work-orders/': {
+      id: '/_app/maintenance/work-orders/'
+      path: '/maintenance/work-orders'
+      fullPath: '/maintenance/work-orders/'
+      preLoaderRoute: typeof AppMaintenanceWorkOrdersIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/maintenance/work-orders/new': {
+      id: '/_app/maintenance/work-orders/new'
+      path: '/maintenance/work-orders/new'
+      fullPath: '/maintenance/work-orders/new'
+      preLoaderRoute: typeof AppMaintenanceWorkOrdersNewRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/portal/tech/': {
+      id: '/_app/portal/tech/'
+      path: '/portal/tech'
+      fullPath: '/portal/tech/'
+      preLoaderRoute: typeof AppPortalTechIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/work-orders/$id/': {
+      id: '/_app/work-orders/$id/'
+      path: '/work-orders/$id'
+      fullPath: '/work-orders/$id/'
+      preLoaderRoute: typeof AppWorkOrdersIdIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/work-orders/$id/revisions': {
+      id: '/_app/work-orders/$id/revisions'
+      path: '/work-orders/$id/revisions'
+      fullPath: '/work-orders/$id/revisions'
+      preLoaderRoute: typeof AppWorkOrdersIdRevisionsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/maintenance/work-orders/$id/': {
+      id: '/_app/maintenance/work-orders/$id/'
+      path: '/maintenance/work-orders/$id'
+      fullPath: '/maintenance/work-orders/$id/'
+      preLoaderRoute: typeof AppMaintenanceWorkOrdersIdIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/portal/sub/work-orders/': {
+      id: '/_app/portal/sub/work-orders/'
+      path: '/portal/sub/work-orders'
+      fullPath: '/portal/sub/work-orders/'
+      preLoaderRoute: typeof AppPortalSubWorkOrdersIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/portal/tech/$id/': {
+      id: '/_app/portal/tech/$id/'
+      path: '/portal/tech/$id'
+      fullPath: '/portal/tech/$id/'
+      preLoaderRoute: typeof AppPortalTechIdIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/portal/sub/work-orders/$id/': {
+      id: '/_app/portal/sub/work-orders/$id/'
+      path: '/portal/sub/work-orders/$id'
+      fullPath: '/portal/sub/work-orders/$id/'
+      preLoaderRoute: typeof AppPortalSubWorkOrdersIdIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
@@ -191,12 +406,34 @@ interface AppRouteChildren {
   AppIndexRoute: typeof AppIndexRoute
   AppAdminAuditRoute: typeof AppAdminAuditRoute
   AppAdminUsersRoute: typeof AppAdminUsersRoute
+  AppWorkOrdersNewRoute: typeof AppWorkOrdersNewRoute
+  AppWorkOrdersIndexRoute: typeof AppWorkOrdersIndexRoute
+  AppMaintenanceWorkOrdersNewRoute: typeof AppMaintenanceWorkOrdersNewRoute
+  AppWorkOrdersIdRevisionsRoute: typeof AppWorkOrdersIdRevisionsRoute
+  AppMaintenanceWorkOrdersIndexRoute: typeof AppMaintenanceWorkOrdersIndexRoute
+  AppPortalTechIndexRoute: typeof AppPortalTechIndexRoute
+  AppWorkOrdersIdIndexRoute: typeof AppWorkOrdersIdIndexRoute
+  AppMaintenanceWorkOrdersIdIndexRoute: typeof AppMaintenanceWorkOrdersIdIndexRoute
+  AppPortalSubWorkOrdersIndexRoute: typeof AppPortalSubWorkOrdersIndexRoute
+  AppPortalTechIdIndexRoute: typeof AppPortalTechIdIndexRoute
+  AppPortalSubWorkOrdersIdIndexRoute: typeof AppPortalSubWorkOrdersIdIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppIndexRoute: AppIndexRoute,
   AppAdminAuditRoute: AppAdminAuditRoute,
   AppAdminUsersRoute: AppAdminUsersRoute,
+  AppWorkOrdersNewRoute: AppWorkOrdersNewRoute,
+  AppWorkOrdersIndexRoute: AppWorkOrdersIndexRoute,
+  AppMaintenanceWorkOrdersNewRoute: AppMaintenanceWorkOrdersNewRoute,
+  AppWorkOrdersIdRevisionsRoute: AppWorkOrdersIdRevisionsRoute,
+  AppMaintenanceWorkOrdersIndexRoute: AppMaintenanceWorkOrdersIndexRoute,
+  AppPortalTechIndexRoute: AppPortalTechIndexRoute,
+  AppWorkOrdersIdIndexRoute: AppWorkOrdersIdIndexRoute,
+  AppMaintenanceWorkOrdersIdIndexRoute: AppMaintenanceWorkOrdersIdIndexRoute,
+  AppPortalSubWorkOrdersIndexRoute: AppPortalSubWorkOrdersIndexRoute,
+  AppPortalTechIdIndexRoute: AppPortalTechIdIndexRoute,
+  AppPortalSubWorkOrdersIdIndexRoute: AppPortalSubWorkOrdersIdIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

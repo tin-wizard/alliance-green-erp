@@ -31,6 +31,8 @@
       "@cls/auth/*": ["packages/auth/src/*"],
       "@cls/sage": ["packages/sage/src/index.ts"],
       "@cls/sage/*": ["packages/sage/src/*"],
+      "@cls/pricing": ["packages/pricing/src/index.ts"],
+      "@cls/pricing/*": ["packages/pricing/src/*"],
       "@cls/ui": ["packages/ui/src/index.ts"],
       "@cls/ui/*": ["packages/ui/src/*"]
     }

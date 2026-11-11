@@ -32,3 +32,6 @@ Thumbs.db
 # drizzle
 packages/db/.drizzle/
 .neon
+
+# local code-graph index
+graphify-out/

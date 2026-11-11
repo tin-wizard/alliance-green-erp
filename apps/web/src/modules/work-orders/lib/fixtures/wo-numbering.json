@@ -1,0 +1,174 @@
+{
+ "fixture_set": "wo-numbering",
+ "method": "direct function call (PHP CLI probe)",
+ "legacy_entry_point": "app/config/functions.php:5007 get_next_woid() + :5022 confirm_woid_not_used()",
+ "callers": [
+  "app/addworkorder_submit.php:129",
+  "app/localadd_submit.php:91",
+  "app/edit_customerqo_submit.php:153",
+  "app/edit_standalone_qo_submit.php:212",
+  "app/tjxpanel/ajaxSaveTJXquote.php:803"
+ ],
+ "notes": "The intended contract is: allocate wo_next_pid.next_id, skip while the id is used by workorder.id, Sage tcustr.sSource or tProject.sName, and persist every skip. The function persists only inside the skip loop; the caller is expected to write the counter after a successful insert. The last case is the known defect: the workorder check runs on the default connection, so a page that has not selected a schema gets a duplicate id.",
+ "cases": [
+  {
+   "id": "woid-no-collision",
+   "note": "counter 900100, nothing uses it: allocated as-is and the counter is NOT advanced by the function itself",
+   "method": "direct function call (PHP CLI probe)",
+   "source": "app/config/functions.php:5007-5050",
+   "input": {
+    "wo_next_pid.next_id": 900100,
+    "existing_workorder_ids": [],
+    "sage_tcustr_sSource": [],
+    "sage_tProject_sName": [],
+    "db_selected_before_call": true
+   },
+   "seeded_rows_found": {
+    "workorder": "0",
+    "tcustr": "0"
+   },
+   "diagnostics": {
+    "workorder_check_on_default_link": 0
+   },
+   "expected": {
+    "allocated": "900100",
+    "counter_after": "900100"
+   }
+  },
+  {
+   "id": "woid-workorder-collision",
+   "note": "workorder 900100 exists: skips to 900101 and persists the counter",
+   "method": "direct function call (PHP CLI probe)",
+   "source": "app/config/functions.php:5007-5050",
+   "input": {
+    "wo_next_pid.next_id": 900100,
+    "existing_workorder_ids": [
+     900100
+    ],
+    "sage_tcustr_sSource": [],
+    "sage_tProject_sName": [],
+    "db_selected_before_call": true
+   },
+   "seeded_rows_found": {
+    "workorder": "1",
+    "tcustr": "0"
+   },
+   "diagnostics": {
+    "workorder_check_on_default_link": 0
+   },
+   "expected": {
+    "allocated": "900101",
+    "counter_after": "900101"
+   }
+  },
+  {
+   "id": "woid-sage-customer-collision",
+   "note": "Sage tcustr.sSource 900200 exists: skips to 900201",
+   "method": "direct function call (PHP CLI probe)",
+   "source": "app/config/functions.php:5007-5050",
+   "input": {
+    "wo_next_pid.next_id": 900200,
+    "existing_workorder_ids": [],
+    "sage_tcustr_sSource": [
+     "900200"
+    ],
+    "sage_tProject_sName": [],
+    "db_selected_before_call": true
+   },
+   "seeded_rows_found": {
+    "workorder": "0",
+    "tcustr": "1"
+   },
+   "diagnostics": {
+    "workorder_check_on_default_link": 0
+   },
+   "expected": {
+    "allocated": "900201",
+    "counter_after": "900201"
+   }
+  },
+  {
+   "id": "woid-sage-project-collision",
+   "note": "Sage tProject.sName 900300 exists: skips to 900301",
+   "method": "direct function call (PHP CLI probe)",
+   "source": "app/config/functions.php:5007-5050",
+   "input": {
+    "wo_next_pid.next_id": 900300,
+    "existing_workorder_ids": [],
+    "sage_tcustr_sSource": [],
+    "sage_tProject_sName": [
+     "900300"
+    ],
+    "db_selected_before_call": true
+   },
+   "seeded_rows_found": {
+    "workorder": "0",
+    "tcustr": "0"
+   },
+   "diagnostics": {
+    "workorder_check_on_default_link": 0
+   },
+   "expected": {
+    "allocated": "900301",
+    "counter_after": "900301"
+   }
+  },
+  {
+   "id": "woid-multiple-collisions",
+   "note": "three consecutive ids taken: skips to 900403 in one call",
+   "method": "direct function call (PHP CLI probe)",
+   "source": "app/config/functions.php:5007-5050",
+   "input": {
+    "wo_next_pid.next_id": 900400,
+    "existing_workorder_ids": [
+     900400,
+     900401
+    ],
+    "sage_tcustr_sSource": [
+     "900402"
+    ],
+    "sage_tProject_sName": [],
+    "db_selected_before_call": true
+   },
+   "seeded_rows_found": {
+    "workorder": "2",
+    "tcustr": "1"
+   },
+   "diagnostics": {
+    "workorder_check_on_default_link": 0
+   },
+   "expected": {
+    "allocated": "900403",
+    "counter_after": "900403"
+   }
+  },
+  {
+   "id": "woid-collision-missed-without-db-select",
+   "note": "the $sconn bug: confirm_woid_not_used switches schema on $sconn but queries workorder on the default link, so when the caller has not selected alliance_db the collision is invisible and a duplicate id is handed out",
+   "method": "direct function call (PHP CLI probe)",
+   "source": "app/config/functions.php:5007-5050",
+   "input": {
+    "wo_next_pid.next_id": 900500,
+    "existing_workorder_ids": [
+     900500
+    ],
+    "sage_tcustr_sSource": [],
+    "sage_tProject_sName": [],
+    "db_selected_before_call": false
+   },
+   "seeded_rows_found": {
+    "workorder": "1",
+    "tcustr": "0"
+   },
+   "diagnostics": {
+    "workorder_check_on_default_link": "query failed (woid-noselect)"
+   },
+   "expected": {
+    "allocated": null,
+    "counter_after": "900500"
+   },
+   "intended_behaviour": "900501 (900500 is taken by workorder.id)",
+   "defect": "with no schema selected on the default link the counter read fails, every collision check silently reports \"not used\", and get_next_woid() returns null, so the caller inserts a work order with no id"
+  }
+ ]
+}

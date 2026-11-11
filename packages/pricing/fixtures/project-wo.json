@@ -1,0 +1,172 @@
+{
+ "fixture_set": "project-wo",
+ "method": "http",
+ "legacy_entry_point": "app/ajaxCalcTotalSubProjectWo.php",
+ "stored_by": "app/calc_subprojectwo_submit.php:136 (calc_type = sub_project)",
+ "notes": "Same tax table and same per-line rounding as the sales calculator. The endpoint ignores the work-order flags; the page decides which endpoint to use.",
+ "cases": [
+  {
+   "id": "project-labour-on",
+   "note": "project work order, one labour line, ON 13%",
+   "taxprov": "ON",
+   "input": {
+    "hhours": [
+     "2"
+    ],
+    "rrate": [
+     "85.00"
+    ],
+    "taxr": "0.13"
+   },
+   "expected_stored": {
+    "labour": "170.00",
+    "material": "0.00",
+    "subtotal": "170.00",
+    "tax": "22.10",
+    "total": "192.10"
+   },
+   "agrees_with_independent_model": true,
+   "source": "app/ajaxCalcTotalSubProjectWo.php:55-300"
+  },
+  {
+   "id": "project-mixed-on",
+   "note": "project work order: labour + parts + special order, ON 13%",
+   "taxprov": "ON",
+   "input": {
+    "hhours": [
+     "1.5"
+    ],
+    "rrate": [
+     "85.00"
+    ],
+    "qty": [
+     "3",
+     "1"
+    ],
+    "price": [
+     "12.99",
+     "0.99"
+    ],
+    "soqty": [
+     "2"
+    ],
+    "soprice": [
+     "44.44"
+    ],
+    "taxr": "0.13"
+   },
+   "expected_stored": {
+    "labour": "127.50",
+    "material": "128.84",
+    "subtotal": "256.34",
+    "tax": "33.33",
+    "total": "289.67"
+   },
+   "agrees_with_independent_model": true,
+   "source": "app/ajaxCalcTotalSubProjectWo.php:55-300"
+  },
+  {
+   "id": "project-per-line-rounding",
+   "note": "three 0.165 lines: per-line rounding 0.51 vs 0.50 for one rounding of the raw sum",
+   "taxprov": "ON",
+   "input": {
+    "qty": [
+     "1.5",
+     "1.5",
+     "1.5"
+    ],
+    "price": [
+     "0.11",
+     "0.11",
+     "0.11"
+    ],
+    "taxr": "0.13"
+   },
+   "expected_stored": {
+    "labour": "0.00",
+    "material": "0.51",
+    "subtotal": "0.51",
+    "tax": "0.06",
+    "total": "0.57"
+   },
+   "agrees_with_independent_model": true,
+   "source": "app/ajaxCalcTotalSubProjectWo.php:55-300"
+  },
+  {
+   "id": "project-negative-line",
+   "note": "credit line on a project work order",
+   "taxprov": "ON",
+   "input": {
+    "hhours": [
+     "1"
+    ],
+    "rrate": [
+     "100.00"
+    ],
+    "qty": [
+     "1"
+    ],
+    "price": [
+     "-25.00"
+    ],
+    "taxr": "0.13"
+   },
+   "expected_stored": {
+    "labour": "100.00",
+    "material": "-25.00",
+    "subtotal": "75.00",
+    "tax": "9.75",
+    "total": "84.75"
+   },
+   "agrees_with_independent_model": true,
+   "source": "app/ajaxCalcTotalSubProjectWo.php:55-300"
+  },
+  {
+   "id": "project-ns-14",
+   "note": "project work order in Nova Scotia at 14%",
+   "taxprov": "NS",
+   "input": {
+    "hhours": [
+     "3"
+    ],
+    "rrate": [
+     "99.99"
+    ],
+    "taxr": "0.14"
+   },
+   "expected_stored": {
+    "labour": "299.97",
+    "material": "0.00",
+    "subtotal": "299.97",
+    "tax": "42.00",
+    "total": "341.97"
+   },
+   "agrees_with_independent_model": true,
+   "source": "app/ajaxCalcTotalSubProjectWo.php:55-300"
+  },
+  {
+   "id": "project-wo-73850-hardcoded-rule",
+   "note": "hard-coded special case: WO 73850 whose accumulated tax is exactly 13262.85 loses one cent before the total is computed (ajaxCalcTotalSubProjectWo.php:303-309)",
+   "taxprov": "ON",
+   "input": {
+    "woidd": "73850",
+    "qty": [
+     "1"
+    ],
+    "price": [
+     "102021.92"
+    ],
+    "taxr": "0.13"
+   },
+   "expected_stored": {
+    "labour": "0.00",
+    "material": "102021.92",
+    "subtotal": "102021.92",
+    "tax": "13262.84",
+    "total": "115284.76"
+   },
+   "agrees_with_independent_model": true,
+   "source": "app/ajaxCalcTotalSubProjectWo.php:55-300"
+  }
+ ]
+}
