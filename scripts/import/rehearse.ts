@@ -77,6 +77,13 @@ function expectedByGroup(manifest: FixtureManifest): Record<string, number> {
  * harness mapped are deleted (row_map is the list), newest first so children go
  * before parents. Anything the harness did not create is left alone.
  */
+/**
+ * Counters and configuration seeded by migrations, not imported rows. Deleting
+ * them breaks the application (work-order numbering) and they are not the
+ * rehearsal's to remove.
+ */
+const PRESERVED_TARGET_TABLES = new Set(['work_order_number_series'])
+
 export async function resetRehearsalTargets(db: ReturnType<typeof getDb>): Promise<{ deleted: number; failed: string[] }> {
   const targets = (await db.execute(sql`
     select target_table, array_agg(target_key order by id) as keys, max(id) as last_id
@@ -139,6 +146,7 @@ async function appRowCounts(db: ReturnType<typeof getDb>): Promise<Map<string, n
   const counts = new Map<string, number>()
   for (const target of targets) {
     if (!/^[a-z_]+$/.test(target.target_table)) continue
+    if (PRESERVED_TARGET_TABLES.has(target.target_table)) continue
     const rows = (await db.execute(
       sql.raw(`select count(*)::int as value from app."${target.target_table}"`),
     )) as unknown as Array<{ value: number }>
