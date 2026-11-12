@@ -18,6 +18,8 @@ import {
   sites,
   legacyTjxFixture,
   legacyTjxFixtureParts,
+  legacyTjxFixturePartsPerQuote,
+  legacyTjxFixturePerQuote,
   legacyTjxPricesPerQuote,
   legacyTjxQuote,
   legacyTjxQuoteExtraWorkorders,
@@ -41,6 +43,7 @@ import {
   tjxRoomTemplateRooms,
   tjxRoomTemplates,
   tjxRooms,
+  tjxQuoteFixtureParts,
   tjxSubcontractorRates,
   workOrders,
 } from '@cls/db/schema'
@@ -318,42 +321,129 @@ async function main(): Promise<void> {
       .from(legacyTjxQuoteFixtures)
       .where(eq(legacyTjxQuoteFixtures.quoteid, legacyId))
       .orderBy(legacyTjxQuoteFixtures.sortorder)
+    const fallbackRows =
+      roomRows.length > 0
+        ? []
+        : await db
+            .select()
+            .from(legacyTjxFixturePerQuote)
+            .where(eq(legacyTjxFixturePerQuote.quoteid, legacyId))
+            .orderBy(legacyTjxFixturePerQuote.sortorder)
+    const fixturePlan =
+      roomRows.length > 0
+        ? roomRows.map((row) => ({
+            roomId: row.roomid,
+            fixtureId: row.fixtureid,
+            quantity: row.totalfixtures,
+            sortOrder: row.sortorder,
+            fixtureName: null as string | null,
+          }))
+        : fallbackRows.map((row) => ({
+            roomId: null,
+            fixtureId: row.fixtureid,
+            quantity: null,
+            sortOrder: row.sortorder,
+            fixtureName: row.fixturename,
+          }))
     const roomMap = new Map<number, number>()
-    for (const [roomIndex, row] of roomRows.entries()) {
-      if (!row.roomid) continue
-      let quoteRoomId = roomMap.get(row.roomid)
-      if (!quoteRoomId) {
-        const [appRoom] = await db
-          .select({ id: tjxRooms.id, name: tjxRooms.name })
-          .from(tjxRooms)
-          .where(eq(tjxRooms.legacyId, row.roomid))
-        const [created] = await db
-          .insert(tjxQuoteRooms)
-          .values({
-            quoteId: inserted.id,
-            roomId: appRoom?.id ?? null,
-            roomName: appRoom?.name ?? `Room ${row.roomid}`,
-            sortOrder: roomMap.size,
-          })
-          .returning()
-        quoteRoomId = created!.id
-        roomMap.set(row.roomid, quoteRoomId)
+    const importedRoom = new Map<number, number>()
+
+    for (const [roomIndex, row] of fixturePlan.entries()) {
+      let quoteRoomId: number | undefined
+      if (row.roomId) {
+        quoteRoomId = roomMap.get(row.roomId)
+        if (!quoteRoomId) {
+          const [appRoom] = await db
+            .select({ id: tjxRooms.id, name: tjxRooms.name })
+            .from(tjxRooms)
+            .where(eq(tjxRooms.legacyId, row.roomId))
+          const [created] = await db
+            .insert(tjxQuoteRooms)
+            .values({
+              quoteId: inserted.id,
+              roomId: appRoom?.id ?? null,
+              roomName: appRoom?.name ?? `Room ${row.roomId}`,
+              sortOrder: roomMap.size,
+            })
+            .returning()
+          quoteRoomId = created!.id
+          roomMap.set(row.roomId, quoteRoomId)
+        }
+      } else {
+        quoteRoomId = importedRoom.get(inserted.id)
+        if (!quoteRoomId) {
+          const [created] = await db
+            .insert(tjxQuoteRooms)
+            .values({ quoteId: inserted.id, roomName: 'Imported', sortOrder: 0 })
+            .returning()
+          quoteRoomId = created!.id
+          importedRoom.set(inserted.id, quoteRoomId)
+        }
       }
+
       const [fixture] = await db
         .select({ id: tjxFixtures.id, name: tjxFixtures.name })
         .from(tjxFixtures)
-        .where(eq(tjxFixtures.legacyId, row.fixtureid ?? -1))
-      await db
+        .where(eq(tjxFixtures.legacyId, row.fixtureId ?? -1))
+      const [quoteFixture] = await db
         .insert(tjxQuoteFixtures)
         .values({
           quoteId: inserted.id,
-          quoteRoomId,
+          quoteRoomId: quoteRoomId!,
           fixtureId: fixture?.id ?? null,
-          fixtureName: fixture?.name ?? `Fixture ${row.fixtureid ?? roomIndex}`,
-          quantity: num(row.totalfixtures) ?? '0',
-          sortOrder: row.sortorder ?? roomIndex,
+          fixtureName:
+            fixture?.name ?? row.fixtureName ?? `Fixture ${row.fixtureId ?? roomIndex}`,
+          quantity: num(row.quantity) ?? '0',
+          sortOrder: row.sortOrder ?? roomIndex,
         })
         .onConflictDoNothing()
+        .returning()
+      if (!quoteFixture || !row.fixtureId) continue
+
+      const masterParts = await db
+        .select()
+        .from(legacyTjxFixtureParts)
+        .where(eq(legacyTjxFixtureParts.fixtureid, row.fixtureId))
+      let fixtureParts: {
+        partno: string | null
+        markup: string | null
+        parttype: string | null
+        partRatioPerfixture: string | null
+      }[] = masterParts.map((part) => ({
+        partno: part.partno,
+        markup: part.markup,
+        parttype: part.parttype,
+        partRatioPerfixture: part.partRatioPerfixture,
+      }))
+      if (fixtureParts.length === 0) {
+        const perQuote = await db
+          .select()
+          .from(legacyTjxFixturePartsPerQuote)
+          .where(
+            sql`${legacyTjxFixturePartsPerQuote.quoteid} = ${legacyId} and ${legacyTjxFixturePartsPerQuote.fixtureid} = ${row.fixtureId}`,
+          )
+        fixtureParts = perQuote.map((part) => ({
+          partno: part.partno,
+          markup: part.markup,
+          parttype: part.parttype,
+          partRatioPerfixture: part.partRatioPerfixture,
+        }))
+      }
+      for (const part of fixtureParts) {
+        if (!part.partno) continue
+        await db
+          .insert(tjxQuoteFixtureParts)
+          .values({
+            quoteFixtureId: quoteFixture.id,
+            fixturePartId: null,
+            partNo: part.partno.trim().toUpperCase(),
+            partType: part.parttype ?? '',
+            markup: num(part.markup) ?? '1',
+            ratioPerFixture: num(part.partRatioPerfixture) ?? '0',
+            sortOrder: 0,
+          })
+          .onConflictDoNothing()
+      }
     }
 
     const partRows = await db
