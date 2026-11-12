@@ -36,6 +36,17 @@ to Pending Invoice.
 Office review lives at `/tjx/invoices` and requires `tjx:read`; approve and
 reject additionally require Invoicing's `invoice:write`.
 
+## Exports and import
+
+The quote list exports `Waiting for Approval Parts` (status 3) as XLSX with the
+summary sheet plus one sheet per province. Only the enumerated TJX part family
+contributes: `WIN-%` and `1240`, `10000`, `10002`, `10003`, `10098`. `exceljs`
+is imported dynamically on the server and the workbook is never persisted.
+
+`scripts/import/tjx.ts` reads the `public.tjx_*` mirror, defaults to a dry run,
+and reports missing parents instead of inventing them. See
+`docs/modules/tjx-import-dry-run.md` for the production result.
+
 ## Data notes
 
 `tjx_rooms_template` is authoritative. Migration `0010` creates one empty

@@ -12,6 +12,7 @@ import {
   formatMoney,
 } from '../../work-orders/components/ui'
 import { listTjxQuotesFn } from '../server/quotes.functions'
+import { exportTjxPartsOnApprovalFn } from '../server/exports.functions'
 import { TJX_QUOTE_STATUSES, TJX_STATUS_LABELS } from '../lib/lifecycle'
 import { ErrorNote } from './master-ui'
 
@@ -19,6 +20,24 @@ export function QuotesList() {
   const [status, setStatus] = useState<number | null>(null)
   const [term, setTerm] = useState('')
   const [search, setSearch] = useState('')
+  const [exporting, setExporting] = useState(false)
+  const [exportError, setExportError] = useState<string | null>(null)
+
+  const exportParts = async () => {
+    setExporting(true)
+    setExportError(null)
+    try {
+      const result = await exportTjxPartsOnApprovalFn()
+      const link = document.createElement('a')
+      link.href = `data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,${result.base64}`
+      link.download = result.filename
+      link.click()
+    } catch (cause) {
+      setExportError(cause instanceof Error ? cause.message : 'The export failed.')
+    } finally {
+      setExporting(false)
+    }
+  }
 
   const quotes = useQuery({
     queryKey: ['tjx', 'quotes', status, search],
@@ -85,12 +104,16 @@ export function QuotesList() {
               </Button>
             ) : null}
           </form>
+          <Button disabled={exporting} onClick={() => void exportParts()}>
+            {exporting ? 'Exporting…' : 'Parts on approval XLSX'}
+          </Button>
           <span className="ml-auto text-[12px] text-fg-muted">
             {quotes.data ? `${quotes.data.length} quote${quotes.data.length === 1 ? '' : 's'}` : null}
           </span>
         </div>
 
         <ErrorNote message={quotes.isError ? quotes.error.message : null} />
+        <ErrorNote message={exportError} />
 
         {quotes.isPending ? (
           <div className="h-[220px] animate-pulse rounded-[6px] border border-hair bg-subtle" />
