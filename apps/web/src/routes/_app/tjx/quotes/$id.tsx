@@ -5,6 +5,7 @@ import { getTjxQuoteFn } from '../../../../modules/tjx/server/quotes.functions'
 import { MasterPage } from '../../../../modules/tjx/components/master-ui'
 import { TjxQuoteActions } from '../../../../modules/tjx/components/quote-actions'
 import { TjxQuoteEditor } from '../../../../modules/tjx/components/quote-editor'
+import { TjxQuoteWorkOrders } from '../../../../modules/tjx/components/quote-work-orders'
 import { ErrorPanel } from '../../../../modules/work-orders/components/ui'
 
 export const Route = createFileRoute('/_app/tjx/quotes/$id')({
@@ -43,6 +44,7 @@ function QuoteDetailPage() {
       ) : quote.data ? (
         <div className="space-y-4">
           <TjxQuoteActions quote={quote.data} />
+          {quote.data.status === 4 ? <TjxQuoteWorkOrders quote={quote.data} /> : null}
           <TjxQuoteEditor key={String(quote.data.id)} quote={quote.data} />
         </div>
       ) : null}

@@ -20,6 +20,7 @@ import {
   tjxQuoteRevisions,
   tjxQuoteRooms,
   tjxQuoteSpecialParts,
+  tjxQuoteWorkOrders,
   tjxQuotes,
 } from '@cls/db/schema'
 import {
@@ -143,33 +144,39 @@ export async function getQuoteDetail(
   if (!row) throw new NotFoundError('TJX quote')
   const quote = row.quote
 
-  const [roomRows, fixtureRows, partRows, priceRows, specialRows] = await Promise.all([
-    executor
-      .select()
-      .from(tjxQuoteRooms)
-      .where(eq(tjxQuoteRooms.quoteId, quoteId))
-      .orderBy(asc(tjxQuoteRooms.sortOrder), asc(tjxQuoteRooms.id)),
-    executor
-      .select()
-      .from(tjxQuoteFixtures)
-      .where(eq(tjxQuoteFixtures.quoteId, quoteId))
-      .orderBy(asc(tjxQuoteFixtures.sortOrder), asc(tjxQuoteFixtures.id)),
-    executor
-      .select()
-      .from(tjxQuoteParts)
-      .where(eq(tjxQuoteParts.quoteId, quoteId))
-      .orderBy(asc(tjxQuoteParts.sortOrder), asc(tjxQuoteParts.id)),
-    executor
-      .select()
-      .from(tjxQuotePrices)
-      .where(eq(tjxQuotePrices.quoteId, quoteId))
-      .orderBy(asc(tjxQuotePrices.partNo)),
-    executor
-      .select()
-      .from(tjxQuoteSpecialParts)
-      .where(eq(tjxQuoteSpecialParts.quoteId, quoteId))
-      .orderBy(asc(tjxQuoteSpecialParts.sortOrder), asc(tjxQuoteSpecialParts.id)),
-  ])
+  const [roomRows, fixtureRows, partRows, priceRows, specialRows, workOrderRows] =
+    await Promise.all([
+      executor
+        .select()
+        .from(tjxQuoteRooms)
+        .where(eq(tjxQuoteRooms.quoteId, quoteId))
+        .orderBy(asc(tjxQuoteRooms.sortOrder), asc(tjxQuoteRooms.id)),
+      executor
+        .select()
+        .from(tjxQuoteFixtures)
+        .where(eq(tjxQuoteFixtures.quoteId, quoteId))
+        .orderBy(asc(tjxQuoteFixtures.sortOrder), asc(tjxQuoteFixtures.id)),
+      executor
+        .select()
+        .from(tjxQuoteParts)
+        .where(eq(tjxQuoteParts.quoteId, quoteId))
+        .orderBy(asc(tjxQuoteParts.sortOrder), asc(tjxQuoteParts.id)),
+      executor
+        .select()
+        .from(tjxQuotePrices)
+        .where(eq(tjxQuotePrices.quoteId, quoteId))
+        .orderBy(asc(tjxQuotePrices.partNo)),
+      executor
+        .select()
+        .from(tjxQuoteSpecialParts)
+        .where(eq(tjxQuoteSpecialParts.quoteId, quoteId))
+        .orderBy(asc(tjxQuoteSpecialParts.sortOrder), asc(tjxQuoteSpecialParts.id)),
+      executor
+        .select()
+        .from(tjxQuoteWorkOrders)
+        .where(eq(tjxQuoteWorkOrders.quoteId, quoteId))
+        .orderBy(asc(tjxQuoteWorkOrders.sortOrder), asc(tjxQuoteWorkOrders.id)),
+    ])
 
   const fixtureIds = fixtureRows.map((fixture) => fixture.id)
   const fixturePartRows = fixtureIds.length
@@ -281,6 +288,12 @@ export async function getQuoteDetail(
       unitPrice: part.unitPrice,
       lineSubtotal: part.lineSubtotal,
       sortOrder: part.sortOrder,
+    })),
+    workOrders: workOrderRows.map((link) => ({
+      workOrderId: link.workOrderId,
+      isPrimary: link.isPrimary,
+      sortOrder: link.sortOrder,
+      linkedAt: link.linkedAt.toISOString(),
     })),
   }
 }

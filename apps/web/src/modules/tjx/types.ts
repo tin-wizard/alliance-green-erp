@@ -152,6 +152,13 @@ export interface TjxQuoteRoomRow {
   fixtures: TjxQuoteFixtureRow[]
 }
 
+export interface TjxQuoteWorkOrderLink {
+  workOrderId: number
+  isPrimary: boolean
+  sortOrder: number
+  linkedAt: string
+}
+
 export interface TjxQuoteDetail {
   id: number
   status: number
@@ -196,6 +203,7 @@ export interface TjxQuoteDetail {
   parts: TjxQuotePartRow[]
   prices: TjxQuotePriceRow[]
   specialParts: TjxQuoteSpecialPartRow[]
+  workOrders: TjxQuoteWorkOrderLink[]
 }
 
 export interface TjxQuoteFixturePartInput {

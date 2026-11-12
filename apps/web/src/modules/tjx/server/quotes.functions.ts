@@ -1,8 +1,10 @@
 import { createServerFn } from '@tanstack/react-start'
 import { permissionMiddleware } from '../../../server/middleware'
 import {
+  convertQuoteSchema,
   createQuoteSchema,
   documentIdSchema,
+  linkWorkOrderSchema,
   quoteIdSchema,
   quoteListSchema,
   revisionSchema,
@@ -133,4 +135,39 @@ export const regenerateTjxDocumentFn = createServerFn({ method: 'POST' })
   .handler(async ({ data, context }) => {
     const { regenerateTjxDocument } = await import('./pdf.server')
     return regenerateTjxDocument(data.documentId, context.session)
+  })
+
+export const listTjxWorkOrderLookupsFn = createServerFn({ method: 'GET' })
+  .middleware([permissionMiddleware('tjx:read')])
+  .handler(async () => {
+    const { listWorkOrderLookups } = await import('./workorders.server')
+    const { getDb } = await import('@cls/db')
+    return listWorkOrderLookups(getDb())
+  })
+
+export const convertTjxQuoteFn = createServerFn({ method: 'POST' })
+  .validator((input: unknown) => convertQuoteSchema.parse(input))
+  .middleware([permissionMiddleware('tjx:write')])
+  .handler(async ({ data, context }) => {
+    const { convertQuoteCore } = await import('./workorders.server')
+    const { getDb } = await import('@cls/db')
+    return getDb().transaction((tx) => convertQuoteCore(tx, data, context.session))
+  })
+
+export const linkTjxWorkOrderFn = createServerFn({ method: 'POST' })
+  .validator((input: unknown) => linkWorkOrderSchema.parse(input))
+  .middleware([permissionMiddleware('tjx:write')])
+  .handler(async ({ data, context }) => {
+    const { linkWorkOrderCore } = await import('./workorders.server')
+    const { getDb } = await import('@cls/db')
+    return getDb().transaction((tx) => linkWorkOrderCore(tx, data, context.session))
+  })
+
+export const unlinkTjxWorkOrderFn = createServerFn({ method: 'POST' })
+  .validator((input: unknown) => linkWorkOrderSchema.parse(input))
+  .middleware([permissionMiddleware('tjx:write')])
+  .handler(async ({ data, context }) => {
+    const { unlinkWorkOrderCore } = await import('./workorders.server')
+    const { getDb } = await import('@cls/db')
+    return getDb().transaction((tx) => unlinkWorkOrderCore(tx, data, context.session))
   })

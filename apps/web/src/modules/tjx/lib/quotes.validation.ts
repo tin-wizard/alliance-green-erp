@@ -154,6 +154,21 @@ export const documentIdSchema = z.object({
   documentId: z.string().uuid(),
 })
 
+export const convertQuoteSchema = z.object({
+  quoteId: z.number().int().positive(),
+  version: z.number().int().positive(),
+  serviceTypeId: z.number().int().positive(),
+  priorityId: z.number().int().positive(),
+  categoryId: z.number().int().positive().nullish().transform((value) => value ?? null),
+  serviceRequired: z.string().trim().min(1, 'Enter the service required.').max(4000),
+})
+
+export const linkWorkOrderSchema = z.object({
+  quoteId: z.number().int().positive(),
+  version: z.number().int().positive(),
+  workOrderId: z.number().int().positive(),
+})
+
 export type CreateQuoteInput = z.infer<typeof createQuoteSchema>
 export type SaveQuoteInput = z.infer<typeof saveQuoteSchema>
 export type QuoteListInput = z.infer<typeof quoteListSchema>
