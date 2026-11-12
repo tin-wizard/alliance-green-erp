@@ -64,6 +64,9 @@ const jobsScheduler = createMiddleware().server(async ({ next }) => {
       registerRgaNotificationsJob(),
     ),
     import('./modules/sage/server/jobs.server').then(({ registerSageJobs }) => registerSageJobs()),
+    import('./modules/compliance/server/jobs.server').then(({ registerComplianceJobs }) =>
+      registerComplianceJobs(),
+    ),
   ])
     .then(() => import('./modules/jobs/server/ticker.server'))
     .then(({ startScheduler }) => startScheduler())

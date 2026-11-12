@@ -17,6 +17,7 @@ import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiReadyRouteImport } from './routes/api/ready'
 import { Route as AppAdminAuditRouteImport } from './routes/_app/admin/audit'
 import { Route as AppAdminUsersRouteImport } from './routes/_app/admin/users'
+import { Route as AppComplianceIndexRouteImport } from './routes/_app/compliance/index'
 import { Route as AppInventoryIndexRouteImport } from './routes/_app/inventory/index'
 import { Route as AppInventoryAdjustmentsRouteImport } from './routes/_app/inventory/adjustments'
 import { Route as AppInventoryMovementsRouteImport } from './routes/_app/inventory/movements'
@@ -134,6 +135,11 @@ const AppAdminAuditRoute = AppAdminAuditRouteImport.update({
 const AppAdminUsersRoute = AppAdminUsersRouteImport.update({
   id: '/admin/users',
   path: '/admin/users',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppComplianceIndexRoute = AppComplianceIndexRouteImport.update({
+  id: '/compliance/',
+  path: '/compliance/',
   getParentRoute: () => AppRoute,
 } as any)
 const AppInventoryIndexRoute = AppInventoryIndexRouteImport.update({
@@ -582,6 +588,7 @@ export interface FileRoutesByFullPath {
   '/api/cron/sage-keepalive': typeof ApiCronSageKeepaliveRoute
   '/api/cron/sage-postings': typeof ApiCronSagePostingsRoute
   '/api/sage/probe': typeof ApiSageProbeRoute
+  '/compliance/': typeof AppComplianceIndexRoute
   '/inventory/': typeof AppInventoryIndexRoute
   '/invoicing/': typeof AppInvoicingIndexRoute
   '/master-data/': typeof AppMasterDataIndexRoute
@@ -670,6 +677,7 @@ export interface FileRoutesByTo {
   '/api/cron/sage-keepalive': typeof ApiCronSageKeepaliveRoute
   '/api/cron/sage-postings': typeof ApiCronSagePostingsRoute
   '/api/sage/probe': typeof ApiSageProbeRoute
+  '/compliance': typeof AppComplianceIndexRoute
   '/inventory': typeof AppInventoryIndexRoute
   '/invoicing': typeof AppInvoicingIndexRoute
   '/master-data': typeof AppMasterDataIndexRoute
@@ -759,6 +767,7 @@ export interface FileRoutesById {
   '/api/cron/sage-keepalive': typeof ApiCronSageKeepaliveRoute
   '/api/cron/sage-postings': typeof ApiCronSagePostingsRoute
   '/api/sage/probe': typeof ApiSageProbeRoute
+  '/_app/compliance/': typeof AppComplianceIndexRoute
   '/_app/inventory/': typeof AppInventoryIndexRoute
   '/_app/invoicing/': typeof AppInvoicingIndexRoute
   '/_app/master-data/': typeof AppMasterDataIndexRoute
@@ -849,6 +858,7 @@ export interface FileRouteTypes {
     | '/api/cron/sage-keepalive'
     | '/api/cron/sage-postings'
     | '/api/sage/probe'
+    | '/compliance/'
     | '/inventory/'
     | '/invoicing/'
     | '/master-data/'
@@ -937,6 +947,7 @@ export interface FileRouteTypes {
     | '/api/cron/sage-keepalive'
     | '/api/cron/sage-postings'
     | '/api/sage/probe'
+    | '/compliance'
     | '/inventory'
     | '/invoicing'
     | '/master-data'
@@ -1025,6 +1036,7 @@ export interface FileRouteTypes {
     | '/api/cron/sage-keepalive'
     | '/api/cron/sage-postings'
     | '/api/sage/probe'
+    | '/_app/compliance/'
     | '/_app/inventory/'
     | '/_app/invoicing/'
     | '/_app/master-data/'
@@ -1162,6 +1174,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/users'
       fullPath: '/admin/users'
       preLoaderRoute: typeof AppAdminUsersRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/compliance/': {
+      id: '/_app/compliance/'
+      path: '/compliance'
+      fullPath: '/compliance/'
+      preLoaderRoute: typeof AppComplianceIndexRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/inventory/': {
@@ -1749,6 +1768,7 @@ interface AppRouteChildren {
   AppRgasIdRoute: typeof AppRgasIdRoute
   AppRgasNewRoute: typeof AppRgasNewRoute
   AppWorkOrdersNewRoute: typeof AppWorkOrdersNewRoute
+  AppComplianceIndexRoute: typeof AppComplianceIndexRoute
   AppInventoryIndexRoute: typeof AppInventoryIndexRoute
   AppInvoicingIndexRoute: typeof AppInvoicingIndexRoute
   AppMasterDataIndexRoute: typeof AppMasterDataIndexRoute
@@ -1824,6 +1844,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppRgasIdRoute: AppRgasIdRoute,
   AppRgasNewRoute: AppRgasNewRoute,
   AppWorkOrdersNewRoute: AppWorkOrdersNewRoute,
+  AppComplianceIndexRoute: AppComplianceIndexRoute,
   AppInventoryIndexRoute: AppInventoryIndexRoute,
   AppInvoicingIndexRoute: AppInvoicingIndexRoute,
   AppMasterDataIndexRoute: AppMasterDataIndexRoute,

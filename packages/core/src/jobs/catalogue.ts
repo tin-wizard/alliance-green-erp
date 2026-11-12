@@ -206,7 +206,7 @@ export const JOB_CATALOGUE: readonly JobDefinition[] = [
     staleAfterMs: 26 * HOUR,
     description: 'WSIB and insurance expiry reminders, one per document and window.',
     replaces: 'WSIB reminder scripts (see compliance.wsib-reminders)',
-    status: 'awaiting-handler',
+    status: 'registered',
   }),
   defineJob({
     key: 'compliance.wsib-reminders',
@@ -221,7 +221,7 @@ export const JOB_CATALOGUE: readonly JobDefinition[] = [
     description: 'WSIB tracks: ten-day warning, just expired, expired.',
     replaces:
       'wsib_reminder_near_expiry.php, wsib_reminder_just_expired.php, wsib_reminder_expired.php',
-    status: 'awaiting-handler',
+    status: 'registered',
   }),
   defineJob({
     key: 'quotes.quote-reminders',
