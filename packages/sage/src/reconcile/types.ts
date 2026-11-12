@@ -27,6 +27,7 @@ export type FindingCode =
   | 'DELETED_IN_SAGE'
   | 'PAYMENT_UNMATCHED'
   | 'TAX_PERIOD_MISMATCH'
+  | 'TAX_QUIRK'
   | 'QUEUE_BACKLOG'
   | 'QUOTA_NEAR_LIMIT'
   | 'QUOTA_EXHAUSTED'
@@ -66,6 +67,7 @@ const OWNERS: Record<FindingCode, FindingOwner> = {
   DELETED_IN_SAGE: 'finance',
   PAYMENT_UNMATCHED: 'finance',
   TAX_PERIOD_MISMATCH: 'finance',
+  TAX_QUIRK: 'finance',
   QUEUE_BACKLOG: 'platform',
   QUOTA_NEAR_LIMIT: 'platform',
   QUOTA_EXHAUSTED: 'platform',
@@ -102,6 +104,7 @@ export function severityFor(code: FindingCode, context: SeverityContext = {}): F
     case 'QUEUE_BACKLOG':
     case 'QUOTA_NEAR_LIMIT':
     case 'BALANCE_ROLLFORWARD_UNAVAILABLE':
+    case 'TAX_QUIRK':
       return 'warning'
     default:
       return 'blocker'

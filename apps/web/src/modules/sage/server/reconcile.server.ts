@@ -37,16 +37,13 @@ import {
   type LinkRow,
   type PostingRow,
   type RunStatus,
-  type SageRequest,
-  type SageResponse,
   type TaxPeriodComparison,
 } from '@cls/sage'
+import { COLLECTIONS, cents, getJson, itemsOf, money, type ReconcileHttp } from './reconcile.shared'
 import { getPauseGovernor, getQuotaGovernor, getSageHttp, getTokenService, sageConfig, sageCredentialsPresent } from './gateway.server'
 
-/** The sliver of the HTTP client a run needs. Keeps runs testable without a socket. */
-export interface ReconcileHttp {
-  request(request: SageRequest): Promise<SageResponse>
-}
+/** Re-exported so callers keep importing the seam from the runner that uses it. */
+export type { ReconcileHttp } from './reconcile.shared'
 
 export type ReconciliationMode = 'daily' | 'cutover' | 'manual'
 
@@ -70,36 +67,8 @@ export interface ReconciliationResult {
   reason: string | null
 }
 
-const COLLECTIONS: Record<string, string> = {
-  sales_invoice: 'sales_invoices',
-  purchase_invoice: 'purchase_invoices',
-  purchase_credit_note: 'purchase_credit_notes',
-}
-
-function cents(value: unknown): number | null {
-  if (value === null || value === undefined) return null
-  const n = typeof value === 'number' ? value : Number(value)
-  if (!Number.isFinite(n)) return null
-  return Math.round(n * 100)
-}
-
-function money(centsValue: number | null): string | null {
-  return centsValue === null ? null : (centsValue / 100).toFixed(2)
-}
-
-function itemsOf(json: unknown): Record<string, unknown>[] {
-  const record = json as Record<string, unknown> | null
-  const items = record?.$items ?? record?.items
-  return Array.isArray(items) ? (items as Record<string, unknown>[]) : []
-}
-
 function isoOrEpoch(value: Date | null): string {
   return (value ?? new Date(0)).toISOString()
-}
-
-async function getJson(http: ReconcileHttp, path: string): Promise<unknown> {
-  const response = await http.request({ method: 'GET', path, quotaClass: 'reconcile' })
-  return response.json
 }
 
 export async function runReconciliation(
@@ -397,7 +366,7 @@ async function undecidedWarnings(db: ReturnType<typeof getDb>, runId: number | n
   return row?.count ?? 0
 }
 
-async function persistFindings(runId: number, findings: Finding[]): Promise<void> {
+export async function persistFindings(runId: number, findings: Finding[]): Promise<void> {
   if (findings.length === 0) return
   const db = getDb()
   await db.insert(sageReconciliationFindings).values(

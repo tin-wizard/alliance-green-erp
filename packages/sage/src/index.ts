@@ -100,6 +100,20 @@ export {
 } from './reconcile/types'
 export { summariseRun, type RunStatus, type RunSummary } from './reconcile/summary'
 export {
+  QUIRK_NOTES,
+  TAX_QUIRKS,
+  classifyTaxDifference,
+  evaluateCutover,
+  type BaselineDocument,
+  type CutoverBaseline,
+  type CutoverEvaluation,
+  type CutoverMonth,
+  type CutoverPhase,
+  type CutoverReading,
+  type QuirkClassification,
+  type TaxQuirk,
+} from './reconcile/cutover'
+export {
   probeTenant,
   type ProbeCapsule,
   type ProbeCheck,

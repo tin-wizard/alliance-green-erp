@@ -28,8 +28,8 @@ import { SageError } from '@cls/sage'
 import type { ReconcileHttp } from './reconcile.server'
 import { pollResourceFeeds, runReconciliation } from './reconcile.server'
 
-const REF = 'cls:test-recon:sales_invoice:990001'
-const DOC_ID = 990_001
+const REF = 'cls:test-recon:sales_invoice:991001'
+const DOC_ID = 991_001
 const API_ID = 'sdi-test-1'
 
 function databaseConfigured(): boolean {

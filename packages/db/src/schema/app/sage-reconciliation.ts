@@ -30,6 +30,10 @@ export const sageReconciliationRuns = app.table(
     id: bigserial('id', { mode: 'number' }).primaryKey(),
     /** daily | cutover | manual */
     mode: text('mode').notNull(),
+    /** Cutover runs only: the signed baseline both phases compare against. */
+    baselineId: text('baseline_id'),
+    /** Cutover runs only: documents | allocations. */
+    phase: text('phase'),
     startedAt: timestamp('started_at', { withTimezone: true }).notNull().defaultNow(),
     finishedAt: timestamp('finished_at', { withTimezone: true }),
     /** running | passed | failed | error */
@@ -41,6 +45,18 @@ export const sageReconciliationRuns = app.table(
     warnings: integer('warnings').notNull().default(0),
     /** Why an `error` run could not compare anything. */
     error: text('error'),
+    /**
+     * Cutover runs only: the sum of tolerated legacy tax differences. This is
+     * the number the finance owner signs; it is never zeroed or normalised.
+     */
+    divergenceTotal: numeric('divergence_total', { precision: 14, scale: 2 }),
+    /** Who accepted the divergence, and with what words. */
+    // No FK, for the same reason `decided_by` has none: app.users lives in
+    // app.ts and referencing it from a submodule would import the barrel that
+    // imports this file.
+    signedBy: uuid('signed_by'),
+    signedAt: timestamp('signed_at', { withTimezone: true }),
+    signedNote: text('signed_note'),
     report: jsonb('report').$type<Record<string, unknown> | null>(),
   },
   (table) => [
