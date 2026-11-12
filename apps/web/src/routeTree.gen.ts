@@ -67,6 +67,8 @@ import { Route as AppPurchasingIdIndexRouteImport } from './routes/_app/purchasi
 import { Route as AppPurchasingIdEditRouteImport } from './routes/_app/purchasing/$id/edit'
 import { Route as AppQuotesIdIndexRouteImport } from './routes/_app/quotes/$id/index'
 import { Route as AppQuotesIdEditRouteImport } from './routes/_app/quotes/$id/edit'
+import { Route as AppTjxInvoicesIndexRouteImport } from './routes/_app/tjx/invoices/index'
+import { Route as AppTjxInvoicesWorkOrderIdRouteImport } from './routes/_app/tjx/invoices/$workOrderId'
 import { Route as AppTjxMastersFixturesRouteImport } from './routes/_app/tjx/masters/fixtures'
 import { Route as AppTjxMastersRatesRouteImport } from './routes/_app/tjx/masters/rates'
 import { Route as AppTjxMastersRoomsRouteImport } from './routes/_app/tjx/masters/rooms'
@@ -88,6 +90,8 @@ import { Route as AppMasterDataSubcontractorsEditIdRouteImport } from './routes/
 import { Route as AppMasterDataSuppliersEditIdRouteImport } from './routes/_app/master-data/suppliers/edit/$id'
 import { Route as AppPortalSubInvoicesIndexRouteImport } from './routes/_app/portal/sub/invoices/index'
 import { Route as AppPortalSubInvoicesIdRouteImport } from './routes/_app/portal/sub/invoices.$id'
+import { Route as AppPortalSubTjxInvoicesIndexRouteImport } from './routes/_app/portal/sub/tjx-invoices/index'
+import { Route as AppPortalSubTjxInvoicesWorkOrderIdRouteImport } from './routes/_app/portal/sub/tjx-invoices/$workOrderId'
 import { Route as AppPortalSubWorkOrdersIndexRouteImport } from './routes/_app/portal/sub/work-orders/index'
 import { Route as AppPortalTechIdIndexRouteImport } from './routes/_app/portal/tech/$id/index'
 import { Route as AppPortalSubWorkOrdersIdIndexRouteImport } from './routes/_app/portal/sub/work-orders/$id/index'
@@ -393,6 +397,17 @@ const AppQuotesIdEditRoute = AppQuotesIdEditRouteImport.update({
   path: '/quotes/$id/edit',
   getParentRoute: () => AppRoute,
 } as any)
+const AppTjxInvoicesIndexRoute = AppTjxInvoicesIndexRouteImport.update({
+  id: '/tjx/invoices/',
+  path: '/tjx/invoices/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppTjxInvoicesWorkOrderIdRoute =
+  AppTjxInvoicesWorkOrderIdRouteImport.update({
+    id: '/tjx/invoices/$workOrderId',
+    path: '/tjx/invoices/$workOrderId',
+    getParentRoute: () => AppRoute,
+  } as any)
 const AppTjxMastersFixturesRoute = AppTjxMastersFixturesRouteImport.update({
   id: '/tjx/masters/fixtures',
   path: '/tjx/masters/fixtures',
@@ -507,6 +522,18 @@ const AppPortalSubInvoicesIdRoute = AppPortalSubInvoicesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AppPortalSubInvoicesRoute,
 } as any)
+const AppPortalSubTjxInvoicesIndexRoute =
+  AppPortalSubTjxInvoicesIndexRouteImport.update({
+    id: '/portal/sub/tjx-invoices/',
+    path: '/portal/sub/tjx-invoices/',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppPortalSubTjxInvoicesWorkOrderIdRoute =
+  AppPortalSubTjxInvoicesWorkOrderIdRouteImport.update({
+    id: '/portal/sub/tjx-invoices/$workOrderId',
+    path: '/portal/sub/tjx-invoices/$workOrderId',
+    getParentRoute: () => AppRoute,
+  } as any)
 const AppPortalSubWorkOrdersIndexRoute =
   AppPortalSubWorkOrdersIndexRouteImport.update({
     id: '/portal/sub/work-orders/',
@@ -573,6 +600,7 @@ export interface FileRoutesByFullPath {
   '/portal/sub/stock': typeof AppPortalSubStockRoute
   '/purchasing/$id/edit': typeof AppPurchasingIdEditRoute
   '/quotes/$id/edit': typeof AppQuotesIdEditRoute
+  '/tjx/invoices/$workOrderId': typeof AppTjxInvoicesWorkOrderIdRoute
   '/tjx/masters/fixtures': typeof AppTjxMastersFixturesRoute
   '/tjx/masters/rates': typeof AppTjxMastersRatesRoute
   '/tjx/masters/rooms': typeof AppTjxMastersRoomsRoute
@@ -594,6 +622,7 @@ export interface FileRoutesByFullPath {
   '/portal/tech/': typeof AppPortalTechIndexRoute
   '/purchasing/$id/': typeof AppPurchasingIdIndexRoute
   '/quotes/$id/': typeof AppQuotesIdIndexRoute
+  '/tjx/invoices/': typeof AppTjxInvoicesIndexRoute
   '/tjx/quotes/': typeof AppTjxQuotesIndexRoute
   '/work-orders/$id/': typeof AppWorkOrdersIdIndexRoute
   '/master-data/customers/edit/$id': typeof AppMasterDataCustomersEditIdRoute
@@ -602,8 +631,10 @@ export interface FileRoutesByFullPath {
   '/master-data/subcontractors/edit/$id': typeof AppMasterDataSubcontractorsEditIdRoute
   '/master-data/suppliers/edit/$id': typeof AppMasterDataSuppliersEditIdRoute
   '/portal/sub/invoices/$id': typeof AppPortalSubInvoicesIdRoute
+  '/portal/sub/tjx-invoices/$workOrderId': typeof AppPortalSubTjxInvoicesWorkOrderIdRoute
   '/maintenance/work-orders/$id/': typeof AppMaintenanceWorkOrdersIdIndexRoute
   '/portal/sub/invoices/': typeof AppPortalSubInvoicesIndexRoute
+  '/portal/sub/tjx-invoices/': typeof AppPortalSubTjxInvoicesIndexRoute
   '/portal/sub/work-orders/': typeof AppPortalSubWorkOrdersIndexRoute
   '/portal/tech/$id/': typeof AppPortalTechIdIndexRoute
   '/portal/sub/work-orders/$id/': typeof AppPortalSubWorkOrdersIdIndexRoute
@@ -655,6 +686,7 @@ export interface FileRoutesByTo {
   '/portal/sub/stock': typeof AppPortalSubStockRoute
   '/purchasing/$id/edit': typeof AppPurchasingIdEditRoute
   '/quotes/$id/edit': typeof AppQuotesIdEditRoute
+  '/tjx/invoices/$workOrderId': typeof AppTjxInvoicesWorkOrderIdRoute
   '/tjx/masters/fixtures': typeof AppTjxMastersFixturesRoute
   '/tjx/masters/rates': typeof AppTjxMastersRatesRoute
   '/tjx/masters/rooms': typeof AppTjxMastersRoomsRoute
@@ -676,6 +708,7 @@ export interface FileRoutesByTo {
   '/portal/tech': typeof AppPortalTechIndexRoute
   '/purchasing/$id': typeof AppPurchasingIdIndexRoute
   '/quotes/$id': typeof AppQuotesIdIndexRoute
+  '/tjx/invoices': typeof AppTjxInvoicesIndexRoute
   '/tjx/quotes': typeof AppTjxQuotesIndexRoute
   '/work-orders/$id': typeof AppWorkOrdersIdIndexRoute
   '/master-data/customers/edit/$id': typeof AppMasterDataCustomersEditIdRoute
@@ -684,8 +717,10 @@ export interface FileRoutesByTo {
   '/master-data/subcontractors/edit/$id': typeof AppMasterDataSubcontractorsEditIdRoute
   '/master-data/suppliers/edit/$id': typeof AppMasterDataSuppliersEditIdRoute
   '/portal/sub/invoices/$id': typeof AppPortalSubInvoicesIdRoute
+  '/portal/sub/tjx-invoices/$workOrderId': typeof AppPortalSubTjxInvoicesWorkOrderIdRoute
   '/maintenance/work-orders/$id': typeof AppMaintenanceWorkOrdersIdIndexRoute
   '/portal/sub/invoices': typeof AppPortalSubInvoicesIndexRoute
+  '/portal/sub/tjx-invoices': typeof AppPortalSubTjxInvoicesIndexRoute
   '/portal/sub/work-orders': typeof AppPortalSubWorkOrdersIndexRoute
   '/portal/tech/$id': typeof AppPortalTechIdIndexRoute
   '/portal/sub/work-orders/$id': typeof AppPortalSubWorkOrdersIdIndexRoute
@@ -740,6 +775,7 @@ export interface FileRoutesById {
   '/_app/portal/sub/stock': typeof AppPortalSubStockRoute
   '/_app/purchasing/$id/edit': typeof AppPurchasingIdEditRoute
   '/_app/quotes/$id/edit': typeof AppQuotesIdEditRoute
+  '/_app/tjx/invoices/$workOrderId': typeof AppTjxInvoicesWorkOrderIdRoute
   '/_app/tjx/masters/fixtures': typeof AppTjxMastersFixturesRoute
   '/_app/tjx/masters/rates': typeof AppTjxMastersRatesRoute
   '/_app/tjx/masters/rooms': typeof AppTjxMastersRoomsRoute
@@ -761,6 +797,7 @@ export interface FileRoutesById {
   '/_app/portal/tech/': typeof AppPortalTechIndexRoute
   '/_app/purchasing/$id/': typeof AppPurchasingIdIndexRoute
   '/_app/quotes/$id/': typeof AppQuotesIdIndexRoute
+  '/_app/tjx/invoices/': typeof AppTjxInvoicesIndexRoute
   '/_app/tjx/quotes/': typeof AppTjxQuotesIndexRoute
   '/_app/work-orders/$id/': typeof AppWorkOrdersIdIndexRoute
   '/_app/master-data/customers/edit/$id': typeof AppMasterDataCustomersEditIdRoute
@@ -769,8 +806,10 @@ export interface FileRoutesById {
   '/_app/master-data/subcontractors/edit/$id': typeof AppMasterDataSubcontractorsEditIdRoute
   '/_app/master-data/suppliers/edit/$id': typeof AppMasterDataSuppliersEditIdRoute
   '/_app/portal/sub/invoices/$id': typeof AppPortalSubInvoicesIdRoute
+  '/_app/portal/sub/tjx-invoices/$workOrderId': typeof AppPortalSubTjxInvoicesWorkOrderIdRoute
   '/_app/maintenance/work-orders/$id/': typeof AppMaintenanceWorkOrdersIdIndexRoute
   '/_app/portal/sub/invoices/': typeof AppPortalSubInvoicesIndexRoute
+  '/_app/portal/sub/tjx-invoices/': typeof AppPortalSubTjxInvoicesIndexRoute
   '/_app/portal/sub/work-orders/': typeof AppPortalSubWorkOrdersIndexRoute
   '/_app/portal/tech/$id/': typeof AppPortalTechIdIndexRoute
   '/_app/portal/sub/work-orders/$id/': typeof AppPortalSubWorkOrdersIdIndexRoute
@@ -825,6 +864,7 @@ export interface FileRouteTypes {
     | '/portal/sub/stock'
     | '/purchasing/$id/edit'
     | '/quotes/$id/edit'
+    | '/tjx/invoices/$workOrderId'
     | '/tjx/masters/fixtures'
     | '/tjx/masters/rates'
     | '/tjx/masters/rooms'
@@ -846,6 +886,7 @@ export interface FileRouteTypes {
     | '/portal/tech/'
     | '/purchasing/$id/'
     | '/quotes/$id/'
+    | '/tjx/invoices/'
     | '/tjx/quotes/'
     | '/work-orders/$id/'
     | '/master-data/customers/edit/$id'
@@ -854,8 +895,10 @@ export interface FileRouteTypes {
     | '/master-data/subcontractors/edit/$id'
     | '/master-data/suppliers/edit/$id'
     | '/portal/sub/invoices/$id'
+    | '/portal/sub/tjx-invoices/$workOrderId'
     | '/maintenance/work-orders/$id/'
     | '/portal/sub/invoices/'
+    | '/portal/sub/tjx-invoices/'
     | '/portal/sub/work-orders/'
     | '/portal/tech/$id/'
     | '/portal/sub/work-orders/$id/'
@@ -907,6 +950,7 @@ export interface FileRouteTypes {
     | '/portal/sub/stock'
     | '/purchasing/$id/edit'
     | '/quotes/$id/edit'
+    | '/tjx/invoices/$workOrderId'
     | '/tjx/masters/fixtures'
     | '/tjx/masters/rates'
     | '/tjx/masters/rooms'
@@ -928,6 +972,7 @@ export interface FileRouteTypes {
     | '/portal/tech'
     | '/purchasing/$id'
     | '/quotes/$id'
+    | '/tjx/invoices'
     | '/tjx/quotes'
     | '/work-orders/$id'
     | '/master-data/customers/edit/$id'
@@ -936,8 +981,10 @@ export interface FileRouteTypes {
     | '/master-data/subcontractors/edit/$id'
     | '/master-data/suppliers/edit/$id'
     | '/portal/sub/invoices/$id'
+    | '/portal/sub/tjx-invoices/$workOrderId'
     | '/maintenance/work-orders/$id'
     | '/portal/sub/invoices'
+    | '/portal/sub/tjx-invoices'
     | '/portal/sub/work-orders'
     | '/portal/tech/$id'
     | '/portal/sub/work-orders/$id'
@@ -991,6 +1038,7 @@ export interface FileRouteTypes {
     | '/_app/portal/sub/stock'
     | '/_app/purchasing/$id/edit'
     | '/_app/quotes/$id/edit'
+    | '/_app/tjx/invoices/$workOrderId'
     | '/_app/tjx/masters/fixtures'
     | '/_app/tjx/masters/rates'
     | '/_app/tjx/masters/rooms'
@@ -1012,6 +1060,7 @@ export interface FileRouteTypes {
     | '/_app/portal/tech/'
     | '/_app/purchasing/$id/'
     | '/_app/quotes/$id/'
+    | '/_app/tjx/invoices/'
     | '/_app/tjx/quotes/'
     | '/_app/work-orders/$id/'
     | '/_app/master-data/customers/edit/$id'
@@ -1020,8 +1069,10 @@ export interface FileRouteTypes {
     | '/_app/master-data/subcontractors/edit/$id'
     | '/_app/master-data/suppliers/edit/$id'
     | '/_app/portal/sub/invoices/$id'
+    | '/_app/portal/sub/tjx-invoices/$workOrderId'
     | '/_app/maintenance/work-orders/$id/'
     | '/_app/portal/sub/invoices/'
+    | '/_app/portal/sub/tjx-invoices/'
     | '/_app/portal/sub/work-orders/'
     | '/_app/portal/tech/$id/'
     | '/_app/portal/sub/work-orders/$id/'
@@ -1451,6 +1502,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppQuotesIdEditRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/tjx/invoices/': {
+      id: '/_app/tjx/invoices/'
+      path: '/tjx/invoices'
+      fullPath: '/tjx/invoices/'
+      preLoaderRoute: typeof AppTjxInvoicesIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/tjx/invoices/$workOrderId': {
+      id: '/_app/tjx/invoices/$workOrderId'
+      path: '/tjx/invoices/$workOrderId'
+      fullPath: '/tjx/invoices/$workOrderId'
+      preLoaderRoute: typeof AppTjxInvoicesWorkOrderIdRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/tjx/masters/fixtures': {
       id: '/_app/tjx/masters/fixtures'
       path: '/tjx/masters/fixtures'
@@ -1598,6 +1663,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppPortalSubInvoicesIdRouteImport
       parentRoute: typeof AppPortalSubInvoicesRoute
     }
+    '/_app/portal/sub/tjx-invoices/': {
+      id: '/_app/portal/sub/tjx-invoices/'
+      path: '/portal/sub/tjx-invoices'
+      fullPath: '/portal/sub/tjx-invoices/'
+      preLoaderRoute: typeof AppPortalSubTjxInvoicesIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/portal/sub/tjx-invoices/$workOrderId': {
+      id: '/_app/portal/sub/tjx-invoices/$workOrderId'
+      path: '/portal/sub/tjx-invoices/$workOrderId'
+      fullPath: '/portal/sub/tjx-invoices/$workOrderId'
+      preLoaderRoute: typeof AppPortalSubTjxInvoicesWorkOrderIdRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/portal/sub/work-orders/': {
       id: '/_app/portal/sub/work-orders/'
       path: '/portal/sub/work-orders'
@@ -1675,6 +1754,7 @@ interface AppRouteChildren {
   AppPortalSubStockRoute: typeof AppPortalSubStockRoute
   AppPurchasingIdEditRoute: typeof AppPurchasingIdEditRoute
   AppQuotesIdEditRoute: typeof AppQuotesIdEditRoute
+  AppTjxInvoicesWorkOrderIdRoute: typeof AppTjxInvoicesWorkOrderIdRoute
   AppTjxMastersFixturesRoute: typeof AppTjxMastersFixturesRoute
   AppTjxMastersRatesRoute: typeof AppTjxMastersRatesRoute
   AppTjxMastersRoomsRoute: typeof AppTjxMastersRoomsRoute
@@ -1692,6 +1772,7 @@ interface AppRouteChildren {
   AppPortalTechIndexRoute: typeof AppPortalTechIndexRoute
   AppPurchasingIdIndexRoute: typeof AppPurchasingIdIndexRoute
   AppQuotesIdIndexRoute: typeof AppQuotesIdIndexRoute
+  AppTjxInvoicesIndexRoute: typeof AppTjxInvoicesIndexRoute
   AppTjxQuotesIndexRoute: typeof AppTjxQuotesIndexRoute
   AppWorkOrdersIdIndexRoute: typeof AppWorkOrdersIdIndexRoute
   AppMasterDataCustomersEditIdRoute: typeof AppMasterDataCustomersEditIdRoute
@@ -1699,7 +1780,9 @@ interface AppRouteChildren {
   AppMasterDataSitesEditIdRoute: typeof AppMasterDataSitesEditIdRoute
   AppMasterDataSubcontractorsEditIdRoute: typeof AppMasterDataSubcontractorsEditIdRoute
   AppMasterDataSuppliersEditIdRoute: typeof AppMasterDataSuppliersEditIdRoute
+  AppPortalSubTjxInvoicesWorkOrderIdRoute: typeof AppPortalSubTjxInvoicesWorkOrderIdRoute
   AppMaintenanceWorkOrdersIdIndexRoute: typeof AppMaintenanceWorkOrdersIdIndexRoute
+  AppPortalSubTjxInvoicesIndexRoute: typeof AppPortalSubTjxInvoicesIndexRoute
   AppPortalSubWorkOrdersIndexRoute: typeof AppPortalSubWorkOrdersIndexRoute
   AppPortalTechIdIndexRoute: typeof AppPortalTechIdIndexRoute
   AppPortalSubWorkOrdersIdIndexRoute: typeof AppPortalSubWorkOrdersIdIndexRoute
@@ -1745,6 +1828,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppPortalSubStockRoute: AppPortalSubStockRoute,
   AppPurchasingIdEditRoute: AppPurchasingIdEditRoute,
   AppQuotesIdEditRoute: AppQuotesIdEditRoute,
+  AppTjxInvoicesWorkOrderIdRoute: AppTjxInvoicesWorkOrderIdRoute,
   AppTjxMastersFixturesRoute: AppTjxMastersFixturesRoute,
   AppTjxMastersRatesRoute: AppTjxMastersRatesRoute,
   AppTjxMastersRoomsRoute: AppTjxMastersRoomsRoute,
@@ -1762,6 +1846,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppPortalTechIndexRoute: AppPortalTechIndexRoute,
   AppPurchasingIdIndexRoute: AppPurchasingIdIndexRoute,
   AppQuotesIdIndexRoute: AppQuotesIdIndexRoute,
+  AppTjxInvoicesIndexRoute: AppTjxInvoicesIndexRoute,
   AppTjxQuotesIndexRoute: AppTjxQuotesIndexRoute,
   AppWorkOrdersIdIndexRoute: AppWorkOrdersIdIndexRoute,
   AppMasterDataCustomersEditIdRoute: AppMasterDataCustomersEditIdRoute,
@@ -1770,7 +1855,10 @@ const AppRouteChildren: AppRouteChildren = {
   AppMasterDataSubcontractorsEditIdRoute:
     AppMasterDataSubcontractorsEditIdRoute,
   AppMasterDataSuppliersEditIdRoute: AppMasterDataSuppliersEditIdRoute,
+  AppPortalSubTjxInvoicesWorkOrderIdRoute:
+    AppPortalSubTjxInvoicesWorkOrderIdRoute,
   AppMaintenanceWorkOrdersIdIndexRoute: AppMaintenanceWorkOrdersIdIndexRoute,
+  AppPortalSubTjxInvoicesIndexRoute: AppPortalSubTjxInvoicesIndexRoute,
   AppPortalSubWorkOrdersIndexRoute: AppPortalSubWorkOrdersIndexRoute,
   AppPortalTechIdIndexRoute: AppPortalTechIdIndexRoute,
   AppPortalSubWorkOrdersIdIndexRoute: AppPortalSubWorkOrdersIdIndexRoute,

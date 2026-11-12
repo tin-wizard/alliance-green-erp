@@ -89,6 +89,20 @@ function TjxLandingPage() {
           </Link>
         </div>
       </Card>
+
+      <Card title="Subcontractor invoices">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-[13px] text-fg-secondary">
+            Review TJX installation invoices, approve the Sage posting or return them for correction.
+          </p>
+          <Link
+            to="/tjx/invoices"
+            className="inline-flex h-9 items-center rounded-[4px] border border-hair px-3.5 text-[12.5px] font-medium text-fg-secondary hover:border-brand hover:text-brand"
+          >
+            Open invoice review
+          </Link>
+        </div>
+      </Card>
     </div>
   )
 }

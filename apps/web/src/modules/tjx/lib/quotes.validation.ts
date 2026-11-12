@@ -172,3 +172,69 @@ export const linkWorkOrderSchema = z.object({
 export type CreateQuoteInput = z.infer<typeof createQuoteSchema>
 export type SaveQuoteInput = z.infer<typeof saveQuoteSchema>
 export type QuoteListInput = z.infer<typeof quoteListSchema>
+
+/* --------------------------- subcontractor invoices ------------------------- */
+
+const nonNegativeQuantity = z
+  .string()
+  .trim()
+  .regex(/^\d+(\.\d{1,3})?$/, 'Use a quantity with at most 3 decimal places.')
+
+const gateKind = z.enum([
+  'post_project_fc_reading',
+  'post_project_photos',
+  'signed_work_order',
+])
+
+export const subInvoiceWorkOrderSchema = z.object({
+  workOrderId: z.number().int().positive(),
+})
+
+export const subInvoiceSaveSchema = z.object({
+  workOrderId: z.number().int().positive(),
+  version: z.number().int().positive(),
+  invoiceNumber: z.string().trim().max(60, 'Use 60 characters or fewer.'),
+  invoiceDate: z
+    .string()
+    .trim()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Use a date in YYYY-MM-DD form.'),
+  taxProvince: z.string().trim().min(1, 'Choose a tax province.').max(10),
+  notes: optionalText(2000),
+  subNotes: optionalText(2000),
+  fixtures: z
+    .array(
+      z.object({
+        quoteFixtureId: z.number().int().positive().nullish().transform((value) => value ?? null),
+        roomName: z.string().trim().min(1).max(200),
+        fixtureName: z.string().trim().min(1).max(200),
+        quotedQuantity: nonNegativeQuantity,
+        installedQuantity: nonNegativeQuantity,
+        discrepancyNotes: optionalText(2000),
+        sortOrder: z.number().int().min(0),
+      }),
+    )
+    .max(2000),
+})
+
+export const subInvoiceTransitionSchema = z.object({
+  workOrderId: z.number().int().positive(),
+  version: z.number().int().positive(),
+})
+
+export const subInvoiceGateSchema = z.object({
+  workOrderId: z.number().int().positive(),
+  version: z.number().int().positive(),
+  kind: gateKind,
+  checked: z.boolean(),
+  documentId: z.string().uuid().nullish().transform((value) => value ?? null),
+})
+
+export const subInvoiceReviewSchema = z.object({
+  workOrderId: z.number().int().positive(),
+  version: z.number().int().positive(),
+})
+
+export const subInvoiceRejectSchema = subInvoiceReviewSchema.extend({
+  reason: z.string().trim().min(1, 'Enter a reason.').max(2000),
+})
+

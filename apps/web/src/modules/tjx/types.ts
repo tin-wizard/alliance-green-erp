@@ -291,3 +291,137 @@ export interface TjxGeneratedDocument {
   url: string | null
 }
 
+/* --------------------------- subcontractor invoices ------------------------- */
+
+export type TjxSubInvoiceStatus = 'draft' | 'submitted' | 'approved' | 'rejected'
+
+export type TjxGateKind = 'post_project_fc_reading' | 'post_project_photos' | 'signed_work_order'
+
+export interface TjxSubInvoiceListRow {
+  id: number
+  workOrderId: number
+  quoteId: number
+  invoiceNumber: string
+  invoiceDate: string
+  status: TjxSubInvoiceStatus
+  isSubmitted: boolean
+  rejectedCount: number
+  subtotal: string
+  tax: string
+  total: string
+  subcontractorInvoiceId: number | null
+  submittedAt: string | null
+  updatedAt: string
+}
+
+export interface TjxSubInvoiceFixtureRow {
+  id: number
+  quoteFixtureId: number | null
+  roomName: string
+  fixtureName: string
+  quotedQuantity: string
+  installedQuantity: string
+  discrepancyNotes: string | null
+  sortOrder: number
+}
+
+export interface TjxSubInvoicePartRow {
+  partNo: string
+  description: string | null
+  quantity: string
+  unitRate: string
+  lineSubtotal: string
+  rateSource: string
+  sortOrder: number
+}
+
+export interface TjxSubInvoiceDocumentRow {
+  documentId: string
+  kind: TjxGateKind
+  filename: string
+  createdAt: string
+}
+
+export interface TjxSubInvoiceSubmissionRow {
+  revisionNo: number
+  subcontractorInvoiceId: number | null
+  submittedAt: string
+  outcome: string
+  rejectionReason: string | null
+}
+
+export interface TjxSubInvoiceRevisionRow {
+  id: number
+  revisionNo: number
+  revisionType: string
+  createdAt: string
+}
+
+export interface TjxSubInvoiceDetail {
+  id: number
+  quoteId: number
+  quoteNumber: number
+  workOrderId: number
+  subcontractorId: number
+  invoiceNumber: string
+  invoiceDate: string
+  taxProvince: string
+  appliedTaxRate: string | null
+  notes: string | null
+  subNotes: string | null
+  subtotal: string
+  tax: string
+  taxGst: string
+  taxPst: string
+  total: string
+  chkProjectReading: boolean
+  chkProjectPhotos: boolean
+  chkProjectSignoff: boolean
+  isSubmitted: boolean
+  rejectedCount: number
+  status: TjxSubInvoiceStatus
+  subcontractorInvoiceId: number | null
+  submittedAt: string | null
+  approvedAt: string | null
+  rejectedAt: string | null
+  version: number
+  updatedAt: string
+  fixtures: TjxSubInvoiceFixtureRow[]
+  parts: TjxSubInvoicePartRow[]
+  documents: TjxSubInvoiceDocumentRow[]
+  submissions: TjxSubInvoiceSubmissionRow[]
+  revisions: TjxSubInvoiceRevisionRow[]
+  missingRates: string[]
+}
+
+export interface TjxAssignedTjxWorkOrderRow {
+  workOrderId: number
+  quoteId: number
+  siteName: string | null
+  invoiceId: number | null
+  invoiceStatus: TjxSubInvoiceStatus | null
+  total: string | null
+  rejectedCount: number | null
+  updatedAt: string | null
+}
+
+export interface TjxSubInvoiceSaveInput {
+  workOrderId: number
+  version: number
+  invoiceNumber: string
+  invoiceDate: string
+  taxProvince: string
+  notes: string | null
+  subNotes: string | null
+  fixtures: {
+    quoteFixtureId: number | null
+    roomName: string
+    fixtureName: string
+    quotedQuantity: string
+    installedQuantity: string
+    discrepancyNotes: string | null
+    sortOrder: number
+  }[]
+}
+
+
