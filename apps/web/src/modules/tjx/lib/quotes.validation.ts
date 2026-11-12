@@ -141,6 +141,19 @@ export const searchSitesSchema = z.object({
   limit: z.number().int().min(1).max(50).default(10),
 })
 
+export const transitionSchema = z.object({
+  id: z.number().int().positive(),
+  version: z.number().int().positive(),
+})
+
+export const revisionSchema = transitionSchema.extend({
+  notes: optionalText(2000),
+})
+
+export const documentIdSchema = z.object({
+  documentId: z.string().uuid(),
+})
+
 export type CreateQuoteInput = z.infer<typeof createQuoteSchema>
 export type SaveQuoteInput = z.infer<typeof saveQuoteSchema>
 export type QuoteListInput = z.infer<typeof quoteListSchema>

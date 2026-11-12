@@ -13,7 +13,14 @@ export const PDF_SCHEMA_VERSION = 1 as const
 /** Version of the layout/renderer contract, recorded with generated documents. */
 export const PDF_RENDERER_VERSION = '0.1.0' as const
 
-export const DOCUMENT_KINDS = ['quote', 'packing-slip', 'invoice', 'rga'] as const
+export const DOCUMENT_KINDS = [
+  'quote',
+  'packing-slip',
+  'invoice',
+  'rga',
+  'tjx-quote',
+  'tjx-order-sheet',
+] as const
 
 export type DocumentKind = (typeof DOCUMENT_KINDS)[number]
 
@@ -153,11 +160,119 @@ export const rgaDocumentDataSchema = z.strictObject({
 export type RgaLine = z.infer<typeof rgaLineSchema>
 export type RgaDocumentData = z.infer<typeof rgaDocumentDataSchema>
 
+/* ---------------------------------- TJX ----------------------------------- */
+
+export const tjxScopeFixtureSchema = z.strictObject({
+  name: nonEmptyText('Fixture name'),
+  quantity: decimalStringSchema,
+})
+
+export const tjxScopeRoomSchema = z.strictObject({
+  name: nonEmptyText('Room name'),
+  fixtures: z.array(tjxScopeFixtureSchema),
+})
+
+const tjxScopeSchema = z.array(tjxScopeRoomSchema)
+
+export const tjxQuoteLineSchema = z.strictObject({
+  position: z.number().int().positive(),
+  partNumber: optionalText('Part number'),
+  description: nonEmptyText('Description'),
+  quantity: decimalStringSchema,
+  unitPrice: decimalStringSchema,
+  lineTotal: decimalStringSchema,
+})
+
+export const tjxSpecialLineSchema = z.strictObject({
+  position: z.number().int().positive(),
+  description: nonEmptyText('Special part name'),
+  quantity: decimalStringSchema,
+  unitPrice: decimalStringSchema,
+  lineTotal: decimalStringSchema,
+})
+
+export const tjxQuoteDocumentDataSchema = z.strictObject({
+  schemaVersion: z.literal(PDF_SCHEMA_VERSION),
+  kind: z.literal('tjx-quote'),
+  number: nonEmptyText('TJX quote number'),
+  revision: optionalText('Revision'),
+  issuedOn: z.iso.date(),
+  dueDate: z.iso.date().optional(),
+  customer: addressBlockDataSchema,
+  shipTo: addressBlockDataSchema.optional(),
+  quoteType: nonEmptyText('Quote type'),
+  gridType: optionalText('Ceiling grid'),
+  paymentTerms: optionalText('Payment terms'),
+  rooms: tjxScopeSchema,
+  lines: z.array(tjxQuoteLineSchema),
+  specialParts: z.array(tjxSpecialLineSchema),
+  totals: quoteTotalsSchema,
+  notes: noteListSchema,
+}).superRefine((data, ctx) => {
+  if (data.lines.length === 0 && data.specialParts.length === 0) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['lines'],
+      message: 'A TJX quote needs at least one part or special-part line',
+    })
+  }
+})
+
+export type TjxQuoteDocumentData = z.infer<typeof tjxQuoteDocumentDataSchema>
+
+export const tjxOrderSheetLineSchema = z.strictObject({
+  position: z.number().int().positive(),
+  partNumber: optionalText('Part number'),
+  description: nonEmptyText('Description'),
+  qtyWithMarkup: decimalStringSchema,
+  qtyWithoutMarkup: decimalStringSchema,
+  unitPrice: decimalStringSchema,
+  lineWithMarkup: decimalStringSchema,
+  lineWithoutMarkup: decimalStringSchema,
+})
+
+export const tjxOrderSheetTotalsSchema = z.strictObject({
+  withMarkup: quoteTotalsSchema,
+  withoutMarkup: quoteTotalsSchema,
+})
+
+export const tjxOrderSheetDocumentDataSchema = z.strictObject({
+  schemaVersion: z.literal(PDF_SCHEMA_VERSION),
+  kind: z.literal('tjx-order-sheet'),
+  number: nonEmptyText('TJX order-sheet number'),
+  revision: optionalText('Revision'),
+  issuedOn: z.iso.date(),
+  dueDate: z.iso.date().optional(),
+  customer: addressBlockDataSchema,
+  shipTo: addressBlockDataSchema.optional(),
+  quoteType: nonEmptyText('Quote type'),
+  gridType: optionalText('Ceiling grid'),
+  paymentTerms: optionalText('Payment terms'),
+  rooms: tjxScopeSchema,
+  lines: z.array(tjxOrderSheetLineSchema),
+  specialParts: z.array(tjxSpecialLineSchema),
+  totals: tjxOrderSheetTotalsSchema,
+  workOrders: z.array(nonEmptyText('Work order')).optional(),
+  notes: noteListSchema,
+}).superRefine((data, ctx) => {
+  if (data.lines.length === 0 && data.specialParts.length === 0) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['lines'],
+      message: 'An order sheet needs at least one part or special-part line',
+    })
+  }
+})
+
+export type TjxOrderSheetDocumentData = z.infer<typeof tjxOrderSheetDocumentDataSchema>
+
 export type DocumentData =
   | QuoteDocumentData
   | PackingSlipDocumentData
   | InvoiceDocumentData
   | RgaDocumentData
+  | TjxQuoteDocumentData
+  | TjxOrderSheetDocumentData
 
 /** The DTO a given document kind accepts, e.g. `DocumentDataFor<'quote'>`. */
 export type DocumentDataFor<TKind extends DocumentKind> = Extract<

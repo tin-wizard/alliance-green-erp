@@ -29,6 +29,14 @@ export {
   quoteDocumentDataSchema,
   packingSlipLineSchema,
   packingSlipDocumentDataSchema,
+  tjxScopeFixtureSchema,
+  tjxScopeRoomSchema,
+  tjxQuoteLineSchema,
+  tjxSpecialLineSchema,
+  tjxQuoteDocumentDataSchema,
+  tjxOrderSheetLineSchema,
+  tjxOrderSheetTotalsSchema,
+  tjxOrderSheetDocumentDataSchema,
   type AddressBlockData,
   type DocumentData,
   type DocumentDataFor,
@@ -38,6 +46,8 @@ export {
   type QuoteDocumentData,
   type QuoteLine,
   type QuoteTotals,
+  type TjxOrderSheetDocumentData,
+  type TjxQuoteDocumentData,
 } from './types'
 
 export {
@@ -69,5 +79,13 @@ export {
 
 export { QuoteDocument, type QuoteDocumentProps } from './documents/quote'
 export { PackingSlipDocument, type PackingSlipDocumentProps } from './documents/packing-slip'
+export {
+  TjxQuoteDocument,
+  type TjxQuoteDocumentProps,
+} from './documents/tjx-quote'
+export {
+  TjxOrderSheetDocument,
+  type TjxOrderSheetDocumentProps,
+} from './documents/tjx-order-sheet'
 
 export { formatIsoDate, addressLines } from './format'

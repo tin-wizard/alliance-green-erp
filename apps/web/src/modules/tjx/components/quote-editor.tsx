@@ -392,6 +392,7 @@ export function TjxQuoteEditor({ quote }: { quote: TjxQuoteDetail }) {
       const prices = priceMapFrom(saved)
       setBaselinePrices(prices)
       setPriceInputs((current) => ({ ...prices, ...current }))
+      queryClient.setQueryData(['tjx', 'quote', quote.id], saved)
       void queryClient.invalidateQueries({ queryKey: ['tjx', 'quotes'] })
       void queryClient.invalidateQueries({ queryKey: ['tjx', 'quote', quote.id] })
     },

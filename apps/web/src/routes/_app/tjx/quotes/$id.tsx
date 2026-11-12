@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { getSessionFn } from '../../../../server/auth.functions'
 import { getTjxQuoteFn } from '../../../../modules/tjx/server/quotes.functions'
 import { MasterPage } from '../../../../modules/tjx/components/master-ui'
+import { TjxQuoteActions } from '../../../../modules/tjx/components/quote-actions'
 import { TjxQuoteEditor } from '../../../../modules/tjx/components/quote-editor'
 import { ErrorPanel } from '../../../../modules/work-orders/components/ui'
 
@@ -40,7 +41,10 @@ function QuoteDetailPage() {
       ) : quote.isError ? (
         <ErrorPanel message={quote.error.message} retry={() => void quote.refetch()} />
       ) : quote.data ? (
-        <TjxQuoteEditor key={`${quote.data.id}-${quote.data.updatedAt}`} quote={quote.data} />
+        <div className="space-y-4">
+          <TjxQuoteActions quote={quote.data} />
+          <TjxQuoteEditor key={String(quote.data.id)} quote={quote.data} />
+        </div>
       ) : null}
     </MasterPage>
   )

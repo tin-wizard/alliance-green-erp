@@ -8,17 +8,23 @@ import { InvoiceDocument } from './documents/invoice'
 import { PackingSlipDocument } from './documents/packing-slip'
 import { QuoteDocument } from './documents/quote'
 import { RgaDocument } from './documents/rga'
+import { TjxOrderSheetDocument } from './documents/tjx-order-sheet'
+import { TjxQuoteDocument } from './documents/tjx-quote'
 import { LETTER_PAGE, type PageSpec } from './theme'
 import {
   invoiceDocumentDataSchema,
   packingSlipDocumentDataSchema,
   quoteDocumentDataSchema,
   rgaDocumentDataSchema,
+  tjxOrderSheetDocumentDataSchema,
+  tjxQuoteDocumentDataSchema,
   type DocumentData,
   type InvoiceDocumentData,
   type PackingSlipDocumentData,
   type QuoteDocumentData,
   type RgaDocumentData,
+  type TjxOrderSheetDocumentData,
+  type TjxQuoteDocumentData,
 } from './types'
 
 export interface PdfDocumentDefinition<TData extends DocumentData = DocumentData> {
@@ -35,6 +41,8 @@ export interface PdfDocumentRegistry {
   readonly 'packing-slip': PdfDocumentDefinition<PackingSlipDocumentData>
   readonly invoice: PdfDocumentDefinition<InvoiceDocumentData>
   readonly rga: PdfDocumentDefinition<RgaDocumentData>
+  readonly 'tjx-quote': PdfDocumentDefinition<TjxQuoteDocumentData>
+  readonly 'tjx-order-sheet': PdfDocumentDefinition<TjxOrderSheetDocumentData>
 }
 
 export const PDF_REGISTRY: PdfDocumentRegistry = {
@@ -64,6 +72,20 @@ export const PDF_REGISTRY: PdfDocumentRegistry = {
     title: 'Return goods authorization',
     schema: rgaDocumentDataSchema,
     component: RgaDocument,
+    page: LETTER_PAGE,
+  },
+  'tjx-quote': {
+    kind: 'tjx-quote',
+    title: 'TJX fixture quotation',
+    schema: tjxQuoteDocumentDataSchema,
+    component: TjxQuoteDocument,
+    page: LETTER_PAGE,
+  },
+  'tjx-order-sheet': {
+    kind: 'tjx-order-sheet',
+    title: 'TJX order sheet',
+    schema: tjxOrderSheetDocumentDataSchema,
+    component: TjxOrderSheetDocument,
     page: LETTER_PAGE,
   },
 }

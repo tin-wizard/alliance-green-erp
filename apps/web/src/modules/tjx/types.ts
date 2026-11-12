@@ -264,3 +264,22 @@ export interface TjxQuoteSaveInput extends TjxQuoteHeaderInput {
   priceOverrides: TjxQuotePriceOverrideInput[]
 }
 
+export interface TjxPdfResult {
+  documentId: string
+  url: string | null
+  sha256: string
+  byteSize: number
+  pageCount: number | null
+}
+
+export interface TjxGeneratedDocument {
+  id: string
+  kind: string
+  schemaVersion: number
+  sha256: string
+  byteSize: number
+  pageCount: number | null
+  createdAt: string
+  url: string | null
+}
+

@@ -18,8 +18,11 @@ export function Totals({ rows }: TotalsProps) {
   return (
     <View style={styles.wrapper} wrap={false}>
       <View style={styles.block}>
-        {rows.map((row) => (
-          <View key={row.label} style={[styles.row, row.emphasis ? styles.rowEmphasis : undefined]}>
+        {rows.map((row, index) => (
+          <View
+            key={`${row.label}-${index}`}
+            style={[styles.row, row.emphasis ? styles.rowEmphasis : undefined]}
+          >
             <Text style={[styles.label, row.emphasis ? styles.labelEmphasis : undefined]}>
               {row.label}
             </Text>

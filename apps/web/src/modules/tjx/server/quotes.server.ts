@@ -383,7 +383,7 @@ function calculate(input: ReturnType<typeof calculatorInput>): TjxQuoteCalculati
   }
 }
 
-function revisionQuoteData(row: typeof tjxQuotes.$inferSelect): Record<string, unknown> {
+export function revisionQuoteData(row: typeof tjxQuotes.$inferSelect): Record<string, unknown> {
   return {
     id: row.id,
     status: row.status,
@@ -419,7 +419,7 @@ function revisionQuoteData(row: typeof tjxQuotes.$inferSelect): Record<string, u
   }
 }
 
-async function nextSaveSeq(tx: Tx, quoteId: number): Promise<number> {
+export async function nextSaveSeq(tx: Tx, quoteId: number): Promise<number> {
   const [row] = await tx
     .select({ max: sql<number>`coalesce(max(${tjxQuoteRevisions.saveSeq}), 0)::int` })
     .from(tjxQuoteRevisions)
