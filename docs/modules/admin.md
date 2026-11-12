@@ -52,7 +52,7 @@ Current keys:
 
 | Key | Type | Default | Meaning |
 | --- | --- | --- | --- |
-| `company.name` | string | `Alliance Lighting` | Trading name used by the application. |
+| `company.name` | string | `Alliance Lighting` | Trading name available to the application and generated documents. |
 | `company.timezone` | string | `America/Toronto` | Business timezone for dates and reminders. |
 | `reports.default_page_size` | number | `100` | Rows shown when a report opens (25–500). |
 | `compliance.expiry_warning_days` | number | `30` | Window in which a current document is expiring (1–365). |

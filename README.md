@@ -18,12 +18,15 @@ Foundation scaffold, bootable and verified:
 - app schema (`app`) for users, permissions and audit
 - object storage adapter (Neon S3 + local fallback)
 - AI Gateway client seam, feature-flagged off (`credits_required`)
-- app shell (sidebar, top bar, dashboard, admin placeholders)
+- app shell (sidebar, top bar, dashboard, admin users, settings and activity log)
 - health, readiness and liveness endpoints covering every service
 - Sage 50 discovery and connection verification (MySQL sentinel, 13541 first)
 - design tokens adopted from the design agent, no placeholder palette
 
-Business modules are not built yet. Work Orders is first. **No business data was loaded.**
+Business modules built: work orders, quotes, master data, purchasing, inventory,
+invoicing, RGAs and warranties, reports, compliance, messaging and admin.
+ServiceChannel, the quarterly sub-stock PDF cron, TJX historical PDFs and the
+on-behalf TJX invoice are deferred. **No production business data was loaded.**
 
 ## Quick start
 
@@ -47,11 +50,13 @@ pnpm dev                       # Vite dev server with HMR
 Without a database the app still boots: `/api/health` returns `degraded`, the login page renders
 and `/api/ready` returns 503. That is intentional.
 
-Public sign-up is disabled; identities are created by an administrator. On a new install, create
-the identity in Neon Auth, verify the address, set `SEED_ADMIN_EMAIL`, run `pnpm db:seed`, and sign
-in once to link the admin row. On this machine the first admin is `developer@tin.info`; its
-password lives only in the gitignored `.secrets/neon-auth-admin.txt`. See
-`platform/AUTH-RBAC.md` §3.
+Public sign-up is disabled; identities are created by an administrator from
+`/admin/users`, which creates the Neon Auth identity, adds the application role
+and sends a password-reset link. On a new install, create the identity in Neon
+Auth, verify the address, set `SEED_ADMIN_EMAIL`, run `pnpm db:seed`, and sign in
+once to link the admin row. On this machine the first admin is
+`developer@tin.info`; its password lives only in the gitignored
+`.secrets/neon-auth-admin.txt`. See `platform/AUTH-RBAC.md` §3.
 
 ## Scripts
 
@@ -62,7 +67,7 @@ password lives only in the gitignored `.secrets/neon-auth-admin.txt`. See
 | `pnpm start` | Runs `scripts/start.mjs` (loads `.env`, starts Nitro) |
 | `pnpm typecheck` | `tsc --noEmit` across the app graph |
 | `pnpm lint` | ESLint |
-| `pnpm test` | Vitest unit tests |
+| `pnpm test` | Vitest unit and database integration tests |
 | `pnpm test:e2e` | Build, then Playwright against the production output |
 | `pnpm db:generate:schema` | Regenerate the legacy mirror from `packages/db/contract/schema.json` |
 | `pnpm db:generate` | Generate a migration from schema changes |
