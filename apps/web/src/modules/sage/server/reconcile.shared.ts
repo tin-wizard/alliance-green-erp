@@ -4,7 +4,7 @@
  * Kept in one place so the two runners cannot disagree about what a cent is, how
  * a paged collection is unwrapped, or which API collection holds a document type.
  */
-import type { SageRequest, SageResponse } from '@cls/sage'
+import type { QuotaClass, SageRequest, SageResponse } from '@cls/sage'
 
 /** The sliver of the HTTP client a run needs. Keeps runs testable without a socket. */
 export interface ReconcileHttp {
@@ -34,7 +34,17 @@ export function itemsOf(json: unknown): Record<string, unknown>[] {
   return Array.isArray(items) ? (items as Record<string, unknown>[]) : []
 }
 
-export async function getJson(http: ReconcileHttp, path: string): Promise<unknown> {
-  const response = await http.request({ method: 'GET', path, quotaClass: 'reconcile' })
+/**
+ * One read, charged to the class the work belongs to. The daily run is
+ * `reconcile`; the 30-minute poll is `sync`, because polling is not
+ * reconciliation and its volume (six calls an hour) must not spend the run's
+ * budget.
+ */
+export async function getJson(
+  http: ReconcileHttp,
+  path: string,
+  quotaClass: QuotaClass = 'reconcile',
+): Promise<unknown> {
+  const response = await http.request({ method: 'GET', path, quotaClass })
   return response.json
 }

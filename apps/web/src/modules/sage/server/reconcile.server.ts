@@ -426,6 +426,7 @@ export async function pollResourceFeeds(
       const json = await getJson(
         http,
         `${resource}?updated_or_created_since=${encodeURIComponent(since)}&items_per_page=50`,
+        'sync',
       )
       let pending = false
       for (const item of itemsOf(json)) {
@@ -446,6 +447,7 @@ export async function pollResourceFeeds(
       const deleted = await getJson(
         http,
         `${resource}?deleted_since=${encodeURIComponent(since)}&items_per_page=50`,
+        'sync',
       )
       for (const item of itemsOf(deleted)) {
         const apiId = item.id === undefined ? '' : String(item.id)
