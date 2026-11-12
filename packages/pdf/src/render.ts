@@ -111,23 +111,37 @@ export async function renderDocument<TKind extends DocumentKind>(
       return await renderToBuffer(element)
     } catch (error) {
       throw new PdfRenderError(
-        `Failed to render ${definition.kind} ${parsed.number}.`,
+        `Failed to render ${definition.kind} ${documentLabel(parsed)}.`,
         { cause: error },
       )
     }
   })
 }
 
+function documentLabel(data: DocumentData): string {
+  if ('number' in data) return data.number
+  if ('title' in data) return data.title
+  return 'document'
+}
+
+function documentDate(data: DocumentData): string {
+  if ('issuedOn' in data) return data.issuedOn
+  if ('generatedOn' in data) return data.generatedOn
+  return '1970-01-01'
+}
+
 /**
  * PDF metadata required by the ADR. Dates are derived from the DTO's `issuedOn`
- * rather than the wall clock so two renders of one snapshot are byte-identical.
+ * (or a report's `generatedOn`) rather than the wall clock so two renders of one
+ * snapshot are byte-identical.
  */
 function buildMetadata(definition: PdfDocumentDefinition, data: DocumentData): DocumentProps {
-  const timestamp = new Date(`${data.issuedOn}T12:00:00.000Z`)
+  const timestamp = new Date(`${documentDate(data)}T12:00:00.000Z`)
+  const label = documentLabel(data)
   return {
-    title: `${definition.title} ${data.number}`,
+    title: `${definition.title} ${label}`,
     author: 'Alliance Lighting',
-    subject: `${definition.kind} ${data.number}`,
+    subject: `${definition.kind} ${label}`,
     creator: 'CLS Green ERP',
     producer: `@cls/pdf ${PDF_RENDERER_VERSION}`,
     language: 'en-CA',

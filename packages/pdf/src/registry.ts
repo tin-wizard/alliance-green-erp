@@ -7,6 +7,7 @@ import type { z } from 'zod'
 import { InvoiceDocument } from './documents/invoice'
 import { PackingSlipDocument } from './documents/packing-slip'
 import { QuoteDocument } from './documents/quote'
+import { ReportDocument } from './documents/report'
 import { RgaDocument } from './documents/rga'
 import { TjxOrderSheetDocument } from './documents/tjx-order-sheet'
 import { TjxQuoteDocument } from './documents/tjx-quote'
@@ -15,6 +16,7 @@ import {
   invoiceDocumentDataSchema,
   packingSlipDocumentDataSchema,
   quoteDocumentDataSchema,
+  reportDocumentDataSchema,
   rgaDocumentDataSchema,
   tjxOrderSheetDocumentDataSchema,
   tjxQuoteDocumentDataSchema,
@@ -22,6 +24,7 @@ import {
   type InvoiceDocumentData,
   type PackingSlipDocumentData,
   type QuoteDocumentData,
+  type ReportDocumentData,
   type RgaDocumentData,
   type TjxOrderSheetDocumentData,
   type TjxQuoteDocumentData,
@@ -43,6 +46,7 @@ export interface PdfDocumentRegistry {
   readonly rga: PdfDocumentDefinition<RgaDocumentData>
   readonly 'tjx-quote': PdfDocumentDefinition<TjxQuoteDocumentData>
   readonly 'tjx-order-sheet': PdfDocumentDefinition<TjxOrderSheetDocumentData>
+  readonly report: PdfDocumentDefinition<ReportDocumentData>
 }
 
 export const PDF_REGISTRY: PdfDocumentRegistry = {
@@ -86,6 +90,13 @@ export const PDF_REGISTRY: PdfDocumentRegistry = {
     title: 'TJX order sheet',
     schema: tjxOrderSheetDocumentDataSchema,
     component: TjxOrderSheetDocument,
+    page: LETTER_PAGE,
+  },
+  report: {
+    kind: 'report',
+    title: 'Report',
+    schema: reportDocumentDataSchema,
+    component: ReportDocument,
     page: LETTER_PAGE,
   },
 }

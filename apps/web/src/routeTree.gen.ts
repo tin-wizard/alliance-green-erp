@@ -31,6 +31,7 @@ import { Route as AppPurchasingIndexRouteImport } from './routes/_app/purchasing
 import { Route as AppPurchasingNewRouteImport } from './routes/_app/purchasing/new'
 import { Route as AppQuotesIndexRouteImport } from './routes/_app/quotes/index'
 import { Route as AppQuotesNewRouteImport } from './routes/_app/quotes/new'
+import { Route as AppReportsIndexRouteImport } from './routes/_app/reports/index'
 import { Route as AppRgasIndexRouteImport } from './routes/_app/rgas/index'
 import { Route as AppRgasIdRouteImport } from './routes/_app/rgas/$id'
 import { Route as AppRgasNewRouteImport } from './routes/_app/rgas/new'
@@ -204,6 +205,11 @@ const AppQuotesIndexRoute = AppQuotesIndexRouteImport.update({
 const AppQuotesNewRoute = AppQuotesNewRouteImport.update({
   id: '/quotes/new',
   path: '/quotes/new',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppReportsIndexRoute = AppReportsIndexRouteImport.update({
+  id: '/reports/',
+  path: '/reports/',
   getParentRoute: () => AppRoute,
 } as any)
 const AppRgasIndexRoute = AppRgasIndexRouteImport.update({
@@ -581,6 +587,7 @@ export interface FileRoutesByFullPath {
   '/master-data/': typeof AppMasterDataIndexRoute
   '/purchasing/': typeof AppPurchasingIndexRoute
   '/quotes/': typeof AppQuotesIndexRoute
+  '/reports/': typeof AppReportsIndexRoute
   '/rgas/': typeof AppRgasIndexRoute
   '/tjx/': typeof AppTjxIndexRoute
   '/warranties/': typeof AppWarrantiesIndexRoute
@@ -668,6 +675,7 @@ export interface FileRoutesByTo {
   '/master-data': typeof AppMasterDataIndexRoute
   '/purchasing': typeof AppPurchasingIndexRoute
   '/quotes': typeof AppQuotesIndexRoute
+  '/reports': typeof AppReportsIndexRoute
   '/rgas': typeof AppRgasIndexRoute
   '/tjx': typeof AppTjxIndexRoute
   '/warranties': typeof AppWarrantiesIndexRoute
@@ -756,6 +764,7 @@ export interface FileRoutesById {
   '/_app/master-data/': typeof AppMasterDataIndexRoute
   '/_app/purchasing/': typeof AppPurchasingIndexRoute
   '/_app/quotes/': typeof AppQuotesIndexRoute
+  '/_app/reports/': typeof AppReportsIndexRoute
   '/_app/rgas/': typeof AppRgasIndexRoute
   '/_app/tjx/': typeof AppTjxIndexRoute
   '/_app/warranties/': typeof AppWarrantiesIndexRoute
@@ -845,6 +854,7 @@ export interface FileRouteTypes {
     | '/master-data/'
     | '/purchasing/'
     | '/quotes/'
+    | '/reports/'
     | '/rgas/'
     | '/tjx/'
     | '/warranties/'
@@ -932,6 +942,7 @@ export interface FileRouteTypes {
     | '/master-data'
     | '/purchasing'
     | '/quotes'
+    | '/reports'
     | '/rgas'
     | '/tjx'
     | '/warranties'
@@ -1019,6 +1030,7 @@ export interface FileRouteTypes {
     | '/_app/master-data/'
     | '/_app/purchasing/'
     | '/_app/quotes/'
+    | '/_app/reports/'
     | '/_app/rgas/'
     | '/_app/tjx/'
     | '/_app/warranties/'
@@ -1248,6 +1260,13 @@ declare module '@tanstack/react-router' {
       path: '/quotes/new'
       fullPath: '/quotes/new'
       preLoaderRoute: typeof AppQuotesNewRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/reports/': {
+      id: '/_app/reports/'
+      path: '/reports'
+      fullPath: '/reports/'
+      preLoaderRoute: typeof AppReportsIndexRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/rgas/': {
@@ -1735,6 +1754,7 @@ interface AppRouteChildren {
   AppMasterDataIndexRoute: typeof AppMasterDataIndexRoute
   AppPurchasingIndexRoute: typeof AppPurchasingIndexRoute
   AppQuotesIndexRoute: typeof AppQuotesIndexRoute
+  AppReportsIndexRoute: typeof AppReportsIndexRoute
   AppRgasIndexRoute: typeof AppRgasIndexRoute
   AppTjxIndexRoute: typeof AppTjxIndexRoute
   AppWarrantiesIndexRoute: typeof AppWarrantiesIndexRoute
@@ -1809,6 +1829,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppMasterDataIndexRoute: AppMasterDataIndexRoute,
   AppPurchasingIndexRoute: AppPurchasingIndexRoute,
   AppQuotesIndexRoute: AppQuotesIndexRoute,
+  AppReportsIndexRoute: AppReportsIndexRoute,
   AppRgasIndexRoute: AppRgasIndexRoute,
   AppTjxIndexRoute: AppTjxIndexRoute,
   AppWarrantiesIndexRoute: AppWarrantiesIndexRoute,

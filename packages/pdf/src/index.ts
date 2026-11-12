@@ -37,6 +37,8 @@ export {
   tjxOrderSheetLineSchema,
   tjxOrderSheetTotalsSchema,
   tjxOrderSheetDocumentDataSchema,
+  reportColumnSchema,
+  reportDocumentDataSchema,
   type AddressBlockData,
   type DocumentData,
   type DocumentDataFor,
@@ -46,6 +48,8 @@ export {
   type QuoteDocumentData,
   type QuoteLine,
   type QuoteTotals,
+  type ReportColumn,
+  type ReportDocumentData,
   type TjxOrderSheetDocumentData,
   type TjxQuoteDocumentData,
 } from './types'
@@ -87,5 +91,6 @@ export {
   TjxOrderSheetDocument,
   type TjxOrderSheetDocumentProps,
 } from './documents/tjx-order-sheet'
+export { ReportDocument, type ReportDocumentProps } from './documents/report'
 
 export { formatIsoDate, addressLines } from './format'

@@ -20,6 +20,7 @@ export const DOCUMENT_KINDS = [
   'rga',
   'tjx-quote',
   'tjx-order-sheet',
+  'report',
 ] as const
 
 export type DocumentKind = (typeof DOCUMENT_KINDS)[number]
@@ -266,6 +267,26 @@ export const tjxOrderSheetDocumentDataSchema = z.strictObject({
 
 export type TjxOrderSheetDocumentData = z.infer<typeof tjxOrderSheetDocumentDataSchema>
 
+export const reportColumnSchema = z.strictObject({
+  label: nonEmptyText('Report column label'),
+  align: z.enum(['left', 'right']).default('left'),
+})
+
+export const reportDocumentDataSchema = z.strictObject({
+  schemaVersion: z.literal(PDF_SCHEMA_VERSION),
+  kind: z.literal('report'),
+  title: nonEmptyText('Report title'),
+  subtitle: optionalText('Report subtitle'),
+  generatedOn: z.iso.date(),
+  filters: z.array(nonEmptyText('Report filter')),
+  columns: z.array(reportColumnSchema).min(1, 'A report needs at least one column'),
+  rows: z.array(z.array(z.string())).max(5000),
+  totals: z.array(z.string()).optional(),
+})
+
+export type ReportColumn = z.infer<typeof reportColumnSchema>
+export type ReportDocumentData = z.infer<typeof reportDocumentDataSchema>
+
 export type DocumentData =
   | QuoteDocumentData
   | PackingSlipDocumentData
@@ -273,6 +294,7 @@ export type DocumentData =
   | RgaDocumentData
   | TjxQuoteDocumentData
   | TjxOrderSheetDocumentData
+  | ReportDocumentData
 
 /** The DTO a given document kind accepts, e.g. `DocumentDataFor<'quote'>`. */
 export type DocumentDataFor<TKind extends DocumentKind> = Extract<
