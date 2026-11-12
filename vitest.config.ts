@@ -5,7 +5,7 @@ export default defineConfig({
     tsconfigPaths: true,
   },
   test: {
-    include: ['packages/**/*.test.ts', 'apps/web/src/**/*.test.ts'],
+    include: ['packages/**/*.test.ts', 'apps/web/src/**/*.test.ts', 'scripts/**/*.test.ts'],
     environment: 'node',
     globals: false,
     clearMocks: true,

@@ -1,0 +1,97 @@
+{
+  "dumpId": "sha256:26f0f32ef0a0e13c5d24778df1885f019abe1f26a0da4fa5a3c5297373e8d9d9",
+  "cohorts": {
+    "duplicate-username": 2,
+    "disabled": 3,
+    "orphan-vendor": 1,
+    "no-email": 1,
+    "shared-email": 2,
+    "unique-email": 3
+  },
+  "plans": [
+    {
+      "legacyId": 1,
+      "cohort": "duplicate-username",
+      "state": "blocked",
+      "emailHash": "bc571e419bd56d23864b7f4ca6c734505e8cdc218001de66ba95f1cc1d6d537c",
+      "note": "Resolve the duplicate before any invite; one canonical account."
+    },
+    {
+      "legacyId": 2,
+      "cohort": "duplicate-username",
+      "state": "blocked",
+      "emailHash": "30300bea1f51e19ad1474ffa5b43c966a6a00e6bf82358e9d91e393956b1d47c",
+      "note": "Resolve the duplicate before any invite; one canonical account."
+    },
+    {
+      "legacyId": 3,
+      "cohort": "disabled",
+      "state": "disabled",
+      "emailHash": "3230f2f0cd1c6b45bbc143c8a46ac5103cedc76358732a39828fb68a71bf12aa",
+      "note": "Migrated disabled. No credential and no invite."
+    },
+    {
+      "legacyId": 4,
+      "cohort": "disabled",
+      "state": "disabled",
+      "emailHash": "d34227690ab35bc170902ce2e94ec1fb6d23ce6daf773bffd878c9766b8f001f",
+      "note": "Migrated disabled. No credential and no invite."
+    },
+    {
+      "legacyId": 5,
+      "cohort": "disabled",
+      "state": "disabled",
+      "emailHash": "cacd91f346dd39b871cf2d125c61fd2bbd5fa09b8d2131cd785aa5b21b879bd9",
+      "note": "Migrated disabled. No credential and no invite."
+    },
+    {
+      "legacyId": 6,
+      "cohort": "orphan-vendor",
+      "state": "blocked",
+      "emailHash": "d6ed0b7b3d533e9a1f543eb27487ad095bd841e0687f1ef25877966ef894296c",
+      "note": "No vendor row for subid. Resolve with Sage before inviting."
+    },
+    {
+      "legacyId": 7,
+      "cohort": "no-email",
+      "state": "blocked",
+      "emailHash": null,
+      "note": "Identity verified by phone, one-time code from the office."
+    },
+    {
+      "legacyId": 8,
+      "cohort": "shared-email",
+      "state": "pending",
+      "emailHash": "4613b2bae925fd966b834cf8a53a20865c725ec54028759142ef22f25a710702",
+      "note": "Office-assisted onboarding: never a shared password."
+    },
+    {
+      "legacyId": 9,
+      "cohort": "shared-email",
+      "state": "pending",
+      "emailHash": "4613b2bae925fd966b834cf8a53a20865c725ec54028759142ef22f25a710702",
+      "note": "Office-assisted onboarding: never a shared password."
+    },
+    {
+      "legacyId": 10,
+      "cohort": "unique-email",
+      "state": "ready",
+      "emailHash": "647b8654f8bfaa6e636af04319318a3b37b443cd7cdc5e2990baeaa72860befc",
+      "note": "Force reset: invite with a hashed single-use link."
+    },
+    {
+      "legacyId": 11,
+      "cohort": "unique-email",
+      "state": "ready",
+      "emailHash": "8106989ea803708ae130c3d7a35b0c1c65f9e305cac9ef5803db97f7b3ab47c0",
+      "note": "Force reset: invite with a hashed single-use link."
+    },
+    {
+      "legacyId": 12,
+      "cohort": "unique-email",
+      "state": "ready",
+      "emailHash": "a832c908c891874d51c65f8f9212f1ee65cfb020049374c7bf3de7f604945a78",
+      "note": "Force reset: invite with a hashed single-use link."
+    }
+  ]
+}

@@ -1,0 +1,791 @@
+{
+  "generatedAt": "2026-11-12T00:00:00.000Z",
+  "source": "synthetic",
+  "file": "alliance_db_synthetic.sql",
+  "sha256": "26f0f32ef0a0e13c5d24778df1885f019abe1f26a0da4fa5a3c5297373e8d9d9",
+  "sizeBytes": 209817,
+  "tables": [
+    {
+      "table": "wo_status",
+      "rows": 5
+    },
+    {
+      "table": "wo_priority",
+      "rows": 3
+    },
+    {
+      "table": "wo_servtype",
+      "rows": 4
+    },
+    {
+      "table": "wo_categories",
+      "rows": 4
+    },
+    {
+      "table": "po_status",
+      "rows": 6
+    },
+    {
+      "table": "po_priority",
+      "rows": 3
+    },
+    {
+      "table": "po_preorder_status",
+      "rows": 3
+    },
+    {
+      "table": "customer_quote_status",
+      "rows": 4
+    },
+    {
+      "table": "standalone_quote_status",
+      "rows": 4
+    },
+    {
+      "table": "tjx_quote_status",
+      "rows": 4
+    },
+    {
+      "table": "rga_status",
+      "rows": 4
+    },
+    {
+      "table": "customer",
+      "rows": 6
+    },
+    {
+      "table": "sites",
+      "rows": 8
+    },
+    {
+      "table": "subcontractor",
+      "rows": 5
+    },
+    {
+      "table": "subcontractor_contact_info",
+      "rows": 5
+    },
+    {
+      "table": "suppliers",
+      "rows": 4
+    },
+    {
+      "table": "customer_emails",
+      "rows": 4
+    },
+    {
+      "table": "site_address_change_log",
+      "rows": 3
+    },
+    {
+      "table": "users",
+      "rows": 12
+    },
+    {
+      "table": "user_permissions",
+      "rows": 6
+    },
+    {
+      "table": "user_permissions_price_management",
+      "rows": 2
+    },
+    {
+      "table": "permission_type",
+      "rows": 0
+    },
+    {
+      "table": "parts",
+      "rows": 10
+    },
+    {
+      "table": "parts_group",
+      "rows": 3
+    },
+    {
+      "table": "parts_selling_rates",
+      "rows": 4
+    },
+    {
+      "table": "parts_selling_rates_list",
+      "rows": 2
+    },
+    {
+      "table": "parts_supplier_rates",
+      "rows": 3
+    },
+    {
+      "table": "parts_supplier_rates_list",
+      "rows": 2
+    },
+    {
+      "table": "parts_price_history",
+      "rows": 4
+    },
+    {
+      "table": "shared_parts_list",
+      "rows": 3
+    },
+    {
+      "table": "prf",
+      "rows": 2
+    },
+    {
+      "table": "wo_next_pid",
+      "rows": 1
+    },
+    {
+      "table": "parts_sub_suppliers",
+      "rows": 0
+    },
+    {
+      "table": "parts_supplier_model_rates",
+      "rows": 0
+    },
+    {
+      "table": "subcontractor_wsib_insurance_documents",
+      "rows": 3
+    },
+    {
+      "table": "subcontractor_additional_documents",
+      "rows": 3
+    },
+    {
+      "table": "material_warranty",
+      "rows": 3
+    },
+    {
+      "table": "site_warranty",
+      "rows": 3
+    },
+    {
+      "table": "signoff_cron",
+      "rows": 2
+    },
+    {
+      "table": "workorder",
+      "rows": 14
+    },
+    {
+      "table": "wo_hours",
+      "rows": 6
+    },
+    {
+      "table": "localwo_hours",
+      "rows": 3
+    },
+    {
+      "table": "localwo_techs",
+      "rows": 3
+    },
+    {
+      "table": "wo_soparts",
+      "rows": 4
+    },
+    {
+      "table": "wo_parts",
+      "rows": 8
+    },
+    {
+      "table": "wo_tax",
+      "rows": 4
+    },
+    {
+      "table": "wo_report",
+      "rows": 3
+    },
+    {
+      "table": "wo_notes",
+      "rows": 4
+    },
+    {
+      "table": "wo_revisions",
+      "rows": 2
+    },
+    {
+      "table": "wo_invoiceno",
+      "rows": 2
+    },
+    {
+      "table": "wo_images_cropped",
+      "rows": 2
+    },
+    {
+      "table": "localwo_cusprofile",
+      "rows": 0
+    },
+    {
+      "table": "localwo_hours_change_histroy",
+      "rows": 0
+    },
+    {
+      "table": "localwo_quotes",
+      "rows": 0
+    },
+    {
+      "table": "localwo_sigs",
+      "rows": 0
+    },
+    {
+      "table": "material_checklist",
+      "rows": 0
+    },
+    {
+      "table": "material_checklist_custom_entries",
+      "rows": 0
+    },
+    {
+      "table": "material_checklist_defective_parts",
+      "rows": 0
+    },
+    {
+      "table": "material_checklist_notes",
+      "rows": 0
+    },
+    {
+      "table": "material_checklist_parts",
+      "rows": 0
+    },
+    {
+      "table": "material_checklist_returning_custom_enteries",
+      "rows": 0
+    },
+    {
+      "table": "material_checklist_returning_parts",
+      "rows": 0
+    },
+    {
+      "table": "undispatched_workorders",
+      "rows": 0
+    },
+    {
+      "table": "customer_quote",
+      "rows": 5
+    },
+    {
+      "table": "customer_quote_hours",
+      "rows": 3
+    },
+    {
+      "table": "customer_quote_parts",
+      "rows": 4
+    },
+    {
+      "table": "customer_quote_soparts",
+      "rows": 3
+    },
+    {
+      "table": "customer_qo_packing_slip",
+      "rows": 2
+    },
+    {
+      "table": "customer_qo_packing_parts",
+      "rows": 3
+    },
+    {
+      "table": "standalone_quote",
+      "rows": 3
+    },
+    {
+      "table": "standalone_quote_hours",
+      "rows": 2
+    },
+    {
+      "table": "standalone_quote_parts",
+      "rows": 3
+    },
+    {
+      "table": "standalone_quote_soparts",
+      "rows": 2
+    },
+    {
+      "table": "rejected_quotes",
+      "rows": 2
+    },
+    {
+      "table": "customer_quote_payterms",
+      "rows": 0
+    },
+    {
+      "table": "customer_qo_packing_soparts",
+      "rows": 0
+    },
+    {
+      "table": "quote_hours",
+      "rows": 0
+    },
+    {
+      "table": "quote_hours_incurred",
+      "rows": 0
+    },
+    {
+      "table": "quote_parts",
+      "rows": 0
+    },
+    {
+      "table": "quote_parts_incurred",
+      "rows": 0
+    },
+    {
+      "table": "quote_report",
+      "rows": 0
+    },
+    {
+      "table": "quote_soparts",
+      "rows": 0
+    },
+    {
+      "table": "quote_soparts_incurred",
+      "rows": 0
+    },
+    {
+      "table": "calcquote_hours",
+      "rows": 0
+    },
+    {
+      "table": "calcquote_hours_incurred",
+      "rows": 0
+    },
+    {
+      "table": "calcquote_incurred",
+      "rows": 0
+    },
+    {
+      "table": "calcquote_parts",
+      "rows": 0
+    },
+    {
+      "table": "calcquote_parts_incurred",
+      "rows": 0
+    },
+    {
+      "table": "calcquote_report",
+      "rows": 0
+    },
+    {
+      "table": "calcquote_soparts",
+      "rows": 0
+    },
+    {
+      "table": "calcquote_soparts_incurred",
+      "rows": 0
+    },
+    {
+      "table": "purchaseorder",
+      "rows": 8
+    },
+    {
+      "table": "po_parts",
+      "rows": 10
+    },
+    {
+      "table": "po_soparts",
+      "rows": 4
+    },
+    {
+      "table": "po_preorder",
+      "rows": 2
+    },
+    {
+      "table": "po_preorder_parts",
+      "rows": 3
+    },
+    {
+      "table": "po_preorder_soparts",
+      "rows": 2
+    },
+    {
+      "table": "po_invoice",
+      "rows": 4
+    },
+    {
+      "table": "po_invoice_parts",
+      "rows": 4
+    },
+    {
+      "table": "po_quote",
+      "rows": 2
+    },
+    {
+      "table": "po_quote_requested_parts",
+      "rows": 3
+    },
+    {
+      "table": "rejected_invoices",
+      "rows": 2
+    },
+    {
+      "table": "po_quote_request_status",
+      "rows": 0
+    },
+    {
+      "table": "po_quote_submitted_status",
+      "rows": 0
+    },
+    {
+      "table": "po_quote_suppliers",
+      "rows": 0
+    },
+    {
+      "table": "po_quote_requested_parts_detail",
+      "rows": 0
+    },
+    {
+      "table": "po_supplier_quote",
+      "rows": 0
+    },
+    {
+      "table": "po_supplier_quote_parts",
+      "rows": 0
+    },
+    {
+      "table": "po_invoice_soparts",
+      "rows": 0
+    },
+    {
+      "table": "po_preorder_suppliers",
+      "rows": 0
+    },
+    {
+      "table": "po_submission_after_approval",
+      "rows": 0
+    },
+    {
+      "table": "parts_inventory",
+      "rows": 4
+    },
+    {
+      "table": "parts_inventory_adjustment",
+      "rows": 4
+    },
+    {
+      "table": "parts_purchased_inventory",
+      "rows": 3
+    },
+    {
+      "table": "parts_purchasing_log",
+      "rows": 3
+    },
+    {
+      "table": "parts_salepurchase_log",
+      "rows": 3
+    },
+    {
+      "table": "parts_selling_log",
+      "rows": 3
+    },
+    {
+      "table": "parts_price_lock",
+      "rows": 2
+    },
+    {
+      "table": "inv_project",
+      "rows": 5
+    },
+    {
+      "table": "inv_hours",
+      "rows": 4
+    },
+    {
+      "table": "inv_parts",
+      "rows": 5
+    },
+    {
+      "table": "inv_soparts",
+      "rows": 3
+    },
+    {
+      "table": "inv_tax",
+      "rows": 6
+    },
+    {
+      "table": "rga",
+      "rows": 4
+    },
+    {
+      "table": "rga_parts",
+      "rows": 4
+    },
+    {
+      "table": "rga_soparts",
+      "rows": 2
+    },
+    {
+      "table": "sc_inv_hours",
+      "rows": 0
+    },
+    {
+      "table": "sc_inv_parts",
+      "rows": 0
+    },
+    {
+      "table": "sc_inv_soparts",
+      "rows": 0
+    },
+    {
+      "table": "sc_inv_tax",
+      "rows": 0
+    },
+    {
+      "table": "tjx_quote",
+      "rows": 3
+    },
+    {
+      "table": "tjx_quote_fixtures",
+      "rows": 3
+    },
+    {
+      "table": "tjx_fixture_parts",
+      "rows": 3
+    },
+    {
+      "table": "tjx_quote_revisions",
+      "rows": 2
+    },
+    {
+      "table": "tjx_sub_invoice",
+      "rows": 2
+    },
+    {
+      "table": "tjx_subcontractor_rates",
+      "rows": 2
+    },
+    {
+      "table": "tjx_room",
+      "rows": 0
+    },
+    {
+      "table": "tjx_fixture",
+      "rows": 0
+    },
+    {
+      "table": "tjx_rooms_template",
+      "rows": 0
+    },
+    {
+      "table": "tjx_fixture_per_quote",
+      "rows": 0
+    },
+    {
+      "table": "tjx_fixture_parts_per_quote",
+      "rows": 0
+    },
+    {
+      "table": "tjx_quote_grid_types",
+      "rows": 0
+    },
+    {
+      "table": "tjx_quote_payterms",
+      "rows": 0
+    },
+    {
+      "table": "tjx_prices_per_quote",
+      "rows": 0
+    },
+    {
+      "table": "tjx_quote_parts",
+      "rows": 0
+    },
+    {
+      "table": "tjx_quote_soparts",
+      "rows": 0
+    },
+    {
+      "table": "tjx_quote_extra_workorders",
+      "rows": 0
+    },
+    {
+      "table": "tjx_quote_lastused_sharedpart",
+      "rows": 0
+    },
+    {
+      "table": "tjx_quote_downloads",
+      "rows": 0
+    },
+    {
+      "table": "tjx_sub_invoice_fixtures",
+      "rows": 0
+    },
+    {
+      "table": "tjx_sub_invoice_revisions",
+      "rows": 0
+    },
+    {
+      "table": "tjx_wo_parts",
+      "rows": 0
+    },
+    {
+      "table": "tjx_wo_soparts",
+      "rows": 0
+    },
+    {
+      "table": "messages",
+      "rows": 5
+    },
+    {
+      "table": "messages_links",
+      "rows": 4
+    },
+    {
+      "table": "messages_links_po",
+      "rows": 2
+    },
+    {
+      "table": "po_notification",
+      "rows": 3
+    },
+    {
+      "table": "rga_notification",
+      "rows": 3
+    },
+    {
+      "table": "cron_run_history",
+      "rows": 3
+    },
+    {
+      "table": "site_activity_logs",
+      "rows": 3
+    },
+    {
+      "table": "message_setup",
+      "rows": 0
+    },
+    {
+      "table": "email_messages_to_sub",
+      "rows": 0
+    },
+    {
+      "table": "sub_stock_messages",
+      "rows": 0
+    },
+    {
+      "table": "sub_stock_notification",
+      "rows": 0
+    },
+    {
+      "table": "inv_parts_july_20_2025",
+      "rows": 1
+    },
+    {
+      "table": "parts_backup_17dec25",
+      "rows": 1
+    },
+    {
+      "table": "po_status_v2",
+      "rows": 1
+    },
+    {
+      "table": "workorder_backup_2025",
+      "rows": 1
+    }
+  ],
+  "nastyCases": [
+    {
+      "case": "placeholder-work-order",
+      "where": "workorder.id in (0, 9999998, 9999999, 44444444, 99999999)"
+    },
+    {
+      "case": "duplicate-username",
+      "where": "users.id in (1,2) both username jsmith"
+    },
+    {
+      "case": "disabled-user",
+      "where": "users.id in (3,4,5) is_enabled = 0"
+    },
+    {
+      "case": "subcontractor-without-vendor",
+      "where": "users.id = 6 subid = 99 has no subcontractor row"
+    },
+    {
+      "case": "empty-email",
+      "where": "users.id = 7 email = '' (empty string, not NULL)"
+    },
+    {
+      "case": "shared-company-email",
+      "where": "users.id in (8,9) both email info@clsgreen.com"
+    },
+    {
+      "case": "orphan-workorder-site",
+      "where": "workorder.id = 1003 customer = 7777 has no sites row"
+    },
+    {
+      "case": "site-without-customer",
+      "where": "workorder.id = 1004 site = 6 but customer = '' (empty string)"
+    },
+    {
+      "case": "orphan-site-customer",
+      "where": "sites.custid in (9001, 9002) have no customer row"
+    },
+    {
+      "case": "orphan-work-order-line",
+      "where": "wo_parts.woid in (88888881..88888884); inv_parts.woid = 88888881"
+    },
+    {
+      "case": "unresolved-part-number",
+      "where": "wo_parts.partno in ('---','--'); po_invoice_parts.partno = '---'"
+    },
+    {
+      "case": "four-orphan-wo-parts",
+      "where": "wo_parts ids 5-8 reference work orders that do not exist"
+    },
+    {
+      "case": "work-order-id-in-three-columns",
+      "where": "inv_tax.woid, inv_parts.applied_woid, inv_project.sage_project_workorder (the schema has woid plus the applied/project variants; no workorderid or wo_id column exists)"
+    },
+    {
+      "case": "invoice-line-disagreement",
+      "where": "inv_parts.id = 5 woid = 1005 but applied_woid = 99999999; inv_project id 2 sage_project_workorder 1003 differs from woid 1002"
+    },
+    {
+      "case": "blank-money",
+      "where": "inv_tax id 1 tax_amount; po_parts id 2 and id 10 price; po_invoice_parts id 2 price; po_invoice id 2 sub_total/total_amount"
+    },
+    {
+      "case": "formatted-money",
+      "where": "inv_tax id 2 ($13.00/$100.00); po_parts id 3 price '$1,234.50'; po_invoice id 3 sub_total '1,234.50'"
+    },
+    {
+      "case": "non-numeric-money",
+      "where": "inv_tax id 3 tax_amount 'n/a'; po_invoice_parts id 3 price 'n/a'; po_invoice id 4 total_amount 'n/a'"
+    },
+    {
+      "case": "zero-money-owed",
+      "where": "inv_tax id 4 tax_amount, subtotal_amount and total_amount all 0.00"
+    },
+    {
+      "case": "qty-received-over-ordered",
+      "where": "po_parts id 5 qty = 2.00 qty_received = 5.00"
+    },
+    {
+      "case": "zero-date",
+      "where": "workorder.id 0 datetaken/expcompletion, id 1006 datetaken/invdate; inv_hours id 4 date; po_invoice id 3 invoice_date; customer_quote id 4 date_created"
+    },
+    {
+      "case": "empty-string-versus-null",
+      "where": "workorder.notes (1002 empty, 1007 NULL); inv_project.sage_project_workorder (id 5 empty, id 3 NULL); po_invoice.sub_total (id 2 empty, id 4 NULL)"
+    },
+    {
+      "case": "latin1-accents",
+      "where": "customer.name id 3; sites.name/notes; workorder.servicerequired id 1005 and 1008; users.full_name id 10"
+    },
+    {
+      "case": "embedded-newline",
+      "where": "workorder.notes id 1005 (escaped \\n); sites.notes id 2 (escaped \\n)"
+    },
+    {
+      "case": "escaped-quote-and-backslash",
+      "where": "customer.name id 3 (L\\'Alliance) and id 5 (\\\"Centre\\\"); workorder.wo_folder_attach_path id 1001 (C:\\\\alliance)"
+    },
+    {
+      "case": "hex-literal",
+      "where": "wo_revisions.data_workorder revision_id 2 is 0xDEADBEEF (the legacy schema declares no BLOB column; wo_images_cropped holds only id, woid and cropped_time)"
+    },
+    {
+      "case": "dated-duplicate-table",
+      "where": "inv_parts_july_20_2025, parts_backup_17dec25, po_status_v2, workorder_backup_2025 each present with 1 row and absent from the load manifest"
+    },
+    {
+      "case": "next-id-below-max-placeholder",
+      "where": "wo_next_pid.next_id = 10010 while workorder carries 99999999"
+    }
+  ]
+}

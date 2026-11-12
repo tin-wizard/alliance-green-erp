@@ -1,0 +1,70 @@
+{
+  "dumpId": "sha256:26f0f32ef0a0e13c5d24778df1885f019abe1f26a0da4fa5a3c5297373e8d9d9",
+  "pass1": {
+    "errors": 0,
+    "parityDiffered": 0
+  },
+  "pass2": {
+    "errors": 0,
+    "parityDiffered": 0,
+    "drift": []
+  },
+  "groups": [
+    {
+      "group": "lookups",
+      "status": "passed"
+    },
+    {
+      "group": "parties",
+      "status": "passed"
+    },
+    {
+      "group": "identity",
+      "status": "passed"
+    },
+    {
+      "group": "parts",
+      "status": "passed"
+    },
+    {
+      "group": "compliance",
+      "status": "passed"
+    },
+    {
+      "group": "work-orders",
+      "status": "passed"
+    },
+    {
+      "group": "quotes",
+      "status": "passed"
+    },
+    {
+      "group": "purchasing",
+      "status": "passed"
+    },
+    {
+      "group": "inventory",
+      "status": "passed"
+    },
+    {
+      "group": "invoicing-rga",
+      "status": "passed"
+    },
+    {
+      "group": "tjx",
+      "status": "passed"
+    },
+    {
+      "group": "messaging-history",
+      "status": "passed"
+    }
+  ],
+  "userCohorts": {
+    "duplicate-username": 2,
+    "disabled": 3,
+    "orphan-vendor": 1,
+    "no-email": 1,
+    "shared-email": 2,
+    "unique-email": 3
+  }
+}

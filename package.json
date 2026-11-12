@@ -26,7 +26,12 @@
     "db:backfill:purchasing": "pnpm --filter @cls/db exec tsx ../../scripts/backfill-purchasing.ts",
     "db:studio": "pnpm --filter @cls/db studio",
     "check:boundaries": "node scripts/check-boundaries.mjs",
-    "verify": "pnpm typecheck && pnpm lint && pnpm check:boundaries && pnpm test && pnpm build"
+    "verify": "pnpm typecheck && pnpm lint && pnpm check:boundaries && pnpm test && pnpm build",
+    "migration:load": "node --env-file=.env --import tsx scripts/import/cli.ts load",
+    "migration:run": "node --env-file=.env --import tsx scripts/import/cli.ts run",
+    "migration:ddl": "node --import tsx scripts/import/cli.ts ddl",
+    "migration:groups": "node --import tsx scripts/import/cli.ts groups",
+    "migration:rehearse": "node --env-file=.env --import tsx scripts/import/rehearse.ts"
   },
   "devDependencies": {
     "@cls/core": "workspace:*",
@@ -40,6 +45,7 @@
     "drizzle-orm": "^0.45.4",
     "eslint": "^9.39.5",
     "eslint-plugin-react-hooks": "^7.0.1",
+    "mysql2": "^3.24.6",
     "postgres": "^4.1.0",
     "prettier": "^3.6.2",
     "tsx": "^4.23.15",

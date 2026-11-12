@@ -206,6 +206,9 @@ importers:
       eslint-plugin-react-hooks:
         specifier: ^7.0.1
         version: 7.1.1(eslint@9.39.5(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)
+      mysql2:
+        specifier: ^3.24.6
+        version: 3.24.6(@types/node@22.20.5)
       postgres:
         specifier: ^4.1.0
         version: 4.1.0
@@ -5063,8 +5066,7 @@ snapshots:
     dependencies:
       possible-typed-array-names: 1.1.0
 
-  aws-ssl-profiles@1.1.2:
-    optional: true
+  aws-ssl-profiles@1.1.2: {}
 
   babel-dead-code-elimination@1.0.12(supports-color@7.2.0):
     dependencies:
@@ -5688,7 +5690,6 @@ snapshots:
   generate-function@2.3.1:
     dependencies:
       is-property: 1.0.2
-    optional: true
 
   generator-function@2.0.1: {}
 
@@ -5797,7 +5798,6 @@ snapshots:
   iconv-lite@0.7.3:
     dependencies:
       safer-buffer: 2.1.2
-    optional: true
 
   ieee754@1.2.1: {}
 
@@ -5894,8 +5894,7 @@ snapshots:
       call-bound: 1.0.4
       has-tostringtag: 1.0.2
 
-  is-property@1.0.2:
-    optional: true
+  is-property@1.0.2: {}
 
   is-regex@1.2.1:
     dependencies:
@@ -6082,8 +6081,7 @@ snapshots:
 
   lodash.uniq@4.5.0: {}
 
-  long@5.3.2:
-    optional: true
+  long@5.3.2: {}
 
   loose-envify@1.4.0:
     dependencies:
@@ -6093,8 +6091,7 @@ snapshots:
     dependencies:
       yallist: 3.1.1
 
-  lru.min@1.1.5:
-    optional: true
+  lru.min@1.1.5: {}
 
   lucide-react@0.545.0(react@19.3.1):
     dependencies:
@@ -6142,12 +6139,10 @@ snapshots:
       lru.min: 1.1.5
       named-placeholders: 1.1.6
       sql-escaper: 1.5.2
-    optional: true
 
   named-placeholders@1.1.6:
     dependencies:
       lru.min: 1.1.5
-    optional: true
 
   nanoid@3.3.20: {}
 
@@ -6397,8 +6392,7 @@ snapshots:
       es-errors: 1.3.0
       is-regex: 1.2.1
 
-  safer-buffer@2.1.2:
-    optional: true
+  safer-buffer@2.1.2: {}
 
   saxes@5.0.1:
     dependencies:
@@ -6487,8 +6481,7 @@ snapshots:
 
   source-map@0.7.6: {}
 
-  sql-escaper@1.5.2:
-    optional: true
+  sql-escaper@1.5.2: {}
 
   srvx@1.0.8: {}
 

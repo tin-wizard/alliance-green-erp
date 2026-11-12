@@ -1,0 +1,9011 @@
+{
+  "tables": {
+    "customer_quote_payterms": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "tinyint(1)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(25)",
+          "notNull": true
+        }
+      ]
+    },
+    "customer_quote_status": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "tinyint(1)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(25)",
+          "notNull": true
+        }
+      ]
+    },
+    "message_setup": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "userid",
+          "type": "int(11)",
+          "notNull": true
+        }
+      ]
+    },
+    "parts_group": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "sort_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "is_winner",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "permission_type": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "permission_name",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "permission_heading",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "sortorder",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "po_preorder_status": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "tinyint(1)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(25)",
+          "notNull": true
+        }
+      ]
+    },
+    "po_priority": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "tinyint(1)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(40)",
+          "notNull": true
+        }
+      ]
+    },
+    "po_quote_request_status": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "tinyint(1)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(25)",
+          "notNull": true
+        }
+      ]
+    },
+    "po_quote_submitted_status": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "tinyint(1)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(25)",
+          "notNull": true
+        }
+      ]
+    },
+    "po_status": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "tinyint(1)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(25)",
+          "notNull": true
+        },
+        {
+          "name": "sorting_order",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "rga_status": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "tinyint(1)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(25)",
+          "notNull": true
+        },
+        {
+          "name": "sorting_order",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "settings": {
+      "engine": "InnoDB",
+      "primaryKey": [],
+      "columns": [
+        {
+          "name": "FieldName",
+          "type": "varchar(50)",
+          "notNull": true
+        },
+        {
+          "name": "FieldValue",
+          "type": "varchar(50)",
+          "notNull": false
+        }
+      ]
+    },
+    "standalone_quote_status": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "tinyint(1)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(25)",
+          "notNull": true
+        }
+      ]
+    },
+    "tjx_quote_grid_types": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "tinyint(1)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(25)",
+          "notNull": true
+        }
+      ]
+    },
+    "tjx_quote_payterms": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "tinyint(1)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(25)",
+          "notNull": true
+        }
+      ]
+    },
+    "tjx_quote_status": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "tinyint(1)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(25)",
+          "notNull": true
+        }
+      ]
+    },
+    "wo_categories": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "tinyint(1)",
+          "notNull": true
+        },
+        {
+          "name": "code",
+          "type": "varchar(25)",
+          "notNull": false
+        },
+        {
+          "name": "name",
+          "type": "varchar(25)",
+          "notNull": true
+        }
+      ]
+    },
+    "wo_priority": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "tinyint(1)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(40)",
+          "notNull": true
+        }
+      ]
+    },
+    "wo_servtype": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "tinyint(1)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(20)",
+          "notNull": true
+        }
+      ]
+    },
+    "wo_status": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "tinyint(1)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(25)",
+          "notNull": true
+        }
+      ]
+    },
+    "customer": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(10) unsigned",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(1000)",
+          "notNull": false
+        },
+        {
+          "name": "street",
+          "type": "varchar(200)",
+          "notNull": false
+        },
+        {
+          "name": "city",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "province",
+          "type": "varchar(25)",
+          "notNull": false
+        },
+        {
+          "name": "postalcode",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "cname",
+          "type": "varchar(250)",
+          "notNull": false
+        },
+        {
+          "name": "cnumber",
+          "type": "varchar(25)",
+          "notNull": false
+        },
+        {
+          "name": "cemail1",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "salesp",
+          "type": "varchar(50)",
+          "notNull": false
+        }
+      ]
+    },
+    "parts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "name",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "number",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "cost",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "subignore",
+          "type": "tinyint(3)",
+          "notNull": false
+        },
+        {
+          "name": "sell_price",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "sage_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "part_group_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "warranty",
+          "type": "varchar(75)",
+          "notNull": false
+        },
+        {
+          "name": "labor_warranty",
+          "type": "varchar(75)",
+          "notNull": false
+        },
+        {
+          "name": "purchased_quantity",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "current_quantity",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "sold_quantity",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "installcostperunit",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "install_profit_formula",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "recycle_profit_formula",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "saved_sage_price",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "is_sage_saved",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "part_popup_notes",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "parent_partnumber",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "cls_linked_partcode",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "active_in_sage",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "defaultsortorder",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "shared_parts_list": {
+      "engine": "InnoDB",
+      "primaryKey": [],
+      "columns": [
+        {
+          "name": "partcode",
+          "type": "varchar(15)",
+          "notNull": true
+        },
+        {
+          "name": "main_partcode",
+          "type": "varchar(15)",
+          "notNull": true
+        }
+      ]
+    },
+    "sites": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(10) unsigned",
+          "notNull": true
+        },
+        {
+          "name": "custid",
+          "type": "int(10) unsigned",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(100)",
+          "notNull": true
+        },
+        {
+          "name": "street",
+          "type": "varchar(200)",
+          "notNull": true
+        },
+        {
+          "name": "street_2",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "city",
+          "type": "varchar(50)",
+          "notNull": true
+        },
+        {
+          "name": "province",
+          "type": "varchar(25)",
+          "notNull": true
+        },
+        {
+          "name": "postalcode",
+          "type": "varchar(25)",
+          "notNull": false
+        },
+        {
+          "name": "cname",
+          "type": "varchar(200)",
+          "notNull": false
+        },
+        {
+          "name": "cnumber",
+          "type": "varchar(25)",
+          "notNull": false
+        },
+        {
+          "name": "warranty",
+          "type": "tinyint(1)",
+          "notNull": false
+        },
+        {
+          "name": "warranty_exp",
+          "type": "date",
+          "notNull": false
+        },
+        {
+          "name": "warranty_notes",
+          "type": "mediumtext",
+          "notNull": false
+        },
+        {
+          "name": "notes",
+          "type": "mediumtext",
+          "notNull": false
+        },
+        {
+          "name": "dns",
+          "type": "varchar(10)",
+          "notNull": false
+        },
+        {
+          "name": "lift",
+          "type": "varchar(10)",
+          "notNull": false
+        },
+        {
+          "name": "mall",
+          "type": "varchar(100)",
+          "notNull": false
+        }
+      ]
+    },
+    "subcontractor": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11) unsigned",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(75)",
+          "notNull": true
+        },
+        {
+          "name": "street",
+          "type": "varchar(200)",
+          "notNull": true
+        },
+        {
+          "name": "city",
+          "type": "varchar(50)",
+          "notNull": true
+        },
+        {
+          "name": "province",
+          "type": "varchar(25)",
+          "notNull": true
+        },
+        {
+          "name": "postalcode",
+          "type": "varchar(25)",
+          "notNull": true
+        },
+        {
+          "name": "cname",
+          "type": "varchar(250)",
+          "notNull": true
+        },
+        {
+          "name": "cnumber",
+          "type": "varchar(50)",
+          "notNull": true
+        },
+        {
+          "name": "cemail1",
+          "type": "varchar(50)",
+          "notNull": true
+        },
+        {
+          "name": "cemail2",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "cemail3",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "interior",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "exterior",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "other",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "stock_notification_alert_type",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "subcontractor_contact_info": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "subid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "contact_name",
+          "type": "varchar(60)",
+          "notNull": false
+        },
+        {
+          "name": "phone",
+          "type": "varchar(60)",
+          "notNull": false
+        },
+        {
+          "name": "phone_ext",
+          "type": "varchar(10)",
+          "notNull": false
+        }
+      ]
+    },
+    "suppliers": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "sage_vendor_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "name",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "address",
+          "type": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "name": "city",
+          "type": "varchar(80)",
+          "notNull": false
+        },
+        {
+          "name": "province",
+          "type": "varchar(80)",
+          "notNull": false
+        },
+        {
+          "name": "postalcode",
+          "type": "varchar(80)",
+          "notNull": false
+        },
+        {
+          "name": "additional_emails",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "additional_emails_accounting",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "contact_number",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "contact_person",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "user_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "is_under_cls",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "is_online_vendor",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "popnotes",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "bypass_po_approval",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "tjx_fixture": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "fixturename",
+          "type": "varchar(80)",
+          "notNull": false
+        },
+        {
+          "name": "sortorder",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "tjx_room": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "roomname",
+          "type": "varchar(80)",
+          "notNull": false
+        },
+        {
+          "name": "sortorder",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "users": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "username",
+          "type": "varchar(32)",
+          "notNull": true
+        },
+        {
+          "name": "password",
+          "type": "varchar(32)",
+          "notNull": true
+        },
+        {
+          "name": "email",
+          "type": "varchar(50)",
+          "notNull": true
+        },
+        {
+          "name": "access",
+          "type": "tinyint(1)",
+          "notNull": true
+        },
+        {
+          "name": "subid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "phone",
+          "type": "varchar(25)",
+          "notNull": false
+        },
+        {
+          "name": "phone2",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "phone2_ext",
+          "type": "varchar(10)",
+          "notNull": false
+        },
+        {
+          "name": "email2",
+          "type": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "name": "full_name",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "mailing_user",
+          "type": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "name": "mailing_password",
+          "type": "varchar(250)",
+          "notNull": false
+        },
+        {
+          "name": "cls_mailing_user",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "cls_mailing_password",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "user_addworkorder_without_wsib",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "is_enabled",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "department_type",
+          "type": "varchar(15)",
+          "notNull": false
+        }
+      ]
+    },
+    "parts_inventory": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "part_id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "supplier_id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "shipment_detail",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "purchased_quantity",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "cost_price",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "sell_price",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "markup",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "sold_quantity",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "status",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "date_purchased",
+          "type": "datetime",
+          "notNull": false
+        }
+      ]
+    },
+    "parts_inventory_adjustment": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "partno",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "qty",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "price",
+          "type": "varchar(30)",
+          "notNull": false
+        },
+        {
+          "name": "date_created",
+          "type": "timestamp",
+          "notNull": false
+        },
+        {
+          "name": "adjustment_type",
+          "type": "enum('global','alliance','subcontractor','customer','contractor','')",
+          "notNull": false
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "is_log_deleted",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "inserted_datetime",
+          "type": "timestamp",
+          "notNull": false
+        },
+        {
+          "name": "workordernumber",
+          "type": "varchar(25)",
+          "notNull": false
+        },
+        {
+          "name": "site",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "subcontractor",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "mass_adjustment_number",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "parts_price_history": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "price_id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "field_name",
+          "type": "varchar(30)",
+          "notNull": true
+        },
+        {
+          "name": "last_value",
+          "type": "varchar(30)",
+          "notNull": false
+        },
+        {
+          "name": "new_value",
+          "type": "varchar(30)",
+          "notNull": false
+        },
+        {
+          "name": "user_name",
+          "type": "varchar(50)",
+          "notNull": true
+        },
+        {
+          "name": "section_name",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "date_inserted",
+          "type": "timestamp",
+          "notNull": false
+        }
+      ]
+    },
+    "parts_price_lock": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "is_locked",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "locked_by",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "lock_time",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "parts_purchased_inventory": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "part_no",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "part_desc",
+          "type": "varchar(200)",
+          "notNull": false
+        },
+        {
+          "name": "inventory_tracking_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "invoice_number",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "invoice_line_no",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "unit_price",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "qty",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "sage_vendor_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "date_invoiced",
+          "type": "datetime",
+          "notNull": false
+        },
+        {
+          "name": "date_created_time",
+          "type": "bigint(20)",
+          "notNull": false
+        }
+      ]
+    },
+    "parts_purchasing_log": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "poid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "partno",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "qty",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "price",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "stock_identifier",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "date_created",
+          "type": "timestamp",
+          "notNull": false
+        }
+      ]
+    },
+    "parts_salepurchase_log": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid_poid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "invoice_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "invoice_number",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "partno",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "qty",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "price",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "date_created",
+          "type": "timestamp",
+          "notNull": false
+        },
+        {
+          "name": "transaction_type",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "is_log_deleted",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "inserted_datetime",
+          "type": "timestamp",
+          "notNull": false
+        },
+        {
+          "name": "is_includeed_in_stock_management",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "adjustment_type",
+          "type": "enum('alliance','subcontractor','customer','contractor','')",
+          "notNull": false
+        },
+        {
+          "name": "on_field_counted_qty",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "adj_subcontractor",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "adj_site",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "parts_selling_log": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "partno",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "qty",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "price",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "date_created",
+          "type": "timestamp",
+          "notNull": false
+        }
+      ]
+    },
+    "parts_selling_rates": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "part_code",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "list_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "old_sell_price",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "increase_percentage",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "sell_price",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "install_price",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "recycle_price",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "date_inserted",
+          "type": "timestamp",
+          "notNull": false
+        }
+      ]
+    },
+    "parts_selling_rates_list": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "list_heading",
+          "type": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "name": "list_date",
+          "type": "date",
+          "notNull": false
+        },
+        {
+          "name": "is_winner",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "parts_sub_suppliers": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "supplier_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "name",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "location",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "contact_number",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "contact_emails",
+          "type": "text",
+          "notNull": false
+        }
+      ]
+    },
+    "parts_supplier_model_rates": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "part_code",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "list_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "supplier_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "model_price",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "default_model",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "model_number",
+          "type": "text",
+          "notNull": false
+        }
+      ]
+    },
+    "parts_supplier_rates": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "part_code",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "list_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "supplier_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "sub_supplier_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "cost_price",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "last_cost_price",
+          "type": "varchar(30)",
+          "notNull": false
+        },
+        {
+          "name": "date_inserted",
+          "type": "timestamp",
+          "notNull": false
+        },
+        {
+          "name": "markup",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "sell_price",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "last_sell_price",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "install_price",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "recycle_price",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "default_rate",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "model_number_1",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "model_number_2",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "model_number_3",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "supplier_warranty",
+          "type": "varchar(10)",
+          "notNull": false
+        },
+        {
+          "name": "cost_price_decimal",
+          "type": "decimal(7,2)",
+          "notNull": false
+        }
+      ]
+    },
+    "parts_supplier_rates_list": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "supplier_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "list_heading",
+          "type": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "name": "list_date",
+          "type": "date",
+          "notNull": false
+        },
+        {
+          "name": "has_buy_rates",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "prf": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "tech",
+          "type": "varchar(50)",
+          "notNull": true
+        },
+        {
+          "name": "date",
+          "type": "date",
+          "notNull": true
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "eta",
+          "type": "date",
+          "notNull": false
+        },
+        {
+          "name": "status",
+          "type": "varchar(50)",
+          "notNull": true
+        }
+      ]
+    },
+    "wo_next_pid": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "next_id",
+          "type": "bigint(20)",
+          "notNull": false
+        },
+        {
+          "name": "comments",
+          "type": "text",
+          "notNull": false
+        }
+      ]
+    },
+    "workorder": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "site",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "servicetype",
+          "type": "tinyint(2)",
+          "notNull": true
+        },
+        {
+          "name": "priority",
+          "type": "tinyint(2)",
+          "notNull": true
+        },
+        {
+          "name": "dne",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "status",
+          "type": "tinyint(2)",
+          "notNull": true
+        },
+        {
+          "name": "datetaken",
+          "type": "date",
+          "notNull": true
+        },
+        {
+          "name": "expcompletion",
+          "type": "date",
+          "notNull": true
+        },
+        {
+          "name": "servicerequired",
+          "type": "text",
+          "notNull": true
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "subcontractor",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "completiondate",
+          "type": "varchar(120)",
+          "notNull": false
+        },
+        {
+          "name": "securitycode",
+          "type": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "name": "customerpo",
+          "type": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "name": "local",
+          "type": "tinyint(3)",
+          "notNull": true
+        },
+        {
+          "name": "tech",
+          "type": "int(4)",
+          "notNull": false
+        },
+        {
+          "name": "tech_2",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "tech_labour_rate",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "invdate",
+          "type": "date",
+          "notNull": false
+        },
+        {
+          "name": "calc_inv_date",
+          "type": "date",
+          "notNull": false
+        },
+        {
+          "name": "customer",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "wo_folder_attach_path",
+          "type": "varchar(200)",
+          "notNull": false
+        },
+        {
+          "name": "printed",
+          "type": "varchar(10)",
+          "notNull": false
+        },
+        {
+          "name": "batched",
+          "type": "date",
+          "notNull": false
+        },
+        {
+          "name": "schannel",
+          "type": "int(1)",
+          "notNull": true
+        },
+        {
+          "name": "schannel_redone",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "sgsales_done",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "sgpurch_done",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "forced_enable_sc_transfer",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "ready_for_calc_timespan",
+          "type": "bigint(20)",
+          "notNull": false
+        },
+        {
+          "name": "closeout_tech",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "closeout_tech_2",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "is_marked_red",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "is_marked_green",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "is_marked_critical",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "is_project_wo",
+          "type": "tinyint(4)",
+          "notNull": false
+        },
+        {
+          "name": "customer_quote_id",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "is_tjx_quote",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "is_pma_order",
+          "type": "tinyint(1)",
+          "notNull": false
+        },
+        {
+          "name": "is_pma_bckup",
+          "type": "varchar(12)",
+          "notNull": false
+        },
+        {
+          "name": "stock_updated",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "marked_invoiced_time",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "enable_sale_stock_upd_btn",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "only_portal_stock_updated",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "assigned_dispatch_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "pma_order_category",
+          "type": "varchar(25)",
+          "notNull": false
+        },
+        {
+          "name": "primary_workorder",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "add_to_local_modify_once",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "sc_primary_status",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "sc_extended_status",
+          "type": "varchar(20)",
+          "notNull": false
+        }
+      ]
+    },
+    "inv_hours": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "rate",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "entered_rate",
+          "type": "varchar(12)",
+          "notNull": false
+        },
+        {
+          "name": "date",
+          "type": "date",
+          "notNull": true
+        },
+        {
+          "name": "hours",
+          "type": "decimal(7,2)",
+          "notNull": true
+        }
+      ]
+    },
+    "inv_parts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "partno",
+          "type": "varchar(20)",
+          "notNull": true
+        },
+        {
+          "name": "qty",
+          "type": "decimal(7,2)",
+          "notNull": true
+        },
+        {
+          "name": "price",
+          "type": "decimal(11,2)",
+          "notNull": true
+        },
+        {
+          "name": "entered_price",
+          "type": "varchar(12)",
+          "notNull": false
+        },
+        {
+          "name": "linked_sopart_cost_price",
+          "type": "varchar(30)",
+          "notNull": false
+        },
+        {
+          "name": "linked_part_sopart",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "is_local_part",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "applied_woid",
+          "type": "varchar(20)",
+          "notNull": false
+        }
+      ]
+    },
+    "inv_project": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "sage_project_workorder",
+          "type": "varchar(100)",
+          "notNull": false
+        }
+      ]
+    },
+    "inv_soparts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "notNull": true
+        },
+        {
+          "name": "qty",
+          "type": "decimal(7,2)",
+          "notNull": true
+        },
+        {
+          "name": "price",
+          "type": "decimal(11,2)",
+          "notNull": true
+        },
+        {
+          "name": "entered_price",
+          "type": "varchar(12)",
+          "notNull": false
+        },
+        {
+          "name": "is_local_part",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "is_emergency_lighting",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "is_service_report",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "warranty_years",
+          "type": "varchar(25)",
+          "notNull": false
+        },
+        {
+          "name": "labor_warranty_years",
+          "type": "varchar(25)",
+          "notNull": false
+        },
+        {
+          "name": "applied_woid",
+          "type": "varchar(25)",
+          "notNull": false
+        }
+      ]
+    },
+    "inv_tax": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(100)",
+          "notNull": true
+        },
+        {
+          "name": "appliedtaxrate",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "calc_type",
+          "type": "enum('sub','sub_project','local','local_project','')",
+          "notNull": false
+        },
+        {
+          "name": "tax_amount",
+          "type": "varchar(30)",
+          "notNull": false
+        },
+        {
+          "name": "subtotal_amount",
+          "type": "varchar(30)",
+          "notNull": false
+        },
+        {
+          "name": "total_amount",
+          "type": "varchar(30)",
+          "notNull": false
+        }
+      ]
+    },
+    "localwo_cusprofile": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(100)",
+          "notNull": true
+        },
+        {
+          "name": "site",
+          "type": "int(100)",
+          "notNull": true
+        },
+        {
+          "name": "interior",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "exterior",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "mustnotes",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "codes",
+          "type": "text",
+          "notNull": false
+        }
+      ]
+    },
+    "localwo_hours": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint(20)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(10)",
+          "notNull": true
+        },
+        {
+          "name": "date",
+          "type": "date",
+          "notNull": true
+        },
+        {
+          "name": "timein",
+          "type": "time",
+          "notNull": true
+        },
+        {
+          "name": "timeout",
+          "type": "time",
+          "notNull": true
+        },
+        {
+          "name": "hours",
+          "type": "decimal(7,2)",
+          "notNull": true
+        },
+        {
+          "name": "numtechs",
+          "type": "int(10)",
+          "notNull": true
+        },
+        {
+          "name": "tech",
+          "type": "int(10)",
+          "notNull": true
+        }
+      ]
+    },
+    "localwo_hours_change_histroy": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint(20)",
+          "notNull": true
+        },
+        {
+          "name": "fk_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "woid",
+          "type": "int(10)",
+          "notNull": false
+        },
+        {
+          "name": "date",
+          "type": "date",
+          "notNull": true
+        },
+        {
+          "name": "timein",
+          "type": "time",
+          "notNull": true
+        },
+        {
+          "name": "timeout",
+          "type": "time",
+          "notNull": true
+        },
+        {
+          "name": "hours",
+          "type": "decimal(7,2)",
+          "notNull": true
+        },
+        {
+          "name": "numtechs",
+          "type": "int(10)",
+          "notNull": true
+        },
+        {
+          "name": "tech",
+          "type": "int(10)",
+          "notNull": false
+        }
+      ]
+    },
+    "localwo_quotes": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "tech",
+          "type": "varchar(100)",
+          "notNull": true
+        },
+        {
+          "name": "datetime",
+          "type": "varchar(100)",
+          "notNull": true
+        },
+        {
+          "name": "report",
+          "type": "text",
+          "notNull": true
+        },
+        {
+          "name": "hours",
+          "type": "varchar(100)",
+          "notNull": true
+        },
+        {
+          "name": "numtechs",
+          "type": "varchar(100)",
+          "notNull": true
+        },
+        {
+          "name": "parts",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "soparts",
+          "type": "text",
+          "notNull": false
+        }
+      ]
+    },
+    "localwo_sigs": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(100)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(100)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(100)",
+          "notNull": true
+        }
+      ]
+    },
+    "localwo_techs": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint(20)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(10)",
+          "notNull": true
+        },
+        {
+          "name": "date",
+          "type": "datetime",
+          "notNull": false
+        },
+        {
+          "name": "tech",
+          "type": "int(10)",
+          "notNull": true
+        }
+      ]
+    },
+    "wo_ajax_submit": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "formdata",
+          "type": "longtext",
+          "notNull": false
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "wo_hours": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "rate",
+          "type": "tinyint(3)",
+          "notNull": false
+        },
+        {
+          "name": "date",
+          "type": "date",
+          "notNull": true
+        },
+        {
+          "name": "hours",
+          "type": "decimal(7,2)",
+          "notNull": true
+        },
+        {
+          "name": "hourly_rate",
+          "type": "decimal(7,2)",
+          "notNull": false
+        }
+      ]
+    },
+    "wo_images_cropped": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "cropped_time",
+          "type": "timestamp",
+          "notNull": false
+        }
+      ]
+    },
+    "wo_invoiceno": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(12)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(10)",
+          "notNull": true
+        },
+        {
+          "name": "invoiceno",
+          "type": "varchar(120)",
+          "notNull": true
+        }
+      ]
+    },
+    "wo_notes": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "user_id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "title",
+          "type": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "name": "emails",
+          "type": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "name": "notes_type",
+          "type": "varchar(30)",
+          "notNull": false
+        },
+        {
+          "name": "previous_status_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "status_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "is_public",
+          "type": "tinyint(4)",
+          "notNull": false
+        },
+        {
+          "name": "date_created",
+          "type": "timestamp",
+          "notNull": false
+        }
+      ]
+    },
+    "wo_parts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(12)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "partno",
+          "type": "varchar(50)",
+          "notNull": true
+        },
+        {
+          "name": "qty",
+          "type": "decimal(7,2)",
+          "notNull": true
+        },
+        {
+          "name": "price",
+          "type": "decimal(7,2)",
+          "notNull": false
+        }
+      ]
+    },
+    "wo_report": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11) unsigned",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(10) unsigned",
+          "notNull": true
+        },
+        {
+          "name": "report",
+          "type": "text",
+          "notNull": false
+        }
+      ]
+    },
+    "wo_revisions": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "revision_id"
+      ],
+      "columns": [
+        {
+          "name": "revision_id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "created_time",
+          "type": "timestamp",
+          "notNull": false
+        },
+        {
+          "name": "revised_by_user",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "revision_type",
+          "type": "varchar(45)",
+          "notNull": false
+        },
+        {
+          "name": "data_workorder",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "data_wo_hours",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "data_wo_localhours",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "data_wo_parts",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "data_wo_soparts",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "data_wo_report",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "data_wo_tax",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "data_wo_notes",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "is_last_revision",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "wo_soparts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(120)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(10)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "notNull": true
+        },
+        {
+          "name": "qty",
+          "type": "decimal(7,2)",
+          "notNull": true
+        },
+        {
+          "name": "price",
+          "type": "decimal(7,2)",
+          "notNull": true
+        },
+        {
+          "name": "is_emergency_lighting",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "wo_tax": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(10)",
+          "notNull": true
+        },
+        {
+          "name": "tax",
+          "type": "decimal(7,2)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(5)",
+          "notNull": true
+        },
+        {
+          "name": "tax_total",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "tax_gst",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "tax_pst",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "appliedtaxrate",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "appliedtaxrate_pst",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "appliedtaxrate_gst",
+          "type": "varchar(15)",
+          "notNull": false
+        }
+      ]
+    },
+    "calcquote_hours": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "hours",
+          "type": "decimal(7,2)",
+          "notNull": true
+        },
+        {
+          "name": "rate",
+          "type": "decimal(7,2)",
+          "notNull": true
+        },
+        {
+          "name": "entered_rate",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "numtechs",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "date",
+          "type": "date",
+          "notNull": false
+        }
+      ]
+    },
+    "calcquote_hours_incurred": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "hours",
+          "type": "decimal(7,2)",
+          "notNull": true
+        },
+        {
+          "name": "rate",
+          "type": "decimal(7,2)",
+          "notNull": true
+        },
+        {
+          "name": "entered_rate",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "date",
+          "type": "date",
+          "notNull": false
+        },
+        {
+          "name": "numtechs",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "calcquote_incurred": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "name": "incurred_cost",
+          "type": "decimal(7,2)",
+          "notNull": false
+        }
+      ]
+    },
+    "calcquote_parts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "partno",
+          "type": "varchar(20)",
+          "notNull": true
+        },
+        {
+          "name": "qty",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "price",
+          "type": "decimal(11,2)",
+          "notNull": true
+        },
+        {
+          "name": "entered_price",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "is_under_warranty",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "calcquote_parts_incurred": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "partno",
+          "type": "varchar(20)",
+          "notNull": true
+        },
+        {
+          "name": "qty",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "price",
+          "type": "decimal(11,2)",
+          "notNull": true
+        },
+        {
+          "name": "entered_price",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "is_under_warranty",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "calcquote_report": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "report",
+          "type": "text",
+          "notNull": true
+        },
+        {
+          "name": "incurred_report",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "status",
+          "type": "varchar(20)",
+          "notNull": true
+        },
+        {
+          "name": "date",
+          "type": "date",
+          "notNull": true
+        },
+        {
+          "name": "tax",
+          "type": "decimal(7,2)",
+          "notNull": true
+        },
+        {
+          "name": "incurred",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "is_sub_quote",
+          "type": "tinyint(4)",
+          "notNull": false
+        },
+        {
+          "name": "taxcode",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "add_province_taxcode",
+          "type": "varchar(30)",
+          "notNull": false
+        },
+        {
+          "name": "is_calculated",
+          "type": "int(3)",
+          "notNull": false
+        },
+        {
+          "name": "is_after_two_cent",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "calcquote_soparts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(250)",
+          "notNull": true
+        },
+        {
+          "name": "qty",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "price",
+          "type": "decimal(12,2)",
+          "notNull": true
+        },
+        {
+          "name": "entered_price",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "is_emergency_lighting",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "calcquote_soparts_incurred": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(250)",
+          "notNull": true
+        },
+        {
+          "name": "qty",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "price",
+          "type": "decimal(10,2)",
+          "notNull": true
+        },
+        {
+          "name": "entered_price",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "is_emergency_lighting",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "customer_qo_packing_parts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "cust_qoid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "packing_slip_id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "partno",
+          "type": "varchar(20)",
+          "notNull": true
+        },
+        {
+          "name": "actual_qty",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "backorder_qty",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "shipped_qty",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "sortorder",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "customer_qo_packing_slip": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "cust_qoid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "date_created",
+          "type": "date",
+          "notNull": false
+        },
+        {
+          "name": "ship_date",
+          "type": "date",
+          "notNull": false
+        },
+        {
+          "name": "packing_slip_level",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "customer_qo_packing_soparts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "cust_qoid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "packing_slip_id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "qo_sopart_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "name",
+          "type": "varchar(150)",
+          "notNull": true
+        },
+        {
+          "name": "actual_qty",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "backorder_qty",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "shipped_qty",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "sortorder",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "customer_quote": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "workordernumber",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "site",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "ShipCntc",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ShipStrt1",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ShipStrt2",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ShipCity",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ShipPrvSt",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ShipPstZp",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "is_address_updated",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "report",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "status",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "payment_terms",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "appliedtaxrate",
+          "type": "varchar(12)",
+          "notNull": false
+        },
+        {
+          "name": "tax_code",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "tax_amount",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "createdby",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "due_date",
+          "type": "date",
+          "notNull": false
+        },
+        {
+          "name": "is_due_date_tbd",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "date_approved",
+          "type": "date",
+          "notNull": false
+        },
+        {
+          "name": "date_created",
+          "type": "date",
+          "notNull": false
+        },
+        {
+          "name": "is_revision",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "revision_quote_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "revision_id",
+          "type": "float",
+          "notNull": false
+        }
+      ]
+    },
+    "customer_quote_hours": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "cust_qoid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "hours",
+          "type": "decimal(7,2)",
+          "notNull": true
+        },
+        {
+          "name": "rate",
+          "type": "decimal(7,2)",
+          "notNull": true
+        },
+        {
+          "name": "date",
+          "type": "date",
+          "notNull": false
+        }
+      ]
+    },
+    "customer_quote_parts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "cust_qoid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "partno",
+          "type": "varchar(20)",
+          "notNull": true
+        },
+        {
+          "name": "qty",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "price",
+          "type": "decimal(11,2)",
+          "notNull": false
+        }
+      ]
+    },
+    "customer_quote_soparts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "cust_qoid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(150)",
+          "notNull": true
+        },
+        {
+          "name": "qty",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "price",
+          "type": "decimal(11,2)",
+          "notNull": false
+        }
+      ]
+    },
+    "quote_hours": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "rate",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "hours",
+          "type": "decimal(7,2)",
+          "notNull": true
+        },
+        {
+          "name": "hourly_rate",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "date",
+          "type": "date",
+          "notNull": false
+        }
+      ]
+    },
+    "quote_hours_incurred": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "rate",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "hours",
+          "type": "decimal(7,2)",
+          "notNull": true
+        },
+        {
+          "name": "hourly_rate",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "date",
+          "type": "date",
+          "notNull": false
+        }
+      ]
+    },
+    "quote_parts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "partno",
+          "type": "varchar(20)",
+          "notNull": true
+        },
+        {
+          "name": "qty",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "price",
+          "type": "decimal(11,2)",
+          "notNull": true
+        }
+      ]
+    },
+    "quote_parts_incurred": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "partno",
+          "type": "varchar(20)",
+          "notNull": true
+        },
+        {
+          "name": "qty",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "price",
+          "type": "decimal(7,2)",
+          "notNull": true
+        }
+      ]
+    },
+    "quote_report": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "report",
+          "type": "text",
+          "notNull": true
+        },
+        {
+          "name": "date",
+          "type": "timestamp",
+          "notNull": false
+        },
+        {
+          "name": "tax",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "tax_code",
+          "type": "varchar(10)",
+          "notNull": false
+        }
+      ]
+    },
+    "quote_soparts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(50)",
+          "notNull": true
+        },
+        {
+          "name": "qty",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "price",
+          "type": "decimal(11,2)",
+          "notNull": true
+        },
+        {
+          "name": "is_emergency_lighting",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "quote_soparts_incurred": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(50)",
+          "notNull": true
+        },
+        {
+          "name": "qty",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "price",
+          "type": "decimal(7,2)",
+          "notNull": true
+        },
+        {
+          "name": "is_emergency_lighting",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "standalone_quote": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "workordernumber",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "site",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "ShipCntc",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ShipStrt1",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ShipStrt2",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ShipCity",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ShipPrvSt",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ShipPstZp",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "is_address_updated",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "pdf_notes",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "status",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "reference_wo_number",
+          "type": "varchar(25)",
+          "notNull": false
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "appliedtaxrate",
+          "type": "varchar(12)",
+          "notNull": false
+        },
+        {
+          "name": "tax_code",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "tax_amount",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "createdby",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "date_approved",
+          "type": "date",
+          "notNull": false
+        },
+        {
+          "name": "date_created",
+          "type": "date",
+          "notNull": false
+        },
+        {
+          "name": "is_revision",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "revision_quote_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "revision_id",
+          "type": "float",
+          "notNull": false
+        },
+        {
+          "name": "created_from_local",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "standalone_quote_hours": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "sal_qoid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "hours",
+          "type": "decimal(7,2)",
+          "notNull": true
+        },
+        {
+          "name": "numtechs",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "rate",
+          "type": "decimal(7,2)",
+          "notNull": true
+        },
+        {
+          "name": "date",
+          "type": "date",
+          "notNull": false
+        }
+      ]
+    },
+    "standalone_quote_parts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "sal_qoid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "partno",
+          "type": "varchar(20)",
+          "notNull": true
+        },
+        {
+          "name": "qty",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "entered_price",
+          "type": "varchar(30)",
+          "notNull": false
+        },
+        {
+          "name": "price",
+          "type": "decimal(10,2)",
+          "notNull": false
+        },
+        {
+          "name": "is_under_warranty",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "standalone_quote_soparts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "sal_qoid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(150)",
+          "notNull": true
+        },
+        {
+          "name": "qty",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "entered_price",
+          "type": "varchar(30)",
+          "notNull": false
+        },
+        {
+          "name": "price",
+          "type": "decimal(10,2)",
+          "notNull": false
+        }
+      ]
+    },
+    "purchaseorder": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "purchase_order_number",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "invoice_number",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "supplier_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "sub_supplier_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "cust_qoid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "tjx_quoteid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "pre_poid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "sup_poid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "req_qoid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "sup_qoid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "status",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "status_on_july_21_2025",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "priority",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "supplier_notes",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "notes",
+          "type": "longtext",
+          "notNull": false
+        },
+        {
+          "name": "expdeliverydate",
+          "type": "date",
+          "notNull": false
+        },
+        {
+          "name": "tax_code",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "appliedtaxrate",
+          "type": "varchar(12)",
+          "notNull": false
+        },
+        {
+          "name": "fob",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "pay_terms",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ship_address_contactname",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ship_address_company",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ship_address_street1",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ship_address_street2",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ship_address_city",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ship_address_province",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ship_address_postalcode",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ship_address_phone",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "shipping_address",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "securitycode",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "shipping_code",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "ship_via",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "createdby",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "is_marked_critical",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "is_submitted",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "completiondate",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "date_created",
+          "type": "datetime",
+          "notNull": false
+        },
+        {
+          "name": "date_completed",
+          "type": "datetime",
+          "notNull": false
+        },
+        {
+          "name": "po_folder_attach_path",
+          "type": "varchar(200)",
+          "notNull": false
+        },
+        {
+          "name": "is_online_vendor_order",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "stock_updated",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "revision_no",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "is_type_maintenance",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "shipment_type",
+          "type": "enum('alliance','cls','alliancepickup','clspickup','contractor','customer','subcontractor','clscustomer','alliancemaintenance','')",
+          "notNull": false
+        },
+        {
+          "name": "shipment_type_correction",
+          "type": "varchar(30)",
+          "notNull": false
+        },
+        {
+          "name": "shipment_type_bkup_18july2025",
+          "type": "varchar(30)",
+          "notNull": false
+        },
+        {
+          "name": "customerid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "subcontractorid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "is_alliance_stocktransfer_po",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "trackingid",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "print_records_per_page",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "tjx_parts_qty_type",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "is_approved",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "override_supplier_is_under",
+          "type": "enum('','alliance','cls','maintenance')",
+          "notNull": false
+        },
+        {
+          "name": "transferring_from_type",
+          "type": "enum('alliance','cls','alliancepickup','clspickup','contractor','customer','subcontractor','clscustomer','alliancemaintenance','')",
+          "notNull": false
+        },
+        {
+          "name": "is_alliance_stocktransfer_po_old",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "from_subcontractorid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "from_customerid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "transfer_from_contactname",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "transfer_from_company",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "transfer_from_street1",
+          "type": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "name": "transfer_from_street2",
+          "type": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "name": "transfer_from_city",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "transfer_from_province",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "transfer_from_postalcode",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "transfer_from_phone",
+          "type": "varchar(30)",
+          "notNull": false
+        },
+        {
+          "name": "transfer_from_address",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "transfer_came_from_poid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "po_submitted_by",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "approval_request_by",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "last_status",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "status_changed_date",
+          "type": "timestamp",
+          "notNull": false
+        },
+        {
+          "name": "last_followup_reminder_date",
+          "type": "date",
+          "notNull": false
+        }
+      ]
+    },
+    "po_invoice": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "poid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "invoicenumber",
+          "type": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "name": "invoice_supplier_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "tax_amount",
+          "type": "decimal(7,2)",
+          "notNull": true
+        },
+        {
+          "name": "tax_code",
+          "type": "varchar(25)",
+          "notNull": true
+        },
+        {
+          "name": "workordernumber",
+          "type": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "name": "shipping_charges",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "cls_invoicenumber",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "invoice_report",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "tax_hst",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "tax_gst",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "tax_pst",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "tax_tvp",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "sub_total",
+          "type": "varchar(25)",
+          "notNull": false
+        },
+        {
+          "name": "total_amount",
+          "type": "varchar(25)",
+          "notNull": false
+        },
+        {
+          "name": "createdby",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "date_created",
+          "type": "date",
+          "notNull": false
+        },
+        {
+          "name": "invoice_date",
+          "type": "date",
+          "notNull": false
+        },
+        {
+          "name": "invoice_level",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "sage_done",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "stock_updated_during_mark_invoice",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "is_invoiced",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "rgaid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "forced_markinvoice_button",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "appliedtaxrate",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "appliedtaxrate_pst",
+          "type": "varchar(12)",
+          "notNull": false
+        }
+      ]
+    },
+    "po_invoice_parts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "poid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "invoice_id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "partno",
+          "type": "varchar(20)",
+          "notNull": true
+        },
+        {
+          "name": "model_number",
+          "type": "varchar(200)",
+          "notNull": false
+        },
+        {
+          "name": "actual_qty",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "backorder_qty",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "qty",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "price",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "linetotal",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "sortorder",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "sageprojectno",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "invoice_project",
+          "type": "varchar(60)",
+          "notNull": false
+        },
+        {
+          "name": "update_stock_quantity",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "po_invoice_soparts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "poid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "invoice_id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "notNull": true
+        },
+        {
+          "name": "po_so_part_id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "actual_qty",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "backorder_qty",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "qty",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "price",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "linetotal",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "sortorder",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "sageprojectno",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "invoice_project",
+          "type": "varchar(60)",
+          "notNull": false
+        }
+      ]
+    },
+    "po_notification": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "poid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "notify_type",
+          "type": "varchar(10)",
+          "notNull": false
+        },
+        {
+          "name": "user_id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "is_notified",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "po_parts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "poid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "partno",
+          "type": "varchar(100)",
+          "notNull": true
+        },
+        {
+          "name": "qty",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "qty_received",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "price",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "model_number",
+          "type": "varchar(150)",
+          "notNull": false
+        },
+        {
+          "name": "none_customer_invoice_item",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "item_transferfrom_type",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "item_transferfrom_type_number",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "item_purchase_type",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "item_purchase_type_number",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "under_warranty",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "do_not_deduct_from",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "po_preorder": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "cust_qoid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "report",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "status",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "priority",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "is_without_quote",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "workordernumber",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "createdby",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "date_received",
+          "type": "date",
+          "notNull": false
+        },
+        {
+          "name": "date_created",
+          "type": "date",
+          "notNull": false
+        }
+      ]
+    },
+    "po_preorder_parts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "pre_poid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "partno",
+          "type": "varchar(20)",
+          "notNull": true
+        },
+        {
+          "name": "qty",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "price",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "list_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "supplier_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "sub_supplier_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "cost_price",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "none_customer_invoice_item",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "item_purchase_type",
+          "type": "enum('workorder','stock','cls','projectpo')",
+          "notNull": false
+        },
+        {
+          "name": "item_purchase_type_number",
+          "type": "varchar(50)",
+          "notNull": false
+        }
+      ]
+    },
+    "po_preorder_soparts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "pre_poid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "notNull": true
+        },
+        {
+          "name": "qty",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "price",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "list_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "supplier_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "sub_supplier_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "cost_price",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "none_customer_invoice_item",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "item_purchase_type",
+          "type": "enum('workorder','stock','cls','projectpo')",
+          "notNull": false
+        },
+        {
+          "name": "item_purchase_type_number",
+          "type": "varchar(50)",
+          "notNull": false
+        }
+      ]
+    },
+    "po_preorder_suppliers": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "pre_poid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "supplier_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "sub_supplier_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "list_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "supplier_response_status",
+          "type": "enum('waiting','accepted','decline')",
+          "notNull": false
+        },
+        {
+          "name": "quotes_counter",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "resubmission_request",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "dated",
+          "type": "datetime",
+          "notNull": false
+        },
+        {
+          "name": "msg_notes",
+          "type": "longtext",
+          "notNull": false
+        },
+        {
+          "name": "processed_as_order",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "po_quote": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "poid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "report",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "status",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "priority",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "date_received",
+          "type": "date",
+          "notNull": false
+        },
+        {
+          "name": "date_created",
+          "type": "date",
+          "notNull": false
+        }
+      ]
+    },
+    "po_quote_requested_parts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "req_qoid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "partno",
+          "type": "varchar(20)",
+          "notNull": true
+        },
+        {
+          "name": "qty",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "price",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "supplier_lists",
+          "type": "text",
+          "notNull": false
+        }
+      ]
+    },
+    "po_quote_requested_parts_detail": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "req_qoid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "partno",
+          "type": "varchar(20)",
+          "notNull": true
+        },
+        {
+          "name": "qty",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "price",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "list_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "supplier_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "cost_price",
+          "type": "varchar(20)",
+          "notNull": false
+        }
+      ]
+    },
+    "po_quote_suppliers": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "req_qoid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "supplier_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "list_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "sage_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "supplier_user_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "supplier_response_status",
+          "type": "enum('waiting','accepted','decline')",
+          "notNull": false
+        },
+        {
+          "name": "quotes_counter",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "resubmission_request",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "dated",
+          "type": "datetime",
+          "notNull": false
+        },
+        {
+          "name": "msg_notes",
+          "type": "longtext",
+          "notNull": false
+        }
+      ]
+    },
+    "po_soparts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "poid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(200)",
+          "notNull": true
+        },
+        {
+          "name": "qty",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "qty_received",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "price",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "model_number",
+          "type": "varchar(150)",
+          "notNull": false
+        },
+        {
+          "name": "none_customer_invoice_item",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "item_transferfrom_type",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "item_transferfrom_type_number",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "item_purchase_type",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "item_purchase_type_number",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "do_not_deduct_from",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "po_submission_after_approval": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "poid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "email_subject",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "email_notes",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "main_email",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "allianceemails",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "cc_emails",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "attach_po_file",
+          "type": "varchar(10)",
+          "notNull": false
+        },
+        {
+          "name": "attach_all_files",
+          "type": "varchar(10)",
+          "notNull": false
+        },
+        {
+          "name": "attach_individual_files",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "submit_by",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "is_pending",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "date_created",
+          "type": "datetime",
+          "notNull": false
+        }
+      ]
+    },
+    "po_supplier_quote": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "req_qoid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "poid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "supplier_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "report",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "status",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "priority",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "exp_delivery_date",
+          "type": "date",
+          "notNull": false
+        },
+        {
+          "name": "date_created",
+          "type": "date",
+          "notNull": false
+        },
+        {
+          "name": "resubmission_request",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "processed_as_order",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "po_supplier_quote_parts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "sup_qoid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "req_qoid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "partno",
+          "type": "varchar(20)",
+          "notNull": true
+        },
+        {
+          "name": "qty",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "price",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "additional_note",
+          "type": "text",
+          "notNull": false
+        }
+      ]
+    },
+    "rga": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "supplier_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "poid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "status",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "status_on_july_21_2025",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "rga_notes",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "notes",
+          "type": "longtext",
+          "notNull": false
+        },
+        {
+          "name": "request_date",
+          "type": "date",
+          "notNull": false
+        },
+        {
+          "name": "rga_invoicedate",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "rga_invoicenumber",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "ship_address_contactname",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ship_address_company",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ship_address_street1",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ship_address_street2",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ship_address_city",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ship_address_province",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ship_address_postalcode",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ship_address_phone",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "shipping_address",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "createdby",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "is_marked_critical",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "completiondate",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "date_created",
+          "type": "datetime",
+          "notNull": false
+        },
+        {
+          "name": "date_completed",
+          "type": "datetime",
+          "notNull": false
+        },
+        {
+          "name": "rga_folder_attach_path",
+          "type": "varchar(200)",
+          "notNull": false
+        },
+        {
+          "name": "is_online_vendor_order",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "stock_updated",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "revision_no",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "is_type_maintenance",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "is_submitted",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "rga_type",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "replacement_type",
+          "type": "varchar(25)",
+          "notNull": false
+        },
+        {
+          "name": "subcontractor",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "site",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "workordernumber",
+          "type": "varchar(20)",
+          "notNull": false
+        }
+      ]
+    },
+    "rga_invoice": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "rgaid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "invoicenumber",
+          "type": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "name": "invoice_supplier_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "tax_amount",
+          "type": "decimal(7,2)",
+          "notNull": true
+        },
+        {
+          "name": "tax_code",
+          "type": "varchar(25)",
+          "notNull": true
+        },
+        {
+          "name": "workordernumber",
+          "type": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "name": "shipping_charges",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "cls_invoicenumber",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "invoice_report",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "tax_hst",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "tax_gst",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "tax_pst",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "tax_tvp",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "sub_total",
+          "type": "varchar(25)",
+          "notNull": false
+        },
+        {
+          "name": "total_amount",
+          "type": "varchar(25)",
+          "notNull": false
+        },
+        {
+          "name": "createdby",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "date_created",
+          "type": "date",
+          "notNull": false
+        },
+        {
+          "name": "invoice_date",
+          "type": "date",
+          "notNull": false
+        },
+        {
+          "name": "invoice_level",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "sage_done",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "is_invoiced",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "rga_invoice_parts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "rgaid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "invoice_id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "partno",
+          "type": "varchar(20)",
+          "notNull": true
+        },
+        {
+          "name": "actual_qty",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "backorder_qty",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "qty",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "price",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "linetotal",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "sortorder",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "sageprojectno",
+          "type": "varchar(25)",
+          "notNull": false
+        }
+      ]
+    },
+    "rga_invoice_soparts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "rgaid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "invoice_id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(100)",
+          "notNull": true
+        },
+        {
+          "name": "rga_so_part_id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "actual_qty",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "backorder_qty",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "qty",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "price",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "linetotal",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "sortorder",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "sageprojectno",
+          "type": "varchar(25)",
+          "notNull": false
+        }
+      ]
+    },
+    "rga_notification": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "rgaid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "notify_type",
+          "type": "varchar(30)",
+          "notNull": false
+        },
+        {
+          "name": "user_id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "is_notified",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "notify_date",
+          "type": "date",
+          "notNull": false
+        }
+      ]
+    },
+    "rga_parts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "rgaid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "partno",
+          "type": "varchar(50)",
+          "notNull": true
+        },
+        {
+          "name": "qty",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "price",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "model_number",
+          "type": "varchar(150)",
+          "notNull": false
+        },
+        {
+          "name": "reason_for_return",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "item_purchase_type",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "item_purchase_type_number",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "po_number",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "po_part_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "return_qty",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "under_warranty",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "rp_invoicenumber",
+          "type": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "name": "rp_invoicedate",
+          "type": "varchar(25)",
+          "notNull": false
+        }
+      ]
+    },
+    "rga_soparts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "rgaid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(200)",
+          "notNull": true
+        },
+        {
+          "name": "qty",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "price",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "model_number",
+          "type": "varchar(150)",
+          "notNull": false
+        },
+        {
+          "name": "reason_for_return",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "item_purchase_type",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "item_purchase_type_number",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "po_number",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "po_sopart_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "return_qty",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "rp_invoicenumber",
+          "type": "varchar(25)",
+          "notNull": false
+        },
+        {
+          "name": "rp_invoicedate",
+          "type": "varchar(25)",
+          "notNull": false
+        }
+      ]
+    },
+    "tjx_fixture_parts": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "partno",
+          "type": "varchar(30)",
+          "notNull": false
+        },
+        {
+          "name": "fixtureid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "markup",
+          "type": "varchar(10)",
+          "notNull": false
+        },
+        {
+          "name": "parttype",
+          "type": "enum('ballast','lamp','')",
+          "notNull": false
+        },
+        {
+          "name": "part_ratio_perfixture",
+          "type": "varchar(20)",
+          "notNull": false
+        }
+      ]
+    },
+    "tjx_fixture_parts_per_quote": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "partno",
+          "type": "varchar(30)",
+          "notNull": false
+        },
+        {
+          "name": "quoteid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "fixtureid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "markup",
+          "type": "varchar(10)",
+          "notNull": false
+        },
+        {
+          "name": "parttype",
+          "type": "enum('ballast','lamp','')",
+          "notNull": false
+        },
+        {
+          "name": "part_ratio_perfixture",
+          "type": "varchar(20)",
+          "notNull": false
+        }
+      ]
+    },
+    "tjx_fixture_per_quote": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "fixtureid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "quoteid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "fixturename",
+          "type": "varchar(80)",
+          "notNull": false
+        },
+        {
+          "name": "sortorder",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "tjx_prices_per_quote": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "quoteid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "partno",
+          "type": "varchar(20)",
+          "notNull": true
+        },
+        {
+          "name": "price",
+          "type": "varchar(25)",
+          "notNull": false
+        },
+        {
+          "name": "last_price",
+          "type": "varchar(25)",
+          "notNull": false
+        }
+      ]
+    },
+    "tjx_quote": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "status",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "pdf_notes",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "notes",
+          "type": "longtext",
+          "notNull": false
+        },
+        {
+          "name": "due_date",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "payment_terms",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "ceiling_grid_type",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "ship_address_contactname",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ship_address_company",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ship_address_street1",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ship_address_street2",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ship_address_city",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ship_address_province",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ship_address_postalcode",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ship_address_phone",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "shipping_address",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "createdby",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "date_created",
+          "type": "datetime",
+          "notNull": false
+        },
+        {
+          "name": "tjxquote_folder_attach_path",
+          "type": "varchar(200)",
+          "notNull": false
+        },
+        {
+          "name": "revision_no",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "is_submitted",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "ship_to_type",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "site",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "workordernumber",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "tax_code",
+          "type": "varchar(12)",
+          "notNull": false
+        },
+        {
+          "name": "tax_amount",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "subtotal_amount",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "total_amount",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "withoutmarkup_tax_amount",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "withoutmarkup_subtotal_amount",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "withoutmarkup_total_amount",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "revision_notes",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "quote_type",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "appliedtaxrate",
+          "type": "varchar(12)",
+          "notNull": false
+        },
+        {
+          "name": "is_type_maintenance",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "tjx_quote_downloads": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "quoteid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "filename",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "downloadbyname",
+          "type": "varchar(30)",
+          "notNull": false
+        },
+        {
+          "name": "foldername",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "datecreated",
+          "type": "datetime",
+          "notNull": false
+        },
+        {
+          "name": "download_revision_notes",
+          "type": "text",
+          "notNull": false
+        }
+      ]
+    },
+    "tjx_quote_extra_workorders": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "quoteid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "is_project_workorder",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "sortorder",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "tjx_quote_fixtures": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "roomid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "fixtureid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "totalfixtures",
+          "type": "varchar(12)",
+          "notNull": false
+        },
+        {
+          "name": "quoteid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "sortorder",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "tjx_quote_lastused_sharedpart": {
+      "engine": "InnoDB",
+      "primaryKey": [],
+      "columns": [
+        {
+          "name": "quoteid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "used_partcode",
+          "type": "varchar(15)",
+          "notNull": true
+        },
+        {
+          "name": "main_partcode",
+          "type": "varchar(15)",
+          "notNull": true
+        }
+      ]
+    },
+    "tjx_quote_parts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "quoteid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "partno",
+          "type": "varchar(30)",
+          "notNull": true
+        },
+        {
+          "name": "fixtured_partno",
+          "type": "varchar(30)",
+          "notNull": false
+        },
+        {
+          "name": "qty",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "without_markup_qty",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "price",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "sortorder",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "tjx_quote_revisions": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "revision_id"
+      ],
+      "columns": [
+        {
+          "name": "revision_id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "quoteid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "created_time",
+          "type": "timestamp",
+          "notNull": false
+        },
+        {
+          "name": "revised_by_user",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "revision_type",
+          "type": "varchar(45)",
+          "notNull": false
+        },
+        {
+          "name": "data_quote",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "data_fixtures",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "data_parts",
+          "type": "longtext",
+          "notNull": false
+        },
+        {
+          "name": "data_soparts",
+          "type": "text",
+          "notNull": false
+        }
+      ]
+    },
+    "tjx_quote_soparts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "quoteid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(150)",
+          "notNull": false
+        },
+        {
+          "name": "qty",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "price",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "sortorder",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "tjx_rooms_template": {
+      "engine": "InnoDB",
+      "primaryKey": [],
+      "columns": [
+        {
+          "name": "roomid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "sortorder",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "tjx_sub_invoice": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "quoteid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "notes",
+          "type": "longtext",
+          "notNull": false
+        },
+        {
+          "name": "sub_notes",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "invoice_date",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "createdby",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "date_created",
+          "type": "datetime",
+          "notNull": false
+        },
+        {
+          "name": "is_submitted",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "invoice_number",
+          "type": "varchar(30)",
+          "notNull": false
+        },
+        {
+          "name": "workordernumber",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "tax_code",
+          "type": "varchar(12)",
+          "notNull": false
+        },
+        {
+          "name": "tax_total",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "tax_gst",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "tax_pst",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "tax_amount",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "subtotal_amount",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "total_amount",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "chk_project_reading",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "chk_project_photos",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "chk_project_signoff",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "rejected_count",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "tjx_sub_invoice_fixtures": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "invoiceid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "roomid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "otherroom",
+          "type": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "name": "fixtureid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "totalfixtures",
+          "type": "varchar(30)",
+          "notNull": false
+        },
+        {
+          "name": "installedqty_totalfixtures",
+          "type": "varchar(30)",
+          "notNull": false
+        },
+        {
+          "name": "quoted_roomid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "quoted_fixtureid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "discrepancy_notes",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "tjx_quote_fixture_rowid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "quoteid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "woid",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "sortorder",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "tjx_sub_invoice_revisions": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "revision_id"
+      ],
+      "columns": [
+        {
+          "name": "revision_id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "invoiceid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "workordernumber",
+          "type": "varchar(30)",
+          "notNull": false
+        },
+        {
+          "name": "created_time",
+          "type": "timestamp",
+          "notNull": false
+        },
+        {
+          "name": "revised_by_user",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "revision_type",
+          "type": "varchar(45)",
+          "notNull": false
+        },
+        {
+          "name": "data_invoice",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "data_fixtures",
+          "type": "longtext",
+          "notNull": false
+        },
+        {
+          "name": "data_parts",
+          "type": "longtext",
+          "notNull": false
+        },
+        {
+          "name": "data_soparts",
+          "type": "text",
+          "notNull": false
+        }
+      ]
+    },
+    "tjx_subcontractor_rates": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "partno",
+          "type": "varchar(25)",
+          "notNull": true
+        },
+        {
+          "name": "subid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "installcostperunit",
+          "type": "varchar(15)",
+          "notNull": false
+        }
+      ]
+    },
+    "tjx_wo_parts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(12)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "partno",
+          "type": "varchar(50)",
+          "notNull": true
+        },
+        {
+          "name": "partno_used_infixutre",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "qty",
+          "type": "decimal(7,2)",
+          "notNull": true
+        },
+        {
+          "name": "price",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "sortorder",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "tjx_wo_soparts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(120)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(10)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(100)",
+          "notNull": true
+        },
+        {
+          "name": "qty",
+          "type": "decimal(7,2)",
+          "notNull": true
+        },
+        {
+          "name": "price",
+          "type": "decimal(7,2)",
+          "notNull": true
+        },
+        {
+          "name": "sortorder",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "material_checklist": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(12)",
+          "notNull": true
+        },
+        {
+          "name": "workordernumber",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "quoteid",
+          "type": "varchar(25)",
+          "notNull": false
+        },
+        {
+          "name": "sub_notes",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "chk_all_reviewed",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "chk_all_skids_attached",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "chk_breif_walk_conducted",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "is_submitted",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "date_created",
+          "type": "datetime",
+          "notNull": false
+        }
+      ]
+    },
+    "material_checklist_custom_entries": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(12)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "qty",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "notNull": false
+        }
+      ]
+    },
+    "material_checklist_defective_parts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(12)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "partno",
+          "type": "varchar(50)",
+          "notNull": true
+        },
+        {
+          "name": "part_description",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "qty",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "defective_by_default",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "defect_reason",
+          "type": "varchar(80)",
+          "notNull": false
+        },
+        {
+          "name": "is_special_part",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "material_checklist_notes": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(12)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "partno",
+          "type": "varchar(50)",
+          "notNull": true
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "is_special_part",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "material_checklist_parts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(12)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "partno",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "part_description",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "qty",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "col_number",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "is_special_part",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "material_checklist_returning_custom_enteries": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(12)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "qty",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "returning_to",
+          "type": "enum('alliance','contractor','customer site','')",
+          "notNull": false
+        }
+      ]
+    },
+    "material_checklist_returning_parts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(12)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "partno",
+          "type": "varchar(150)",
+          "notNull": false
+        },
+        {
+          "name": "part_description",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "supplied_qty",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "qty",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "returning_to",
+          "type": "enum('alliance','contractor','customer site','')",
+          "notNull": false
+        },
+        {
+          "name": "is_special_part",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "is_default_stock",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "qty_to_alliance",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "qty_to_customer",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "qty_to_contractor",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "notNull": false
+        }
+      ]
+    },
+    "material_warranty": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "partno",
+          "type": "varchar(30)",
+          "notNull": false
+        },
+        {
+          "name": "partdesc",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "site_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "warranty_type",
+          "type": "enum('warranty','labor')",
+          "notNull": false
+        },
+        {
+          "name": "start_date",
+          "type": "date",
+          "notNull": false
+        },
+        {
+          "name": "expiration_date",
+          "type": "date",
+          "notNull": false
+        }
+      ]
+    },
+    "site_activity_logs": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "row_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "table_name",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "log_type",
+          "type": "varchar(80)",
+          "notNull": false
+        },
+        {
+          "name": "user_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "log_date",
+          "type": "datetime",
+          "notNull": false
+        },
+        {
+          "name": "php_filename",
+          "type": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "name": "section",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "notes_comments",
+          "type": "text",
+          "notNull": false
+        }
+      ]
+    },
+    "site_address_change_log": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "site_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "sage_address",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "portal_address",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "keep_warranty",
+          "type": "varchar(10)",
+          "notNull": false
+        },
+        {
+          "name": "log_date",
+          "type": "date",
+          "notNull": false
+        }
+      ]
+    },
+    "site_warranty": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint(20)",
+          "notNull": true
+        },
+        {
+          "name": "site_id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "warranty_notes",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "expiration_timespan",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "expiration_date",
+          "type": "date",
+          "notNull": false
+        }
+      ]
+    },
+    "subcontractor_additional_documents": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint(20)",
+          "notNull": true
+        },
+        {
+          "name": "subid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "document_name",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "file_name",
+          "type": "varchar(200)",
+          "notNull": false
+        },
+        {
+          "name": "document_notes",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "uploaded_timespan",
+          "type": "int(20)",
+          "notNull": false
+        }
+      ]
+    },
+    "subcontractor_wsib_insurance_documents": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint(20)",
+          "notNull": true
+        },
+        {
+          "name": "subid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "document_type",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "document_name",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "file_name",
+          "type": "varchar(200)",
+          "notNull": false
+        },
+        {
+          "name": "is_expired",
+          "type": "int(2)",
+          "notNull": false
+        },
+        {
+          "name": "expiration_timespan",
+          "type": "int(20)",
+          "notNull": false
+        },
+        {
+          "name": "expiration_date",
+          "type": "date",
+          "notNull": false
+        },
+        {
+          "name": "uploaded_timespan",
+          "type": "int(20)",
+          "notNull": false
+        },
+        {
+          "name": "near_expire_reminder_done",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "send_email_to_sub",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "email_sent_success",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "last_reminder_date",
+          "type": "date",
+          "notNull": false
+        }
+      ]
+    },
+    "customer_emails": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "email",
+          "type": "varchar(200)",
+          "notNull": false
+        },
+        {
+          "name": "name",
+          "type": "varchar(50)",
+          "notNull": false
+        }
+      ]
+    },
+    "email_messages_to_sub": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "sender_id",
+          "type": "int(10)",
+          "notNull": true
+        },
+        {
+          "name": "sender",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "subid",
+          "type": "int(10)",
+          "notNull": true
+        },
+        {
+          "name": "receiver_emails",
+          "type": "varchar(200)",
+          "notNull": true
+        },
+        {
+          "name": "subject",
+          "type": "varchar(200)",
+          "notNull": true
+        },
+        {
+          "name": "datetime",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "message",
+          "type": "text",
+          "notNull": true
+        },
+        {
+          "name": "file_attachments",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "parent_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "confirmation_key",
+          "type": "text",
+          "notNull": false
+        }
+      ]
+    },
+    "messages": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(100)",
+          "notNull": true
+        },
+        {
+          "name": "sender",
+          "type": "varchar(100)",
+          "notNull": true
+        },
+        {
+          "name": "receiver",
+          "type": "varchar(100)",
+          "notNull": true
+        },
+        {
+          "name": "subject",
+          "type": "varchar(100)",
+          "notNull": true
+        },
+        {
+          "name": "datetime",
+          "type": "varchar(100)",
+          "notNull": true
+        },
+        {
+          "name": "message",
+          "type": "text",
+          "notNull": true
+        },
+        {
+          "name": "read",
+          "type": "smallint(10)",
+          "notNull": true
+        }
+      ]
+    },
+    "messages_links": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "confirmation_key",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "message_text",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "message_title",
+          "type": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "name": "date",
+          "type": "timestamp",
+          "notNull": false
+        },
+        {
+          "name": "is_responded",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "messages_links_po": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "poid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "confirmation_key",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "message_text",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "message_title",
+          "type": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "name": "date",
+          "type": "timestamp",
+          "notNull": false
+        },
+        {
+          "name": "is_responded",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "sub_stock_messages": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "notification_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "subid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "userid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "usertype",
+          "type": "enum('','sub','admin')",
+          "notNull": false
+        },
+        {
+          "name": "username",
+          "type": "varchar(30)",
+          "notNull": false
+        },
+        {
+          "name": "message_subject",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "message_text",
+          "type": "text",
+          "notNull": true
+        },
+        {
+          "name": "is_read",
+          "type": "tinyint(4)",
+          "notNull": false
+        },
+        {
+          "name": "is_read_by",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "date_created",
+          "type": "datetime",
+          "notNull": false
+        },
+        {
+          "name": "confirmation_key",
+          "type": "varchar(50)",
+          "notNull": false
+        }
+      ]
+    },
+    "sub_stock_notification": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "userid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "subid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "contain_stock",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "notification_code",
+          "type": "varchar(10)",
+          "notNull": true
+        },
+        {
+          "name": "date_created",
+          "type": "datetime",
+          "notNull": false
+        },
+        {
+          "name": "is_responded",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "stockfilename",
+          "type": "varchar(50)",
+          "notNull": false
+        }
+      ]
+    },
+    "api_sc_callback_url_response": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "execute_timeint",
+          "type": "bigint(20)",
+          "notNull": false
+        },
+        {
+          "name": "runtime",
+          "type": "varchar(50)",
+          "notNull": false
+        }
+      ]
+    },
+    "api_sc_status_webhook": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "notes",
+          "type": "longtext",
+          "notNull": false
+        },
+        {
+          "name": "json_response",
+          "type": "longtext",
+          "notNull": false
+        },
+        {
+          "name": "execute_timeint",
+          "type": "bigint(20)",
+          "notNull": false
+        },
+        {
+          "name": "hookname",
+          "type": "varchar(80)",
+          "notNull": false
+        },
+        {
+          "name": "event_type",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "customerpo",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "status_primary",
+          "type": "varchar(30)",
+          "notNull": false
+        },
+        {
+          "name": "status_extended",
+          "type": "varchar(30)",
+          "notNull": false
+        },
+        {
+          "name": "is_read",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "created_time",
+          "type": "timestamp",
+          "notNull": false
+        }
+      ]
+    },
+    "api_sc_webhook": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "notes",
+          "type": "longtext",
+          "notNull": false
+        },
+        {
+          "name": "json_response",
+          "type": "longtext",
+          "notNull": false
+        },
+        {
+          "name": "execute_timeint",
+          "type": "bigint(20)",
+          "notNull": false
+        },
+        {
+          "name": "hookname",
+          "type": "varchar(80)",
+          "notNull": false
+        },
+        {
+          "name": "event_type",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "customerpo",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "status_primary",
+          "type": "varchar(30)",
+          "notNull": false
+        },
+        {
+          "name": "status_extended",
+          "type": "varchar(30)",
+          "notNull": false
+        },
+        {
+          "name": "is_read",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "created_time",
+          "type": "timestamp",
+          "notNull": false
+        }
+      ]
+    },
+    "cron_run_history": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "cronname",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "execute_timeint",
+          "type": "bigint(20)",
+          "notNull": false
+        },
+        {
+          "name": "runtime",
+          "type": "varchar(50)",
+          "notNull": false
+        }
+      ]
+    },
+    "errors_log_info": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "name": "created_time",
+          "type": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "name": "revision_type",
+          "type": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "name": "user_id",
+          "type": "varchar(100)",
+          "notNull": false
+        }
+      ]
+    },
+    "rejected_invoices": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "invoice_no",
+          "type": "varchar(100)",
+          "notNull": true
+        },
+        {
+          "name": "date_rejected",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "rejected_reason",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "invoice_content",
+          "type": "longtext",
+          "notNull": false
+        },
+        {
+          "name": "rejected_by_detail",
+          "type": "varchar(200)",
+          "notNull": false
+        }
+      ]
+    },
+    "rejected_quotes": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "date_rejected",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "rejected_reason",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "quote_content",
+          "type": "longtext",
+          "notNull": false
+        },
+        {
+          "name": "rejected_by_detail",
+          "type": "varchar(200)",
+          "notNull": false
+        }
+      ]
+    },
+    "sc_inv_hours": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "rate",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "entered_rate",
+          "type": "varchar(12)",
+          "notNull": false
+        },
+        {
+          "name": "date",
+          "type": "date",
+          "notNull": true
+        },
+        {
+          "name": "hours",
+          "type": "decimal(7,2)",
+          "notNull": true
+        }
+      ]
+    },
+    "sc_inv_parts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "partno",
+          "type": "varchar(20)",
+          "notNull": true
+        },
+        {
+          "name": "qty",
+          "type": "decimal(7,2)",
+          "notNull": true
+        },
+        {
+          "name": "price",
+          "type": "decimal(7,2)",
+          "notNull": true
+        },
+        {
+          "name": "entered_price",
+          "type": "varchar(12)",
+          "notNull": false
+        },
+        {
+          "name": "linked_sopart_cost_price",
+          "type": "varchar(30)",
+          "notNull": false
+        },
+        {
+          "name": "linked_part_sopart",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "is_local_part",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "applied_woid",
+          "type": "varchar(20)",
+          "notNull": false
+        }
+      ]
+    },
+    "sc_inv_soparts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "notNull": true
+        },
+        {
+          "name": "qty",
+          "type": "decimal(7,2)",
+          "notNull": true
+        },
+        {
+          "name": "price",
+          "type": "decimal(7,2)",
+          "notNull": true
+        },
+        {
+          "name": "entered_price",
+          "type": "varchar(12)",
+          "notNull": false
+        },
+        {
+          "name": "is_local_part",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "is_emergency_lighting",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "is_service_report",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "warranty_years",
+          "type": "varchar(25)",
+          "notNull": false
+        },
+        {
+          "name": "labor_warranty_years",
+          "type": "varchar(25)",
+          "notNull": false
+        },
+        {
+          "name": "applied_woid",
+          "type": "varchar(25)",
+          "notNull": false
+        }
+      ]
+    },
+    "sc_inv_tax": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(100)",
+          "notNull": true
+        },
+        {
+          "name": "appliedtaxrate",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "calc_type",
+          "type": "enum('sub','sub_project','local','local_project','')",
+          "notNull": false
+        },
+        {
+          "name": "tax_amount",
+          "type": "varchar(30)",
+          "notNull": false
+        },
+        {
+          "name": "subtotal_amount",
+          "type": "varchar(30)",
+          "notNull": false
+        },
+        {
+          "name": "total_amount",
+          "type": "varchar(30)",
+          "notNull": false
+        }
+      ]
+    },
+    "servchannel_api_setting": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "setting_name",
+          "type": "varchar(30)",
+          "notNull": false
+        },
+        {
+          "name": "setting_value",
+          "type": "varchar(50)",
+          "notNull": false
+        }
+      ]
+    },
+    "signoff_cron": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "is_processed",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "timespan_uploaded",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "timespan_processed",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "signature_found",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "is_reviewed",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "undispatched_batch_upload": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "batch_timespan",
+          "type": "bigint(20)",
+          "notNull": false
+        }
+      ]
+    },
+    "undispatched_workorders": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "location_id",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "location_name",
+          "type": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "name": "site_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "tracking_no",
+          "type": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "name": "nte",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "address",
+          "type": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "name": "province",
+          "type": "varchar(8)",
+          "notNull": false
+        },
+        {
+          "name": "city",
+          "type": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "name": "category",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "batch_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "batch_type",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "created_timespan",
+          "type": "bigint(20)",
+          "notNull": false
+        },
+        {
+          "name": "is_imported",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "re_updated",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "user_permissions": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "user_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "permission_name",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "is_allowed",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "permission_date",
+          "type": "date",
+          "notNull": false
+        }
+      ]
+    },
+    "user_permissions_price_management": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "user_id",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "allowed_by",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "permission_date",
+          "type": "date",
+          "notNull": true
+        }
+      ]
+    }
+  }
+}

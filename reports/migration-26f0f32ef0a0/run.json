@@ -1,0 +1,2387 @@
+{
+  "generatedAt": "2026-11-12T07:48:40.462Z",
+  "dumpId": "sha256:26f0f32ef0a0e13c5d24778df1885f019abe1f26a0da4fa5a3c5297373e8d9d9",
+  "manifestVersion": "2026-11-12.2",
+  "gitSha": "rehearsal",
+  "mode": "rehearsal",
+  "idempotency": {
+    "errorsPass1": 0,
+    "errorsPass2": 0,
+    "drift": [],
+    "parityPass1Differed": 0,
+    "parityPass2Differed": 0,
+    "userCohorts": {
+      "duplicate-username": 2,
+      "disabled": 3,
+      "orphan-vendor": 1,
+      "no-email": 1,
+      "shared-email": 2,
+      "unique-email": 3
+    }
+  },
+  "groups": [
+    {
+      "group": "lookups",
+      "order": 1,
+      "tables": 11,
+      "expected": 44,
+      "staged": 44,
+      "mapped": 44,
+      "accounted": 44,
+      "policySkipped": 0,
+      "openExceptions": 0,
+      "mismatch": "none",
+      "note": ""
+    },
+    {
+      "group": "parties",
+      "order": 2,
+      "tables": 7,
+      "expected": 35,
+      "staged": 35,
+      "mapped": 35,
+      "accounted": 35,
+      "policySkipped": 2,
+      "openExceptions": 5,
+      "mismatch": "none",
+      "note": ""
+    },
+    {
+      "group": "identity",
+      "order": 3,
+      "tables": 4,
+      "expected": 20,
+      "staged": 20,
+      "mapped": 16,
+      "accounted": 20,
+      "policySkipped": 1,
+      "openExceptions": 10,
+      "mismatch": "none",
+      "note": ""
+    },
+    {
+      "group": "parts",
+      "order": 4,
+      "tables": 12,
+      "expected": 34,
+      "staged": 34,
+      "mapped": 34,
+      "accounted": 34,
+      "policySkipped": 1,
+      "openExceptions": 3,
+      "mismatch": "none",
+      "note": ""
+    },
+    {
+      "group": "compliance",
+      "order": 5,
+      "tables": 5,
+      "expected": 14,
+      "staged": 14,
+      "mapped": 12,
+      "accounted": 14,
+      "policySkipped": 1,
+      "openExceptions": 2,
+      "mismatch": "none",
+      "note": ""
+    },
+    {
+      "group": "work-orders",
+      "order": 6,
+      "tables": 24,
+      "expected": 55,
+      "staged": 55,
+      "mapped": 43,
+      "accounted": 55,
+      "policySkipped": 5,
+      "openExceptions": 24,
+      "mismatch": "none",
+      "note": ""
+    },
+    {
+      "group": "quotes",
+      "order": 7,
+      "tables": 28,
+      "expected": 32,
+      "staged": 32,
+      "mapped": 24,
+      "accounted": 32,
+      "policySkipped": 0,
+      "openExceptions": 10,
+      "mismatch": "none",
+      "note": ""
+    },
+    {
+      "group": "purchasing",
+      "order": 8,
+      "tables": 20,
+      "expected": 44,
+      "staged": 44,
+      "mapped": 43,
+      "accounted": 44,
+      "policySkipped": 0,
+      "openExceptions": 22,
+      "mismatch": "none",
+      "note": ""
+    },
+    {
+      "group": "inventory",
+      "order": 9,
+      "tables": 7,
+      "expected": 22,
+      "staged": 22,
+      "mapped": 7,
+      "accounted": 22,
+      "policySkipped": 13,
+      "openExceptions": 6,
+      "mismatch": "none",
+      "note": ""
+    },
+    {
+      "group": "invoicing-rga",
+      "order": 10,
+      "tables": 12,
+      "expected": 33,
+      "staged": 33,
+      "mapped": 21,
+      "accounted": 33,
+      "policySkipped": 5,
+      "openExceptions": 24,
+      "mismatch": "none",
+      "note": ""
+    },
+    {
+      "group": "tjx",
+      "order": 11,
+      "tables": 23,
+      "expected": 15,
+      "staged": 15,
+      "mapped": 6,
+      "accounted": 15,
+      "policySkipped": 0,
+      "openExceptions": 12,
+      "mismatch": "none",
+      "note": ""
+    },
+    {
+      "group": "messaging-history",
+      "order": 12,
+      "tables": 11,
+      "expected": 23,
+      "staged": 23,
+      "mapped": 14,
+      "accounted": 23,
+      "policySkipped": 3,
+      "openExceptions": 7,
+      "mismatch": "none",
+      "note": ""
+    }
+  ],
+  "exceptions": [
+    {
+      "exceptionClass": "blank_money",
+      "title": "Blank money values",
+      "owner": "finance",
+      "description": "Stored NULL wherever the target allows it. Where the column is NOT NULL the row stores 0.00 and says so in its action; nothing is blank-filled silently.",
+      "policySkip": false,
+      "count": 13,
+      "rows": [
+        {
+          "entity": "invoice_tax",
+          "sourceKey": "1",
+          "rowCount": 1,
+          "migrationAction": "subtotal stored from the invoice lines: the posted subtotal is blank and the column is NOT NULL",
+          "decision": "pending",
+          "owner": null,
+          "notes": "subtotal_amount = \"\", line subtotal = 305.12"
+        },
+        {
+          "entity": "invoice_tax",
+          "sourceKey": "3",
+          "rowCount": 1,
+          "migrationAction": "subtotal stored from the invoice lines: the posted subtotal is blank and the column is NOT NULL",
+          "decision": "pending",
+          "owner": null,
+          "notes": "subtotal_amount = null, line subtotal = 85.24"
+        },
+        {
+          "entity": "purchase_order_invoice",
+          "sourceKey": "2",
+          "rowCount": 1,
+          "migrationAction": "stored 0.00 because the target column is NOT NULL",
+          "decision": "pending",
+          "owner": null,
+          "notes": "total_amount = \"\""
+        },
+        {
+          "entity": "purchase_order_invoice",
+          "sourceKey": "3",
+          "rowCount": 1,
+          "migrationAction": "stored 0.00 because the target column is NOT NULL",
+          "decision": "pending",
+          "owner": null,
+          "notes": "shipping_charges = null"
+        },
+        {
+          "entity": "purchase_order_invoice",
+          "sourceKey": "4",
+          "rowCount": 1,
+          "migrationAction": "stored 0.00 because the target column is NOT NULL",
+          "decision": "pending",
+          "owner": null,
+          "notes": "sub_total = null"
+        },
+        {
+          "entity": "purchase_order_invoice_part",
+          "sourceKey": "2",
+          "rowCount": 1,
+          "migrationAction": "stored 0.00 because the target column is NOT NULL",
+          "decision": "pending",
+          "owner": null,
+          "notes": "linetotal = \"\""
+        },
+        {
+          "entity": "purchase_order_part",
+          "sourceKey": "10",
+          "rowCount": 1,
+          "migrationAction": "stored 0.00 because the target column is NOT NULL",
+          "decision": "pending",
+          "owner": null,
+          "notes": "price = \"\""
+        },
+        {
+          "entity": "purchase_order_part",
+          "sourceKey": "2",
+          "rowCount": 1,
+          "migrationAction": "stored 0.00 because the target column is NOT NULL",
+          "decision": "pending",
+          "owner": null,
+          "notes": "price = \"\""
+        },
+        {
+          "entity": "purchase_order_special_part",
+          "sourceKey": "1",
+          "rowCount": 1,
+          "migrationAction": "stored 0.00 because the target column is NOT NULL",
+          "decision": "pending",
+          "owner": null,
+          "notes": "qty = null"
+        },
+        {
+          "entity": "purchase_order_special_part",
+          "sourceKey": "2",
+          "rowCount": 1,
+          "migrationAction": "stored 0.00 because the target column is NOT NULL",
+          "decision": "pending",
+          "owner": null,
+          "notes": "price = \"\""
+        },
+        {
+          "entity": "purchase_order_special_part",
+          "sourceKey": "4",
+          "rowCount": 1,
+          "migrationAction": "stored 0.00 because the target column is NOT NULL",
+          "decision": "pending",
+          "owner": null,
+          "notes": "price = null"
+        },
+        {
+          "entity": "rga_part",
+          "sourceKey": "2",
+          "rowCount": 1,
+          "migrationAction": "return_qty stored 0: the column is NOT NULL and the source value is blank",
+          "decision": "pending",
+          "owner": null,
+          "notes": "return_qty = null"
+        },
+        {
+          "entity": "tjx_sub_invoice",
+          "sourceKey": "1",
+          "rowCount": 1,
+          "migrationAction": "stored 0: the column is NOT NULL and the source value is blank",
+          "decision": "pending",
+          "owner": null,
+          "notes": "tax_amount = null"
+        }
+      ]
+    },
+    {
+      "exceptionClass": "blank_tax",
+      "title": "Blank tax on invoices",
+      "owner": "finance",
+      "description": "Stored NULL and counted separately from zero tax. Decide whether to backfill from Sage.",
+      "policySkip": false,
+      "count": 3,
+      "rows": [
+        {
+          "entity": "invoice_tax",
+          "sourceKey": "1",
+          "rowCount": 1,
+          "migrationAction": "tax stored 0 (NOT NULL column) and applied_tax_rate stored NULL; no default rate applied",
+          "decision": "pending",
+          "owner": null,
+          "notes": "tax_amount = \"\", appliedtaxrate = \"13.000\""
+        },
+        {
+          "entity": "invoice_tax",
+          "sourceKey": "3",
+          "rowCount": 1,
+          "migrationAction": "tax stored 0 (NOT NULL column) and applied_tax_rate stored NULL; no default rate applied",
+          "decision": "pending",
+          "owner": null,
+          "notes": "tax_amount = \"n/a\", appliedtaxrate = \"13.000\""
+        },
+        {
+          "entity": "invoice_tax",
+          "sourceKey": "4",
+          "rowCount": 1,
+          "migrationAction": "tax stored 0.00 as posted (a real zero, not a blank); applied_tax_rate kept as recorded",
+          "decision": "pending",
+          "owner": null,
+          "notes": "tax_amount = \"0.00\""
+        }
+      ]
+    },
+    {
+      "exceptionClass": "disabled_user",
+      "title": "Disabled users",
+      "owner": "admin",
+      "description": "Migrated disabled, with no credential and no invitation. History is retained.",
+      "policySkip": false,
+      "count": 3,
+      "rows": [
+        {
+          "entity": "user",
+          "sourceKey": "3",
+          "rowCount": 1,
+          "migrationAction": "migrated disabled: no credential, no invite, history retained",
+          "decision": "pending",
+          "owner": null,
+          "notes": "is_enabled = \"0\""
+        },
+        {
+          "entity": "user",
+          "sourceKey": "4",
+          "rowCount": 1,
+          "migrationAction": "migrated disabled: no credential, no invite, history retained",
+          "decision": "pending",
+          "owner": null,
+          "notes": "is_enabled = \"0\""
+        },
+        {
+          "entity": "user",
+          "sourceKey": "5",
+          "rowCount": 1,
+          "migrationAction": "migrated disabled: no credential, no invite, history retained",
+          "decision": "pending",
+          "owner": null,
+          "notes": "is_enabled = \"0\""
+        }
+      ]
+    },
+    {
+      "exceptionClass": "duplicate_sage_item",
+      "title": "Two parts claim one Sage item",
+      "owner": "operations",
+      "description": "The part is kept with a NULL sage_item_id; the row that already owns the item keeps it. Merging two stock records is a decision, not a migration step.",
+      "policySkip": false,
+      "count": 1,
+      "rows": [
+        {
+          "entity": "part",
+          "sourceKey": "10",
+          "rowCount": 1,
+          "migrationAction": "part kept, sage_item_id stored NULL",
+          "decision": "pending",
+          "owner": null,
+          "notes": "sage_id 1 already belongs to part 1"
+        }
+      ]
+    },
+    {
+      "exceptionClass": "duplicate_username",
+      "title": "Duplicate usernames",
+      "owner": "admin",
+      "description": "Two legacy accounts share a username. One canonical account is kept and the other is quarantined before any credential exists.",
+      "policySkip": true,
+      "count": 1,
+      "rows": [
+        {
+          "entity": "user",
+          "sourceKey": "2",
+          "rowCount": 1,
+          "migrationAction": "account not created: the first row with this username is kept",
+          "decision": "pending",
+          "owner": null,
+          "notes": "username = \"jsmith\"; kept legacy id 1"
+        }
+      ]
+    },
+    {
+      "exceptionClass": "no_email",
+      "title": "Accounts without an email",
+      "owner": "admin",
+      "description": "No invitation can be sent. Office verifies identity by phone and issues a one-time code.",
+      "policySkip": false,
+      "count": 2,
+      "rows": [
+        {
+          "entity": "user",
+          "sourceKey": "7",
+          "rowCount": 1,
+          "migrationAction": "placeholder address stored; no invitation can be sent",
+          "decision": "pending",
+          "owner": null,
+          "notes": "users.email is NOT NULL; office verifies identity by phone and issues a one-time code"
+        },
+        {
+          "entity": "user",
+          "sourceKey": "9",
+          "rowCount": 1,
+          "migrationAction": "shared address replaced by a placeholder; onboarding is office-assisted",
+          "decision": "pending",
+          "owner": null,
+          "notes": "email is already used by legacy id 8"
+        }
+      ]
+    },
+    {
+      "exceptionClass": "not_migrated",
+      "title": "Tables deliberately not migrated",
+      "owner": "operations",
+      "description": "Audit/history tables with no target in the new schema. Counted once per table, with the reason.",
+      "policySkip": true,
+      "count": 26,
+      "rows": [
+        {
+          "entity": "customer_email",
+          "sourceKey": "customer_emails",
+          "rowCount": 1,
+          "migrationAction": "kept in the read-only legacy mirror only; no app table exists",
+          "decision": "pending",
+          "owner": null,
+          "notes": "legacy generic e-mail list with no customer key; the forward model keeps one contact e-mail on app.customers"
+        },
+        {
+          "entity": "invoice_project",
+          "sourceKey": "inv_project:all",
+          "rowCount": 5,
+          "migrationAction": "not migrated: no target column in the app schema",
+          "decision": "pending",
+          "owner": null,
+          "notes": "legacy Sage project link (sage_project_workorder); app.sage_links.external_id is an API id, not a project name, so the link stays in staging and finance reconciles posted invoices by work-order number"
+        },
+        {
+          "entity": "part_inventory",
+          "sourceKey": "parts_inventory:all",
+          "rowCount": 4,
+          "migrationAction": "not migrated: no target table in the app schema",
+          "decision": "pending",
+          "owner": null,
+          "notes": "per-shipment batch (cost, sell, markup, sold counter) with no target table; app.parts keeps the authoritative counters (E4) and the rows stay in staging"
+        },
+        {
+          "entity": "part_purchased_inventory",
+          "sourceKey": "parts_purchased_inventory:all",
+          "rowCount": 3,
+          "migrationAction": "not migrated: no target table in the app schema",
+          "decision": "pending",
+          "owner": null,
+          "notes": "purchase lines of a supplier invoice; the purchasing module owns receipts, and importing these beside parts_salepurchase_log would count every receipt twice"
+        },
+        {
+          "entity": "part_purchasing_log",
+          "sourceKey": "parts_purchasing_log:all",
+          "rowCount": 3,
+          "migrationAction": "not migrated: no target table in the app schema",
+          "decision": "pending",
+          "owner": null,
+          "notes": "earlier purchase write path superseded by parts_salepurchase_log, which is the ledger of record (DATA-DICTIONARY); importing both double counts purchases"
+        },
+        {
+          "entity": "part_selling_log",
+          "sourceKey": "parts_selling_log:all",
+          "rowCount": 3,
+          "migrationAction": "not migrated: no target table in the app schema",
+          "decision": "pending",
+          "owner": null,
+          "notes": "earlier sale write path superseded by parts_salepurchase_log, which is the ledger of record (DATA-DICTIONARY); importing both double counts sales"
+        },
+        {
+          "entity": "po_notification",
+          "sourceKey": "po_notification:all",
+          "rowCount": 3,
+          "migrationAction": "not migrated: no target table for a subscription",
+          "decision": "pending",
+          "owner": null,
+          "notes": "per-user notify-me subscription for a PO/quote; the new purchasing reminders are job settings, so the subscription has no table (client decides whether to re-subscribe people)"
+        },
+        {
+          "entity": "prf",
+          "sourceKey": "prf",
+          "rowCount": 1,
+          "migrationAction": "kept in the read-only legacy mirror only; no app table exists",
+          "decision": "pending",
+          "owner": null,
+          "notes": "purchase requisition form header (internal request before a PO); the rebuild has no requisition table, the PO module starts at the purchase order"
+        },
+        {
+          "entity": "signoff_cron",
+          "sourceKey": "signoff_cron",
+          "rowCount": 1,
+          "migrationAction": "not migrated: transient PDF sign-off extraction queue; the signatures live in the re-uploaded work-order PDFs, so nothing is reconstructed",
+          "decision": "pending",
+          "owner": null,
+          "notes": "whole-table decision; every row of this table is skipped and stays in staging"
+        },
+        {
+          "entity": "site_address_change",
+          "sourceKey": "site_address_change_log",
+          "rowCount": 1,
+          "migrationAction": "kept in the read-only legacy mirror only; no app table exists",
+          "decision": "pending",
+          "owner": null,
+          "notes": "cron-detected Sage-vs-portal address drift; audit history with no forward table, address changes after cutover go to app.audit_log"
+        },
+        {
+          "entity": "wo_images_cropped",
+          "sourceKey": "wo_images_cropped",
+          "rowCount": 1,
+          "migrationAction": "not migrated: crop marker with no file name and no bytes; the images are re-uploaded as work-order documents from the folder path, so there is no storage key to point at",
+          "decision": "pending",
+          "owner": null,
+          "notes": "whole-table decision; every row of this table is skipped and stays in staging"
+        }
+      ]
+    },
+    {
+      "exceptionClass": "orphan_line",
+      "title": "Lines whose parent does not exist",
+      "owner": "module owner",
+      "description": "The line is kept with a NULL parent; no FK is forced and no parent is fabricated.",
+      "policySkip": false,
+      "count": 33,
+      "rows": [
+        {
+          "entity": "invoice_part",
+          "sourceKey": "4",
+          "rowCount": 1,
+          "migrationAction": "line not inserted: woid does not resolve to an app.work_orders row",
+          "decision": "pending",
+          "owner": null,
+          "notes": "woid = \"88888881\""
+        },
+        {
+          "entity": "invoice_tax",
+          "sourceKey": "5",
+          "rowCount": 1,
+          "migrationAction": "snapshot not stored: woid does not resolve to an app.work_orders row",
+          "decision": "pending",
+          "owner": null,
+          "notes": "woid = \"88888881\""
+        },
+        {
+          "entity": "invoice_tax",
+          "sourceKey": "6",
+          "rowCount": 1,
+          "migrationAction": "snapshot not stored: woid does not resolve to an app.work_orders row",
+          "decision": "pending",
+          "owner": null,
+          "notes": "woid = \"0\""
+        },
+        {
+          "entity": "local_work_order_hour",
+          "sourceKey": "2",
+          "rowCount": 1,
+          "migrationAction": "stored NULL tech_user_id",
+          "decision": "pending",
+          "owner": null,
+          "notes": "tech = \"2\" has no app.users row"
+        },
+        {
+          "entity": "local_work_order_tech",
+          "sourceKey": "2",
+          "rowCount": 1,
+          "migrationAction": "row not inserted: tech_user_id is NOT NULL and the user does not exist",
+          "decision": "pending",
+          "owner": null,
+          "notes": "tech = \"2\""
+        },
+        {
+          "entity": "message",
+          "sourceKey": "1",
+          "rowCount": 1,
+          "migrationAction": "message not inserted: author_user_id is NOT NULL and the sender is not an app user",
+          "decision": "pending",
+          "owner": null,
+          "notes": "sender = \"Interior\""
+        },
+        {
+          "entity": "message",
+          "sourceKey": "2",
+          "rowCount": 1,
+          "migrationAction": "message not inserted: author_user_id is NOT NULL and the sender is not an app user",
+          "decision": "pending",
+          "owner": null,
+          "notes": "sender = \"North\""
+        },
+        {
+          "entity": "message",
+          "sourceKey": "3",
+          "rowCount": 1,
+          "migrationAction": "message not inserted: author_user_id is NOT NULL and the sender is not an app user",
+          "decision": "pending",
+          "owner": null,
+          "notes": "sender = \"Interior\""
+        },
+        {
+          "entity": "message",
+          "sourceKey": "4",
+          "rowCount": 1,
+          "migrationAction": "message not inserted: author_user_id is NOT NULL and the sender is not an app user",
+          "decision": "pending",
+          "owner": null,
+          "notes": "sender = \"North\""
+        },
+        {
+          "entity": "message",
+          "sourceKey": "5",
+          "rowCount": 1,
+          "migrationAction": "message not inserted: author_user_id is NOT NULL and the sender is not an app user",
+          "decision": "pending",
+          "owner": null,
+          "notes": "sender = \"CLS\""
+        },
+        {
+          "entity": "purchase_order_preorder_part",
+          "sourceKey": "3",
+          "rowCount": 1,
+          "migrationAction": "row not inserted: preorder_id is NOT NULL and the pre-order does not exist",
+          "decision": "pending",
+          "owner": null,
+          "notes": "pre_poid = \"3\""
+        },
+        {
+          "entity": "rejected_invoice",
+          "sourceKey": "1",
+          "rowCount": 1,
+          "migrationAction": "deferred: app.sales_invoices rows are created by the invoicing-rga group; rerun purchasing with --force afterwards",
+          "decision": "pending",
+          "owner": null,
+          "notes": "woid = \"1001\", invoice_no = \"INV-4100\""
+        },
+        {
+          "entity": "rejected_invoice",
+          "sourceKey": "2",
+          "rowCount": 1,
+          "migrationAction": "deferred: app.sales_invoices rows are created by the invoicing-rga group; rerun purchasing with --force afterwards",
+          "decision": "pending",
+          "owner": null,
+          "notes": "woid = \"1002\", invoice_no = \"INV-4101\""
+        },
+        {
+          "entity": "rga_notification",
+          "sourceKey": "1",
+          "rowCount": 1,
+          "migrationAction": "notification not inserted: rga_id is NOT NULL and the RGA does not exist",
+          "decision": "pending",
+          "owner": null,
+          "notes": "rgaid = \"1\""
+        },
+        {
+          "entity": "rga_part",
+          "sourceKey": "1",
+          "rowCount": 1,
+          "migrationAction": "line not inserted: rgaid does not resolve to an app.rgas row",
+          "decision": "pending",
+          "owner": null,
+          "notes": "rgaid = \"1\""
+        },
+        {
+          "entity": "rga_special_part",
+          "sourceKey": "1",
+          "rowCount": 1,
+          "migrationAction": "line not inserted: rgaid does not resolve to an app.rgas row",
+          "decision": "pending",
+          "owner": null,
+          "notes": "rgaid = \"1\""
+        },
+        {
+          "entity": "tjx_fixture_part",
+          "sourceKey": "1",
+          "rowCount": 1,
+          "migrationAction": "part not inserted: fixture_id is NOT NULL and app.tjx_fixtures has no row with that legacy id",
+          "decision": "pending",
+          "owner": null,
+          "notes": "fixtureid = \"1\""
+        },
+        {
+          "entity": "tjx_fixture_part",
+          "sourceKey": "2",
+          "rowCount": 1,
+          "migrationAction": "part not inserted: fixture_id is NOT NULL and app.tjx_fixtures has no row with that legacy id",
+          "decision": "pending",
+          "owner": null,
+          "notes": "fixtureid = \"2\""
+        },
+        {
+          "entity": "tjx_fixture_part",
+          "sourceKey": "3",
+          "rowCount": 1,
+          "migrationAction": "part not inserted: fixture_id is NOT NULL and app.tjx_fixtures has no row with that legacy id",
+          "decision": "pending",
+          "owner": null,
+          "notes": "fixtureid = \"3\""
+        },
+        {
+          "entity": "tjx_quote_fixture",
+          "sourceKey": "1",
+          "rowCount": 1,
+          "migrationAction": "row not inserted: quote, room and a positive fixture quantity are required (quote_room_id and quantity are NOT NULL)",
+          "decision": "pending",
+          "owner": null,
+          "notes": "quoteid = \"1\", roomid = \"1\", totalfixtures = \"12.50\""
+        },
+        {
+          "entity": "tjx_quote_fixture",
+          "sourceKey": "2",
+          "rowCount": 1,
+          "migrationAction": "row not inserted: quote, room and a positive fixture quantity are required (quote_room_id and quantity are NOT NULL)",
+          "decision": "pending",
+          "owner": null,
+          "notes": "quoteid = \"2\", roomid = \"2\", totalfixtures = null"
+        },
+        {
+          "entity": "tjx_quote_fixture",
+          "sourceKey": "3",
+          "rowCount": 1,
+          "migrationAction": "row not inserted: quote, room and a positive fixture quantity are required (quote_room_id and quantity are NOT NULL)",
+          "decision": "pending",
+          "owner": null,
+          "notes": "quoteid = \"3\", roomid = \"3\", totalfixtures = \"0.00\""
+        },
+        {
+          "entity": "tjx_quote_revision",
+          "sourceKey": "2",
+          "rowCount": 1,
+          "migrationAction": "revision not inserted: quote_id is NOT NULL and the quote does not exist",
+          "decision": "pending",
+          "owner": null,
+          "notes": "quoteid = \"2\""
+        },
+        {
+          "entity": "tjx_sub_invoice",
+          "sourceKey": "2",
+          "rowCount": 1,
+          "migrationAction": "invoice not inserted: quote, work order and subcontractor are all NOT NULL and one does not resolve",
+          "decision": "pending",
+          "owner": null,
+          "notes": "quoteid = \"2\", workordernumber = \"1002\", work order subcontractor = 3"
+        },
+        {
+          "entity": "user_permission",
+          "sourceKey": "2",
+          "rowCount": 1,
+          "migrationAction": "grant not inserted: no app.users row for user_id",
+          "decision": "pending",
+          "owner": null,
+          "notes": "user_id = \"2\""
+        },
+        {
+          "entity": "user_permission",
+          "sourceKey": "5",
+          "rowCount": 1,
+          "migrationAction": "grant not inserted: no app.users row for user_id",
+          "decision": "pending",
+          "owner": null,
+          "notes": "user_id = null"
+        },
+        {
+          "entity": "user_permission_price",
+          "sourceKey": "2",
+          "rowCount": 1,
+          "migrationAction": "grant not inserted: no app.users row for user_id",
+          "decision": "pending",
+          "owner": null,
+          "notes": "user_id = \"2\""
+        },
+        {
+          "entity": "work_order_invoice_number",
+          "sourceKey": "1",
+          "rowCount": 1,
+          "migrationAction": "deferred: app.sales_invoices rows are created by the invoicing-rga group; rerun work-orders with --force afterwards",
+          "decision": "pending",
+          "owner": null,
+          "notes": "woid = \"1001\", invoiceno = \"SAGE-5100\""
+        },
+        {
+          "entity": "work_order_invoice_number",
+          "sourceKey": "2",
+          "rowCount": 1,
+          "migrationAction": "deferred: app.sales_invoices rows are created by the invoicing-rga group; rerun work-orders with --force afterwards",
+          "decision": "pending",
+          "owner": null,
+          "notes": "woid = \"1002\", invoiceno = \"SAGE-5101\""
+        },
+        {
+          "entity": "work_order_part",
+          "sourceKey": "5",
+          "rowCount": 1,
+          "migrationAction": "row not inserted: work_order_id is NOT NULL and the parent does not exist",
+          "decision": "pending",
+          "owner": null,
+          "notes": "woid = \"88888881\""
+        },
+        {
+          "entity": "work_order_part",
+          "sourceKey": "6",
+          "rowCount": 1,
+          "migrationAction": "row not inserted: work_order_id is NOT NULL and the parent does not exist",
+          "decision": "pending",
+          "owner": null,
+          "notes": "woid = \"88888882\""
+        },
+        {
+          "entity": "work_order_part",
+          "sourceKey": "7",
+          "rowCount": 1,
+          "migrationAction": "row not inserted: work_order_id is NOT NULL and the parent does not exist",
+          "decision": "pending",
+          "owner": null,
+          "notes": "woid = \"88888883\""
+        },
+        {
+          "entity": "work_order_part",
+          "sourceKey": "8",
+          "rowCount": 1,
+          "migrationAction": "row not inserted: work_order_id is NOT NULL and the parent does not exist",
+          "decision": "pending",
+          "owner": null,
+          "notes": "woid = \"88888884\""
+        }
+      ]
+    },
+    {
+      "exceptionClass": "orphan_site_customer",
+      "title": "Sites without a billing customer",
+      "owner": "operations",
+      "description": "Site is kept and selectable with a NULL customer; list and detail mark \"No billing customer\".",
+      "policySkip": false,
+      "count": 2,
+      "rows": [
+        {
+          "entity": "site",
+          "sourceKey": "7",
+          "rowCount": 1,
+          "migrationAction": "site kept with customer_id = NULL; list and detail show \"No billing customer\"",
+          "decision": "pending",
+          "owner": null,
+          "notes": "custid = 9001 has no app.customers row"
+        },
+        {
+          "entity": "site",
+          "sourceKey": "8",
+          "rowCount": 1,
+          "migrationAction": "site kept with customer_id = NULL; list and detail show \"No billing customer\"",
+          "decision": "pending",
+          "owner": null,
+          "notes": "custid = 9002 has no app.customers row"
+        }
+      ]
+    },
+    {
+      "exceptionClass": "orphan_workorder_site",
+      "title": "Work orders whose site does not exist",
+      "owner": "operations",
+      "description": "The raw site id is preserved on the work order; no site is invented.",
+      "policySkip": false,
+      "count": 2,
+      "rows": [
+        {
+          "entity": "work_order",
+          "sourceKey": "1003",
+          "rowCount": 1,
+          "migrationAction": "mapped via workorder.site because workorder.customer does not resolve",
+          "decision": "pending",
+          "owner": null,
+          "notes": "customer = \"7777\", site = \"3\""
+        },
+        {
+          "entity": "work_order",
+          "sourceKey": "1004",
+          "rowCount": 1,
+          "migrationAction": "mapped via workorder.site because workorder.customer does not resolve",
+          "decision": "pending",
+          "owner": null,
+          "notes": "customer = \"\", site = \"6\""
+        }
+      ]
+    },
+    {
+      "exceptionClass": "placeholder_work_order",
+      "title": "Placeholder work orders",
+      "owner": "business owner",
+      "description": "WO ids 99999999, 44444444, 9999999, 9999998 and 0 are markers, not jobs. Not inserted; the allocator must never issue them.",
+      "policySkip": true,
+      "count": 5,
+      "rows": [
+        {
+          "entity": "work_order",
+          "sourceKey": "0",
+          "rowCount": 1,
+          "migrationAction": "row not inserted into app.work_orders; owner ops decides its fate",
+          "decision": "pending",
+          "owner": null,
+          "notes": "workorder.id = \"0\""
+        },
+        {
+          "entity": "work_order",
+          "sourceKey": "44444444",
+          "rowCount": 1,
+          "migrationAction": "row not inserted into app.work_orders; owner ops decides its fate",
+          "decision": "pending",
+          "owner": null,
+          "notes": "workorder.id = \"44444444\""
+        },
+        {
+          "entity": "work_order",
+          "sourceKey": "9999998",
+          "rowCount": 1,
+          "migrationAction": "row not inserted into app.work_orders; owner ops decides its fate",
+          "decision": "pending",
+          "owner": null,
+          "notes": "workorder.id = \"9999998\""
+        },
+        {
+          "entity": "work_order",
+          "sourceKey": "9999999",
+          "rowCount": 1,
+          "migrationAction": "row not inserted into app.work_orders; owner ops decides its fate",
+          "decision": "pending",
+          "owner": null,
+          "notes": "workorder.id = \"9999999\""
+        },
+        {
+          "entity": "work_order",
+          "sourceKey": "99999999",
+          "rowCount": 1,
+          "migrationAction": "row not inserted into app.work_orders; owner ops decides its fate",
+          "decision": "pending",
+          "owner": null,
+          "notes": "workorder.id = \"99999999\""
+        }
+      ]
+    },
+    {
+      "exceptionClass": "series_seed",
+      "title": "Number series seeded",
+      "owner": "operations",
+      "description": "The next number was taken from the legacy counter, not from the highest number issued.",
+      "policySkip": false,
+      "count": 1,
+      "rows": [
+        {
+          "entity": "wo_next_pid",
+          "sourceKey": "1",
+          "rowCount": 1,
+          "migrationAction": "allocator seeded above both the legacy counter and the highest migrated work order",
+          "decision": "pending",
+          "owner": null,
+          "notes": "series 1: next_id = 10010 (legacy 10010, highest work order 1009)"
+        }
+      ]
+    },
+    {
+      "exceptionClass": "status_not_allowed_for_kind",
+      "title": "Status not valid for this record kind",
+      "owner": "module owner",
+      "description": "The row kept a status that the new state machine does not allow for its kind; it is left for review rather than remapped.",
+      "policySkip": false,
+      "count": 1,
+      "rows": [
+        {
+          "entity": "customer_quote",
+          "sourceKey": "2",
+          "rowCount": 1,
+          "migrationAction": "stored status 1 (in progress)",
+          "decision": "pending",
+          "owner": null,
+          "notes": "status 2 (saved) is a standalone-only state"
+        }
+      ]
+    },
+    {
+      "exceptionClass": "subcontractor_without_vendor",
+      "title": "Subcontractor accounts without a vendor row",
+      "owner": "operations",
+      "description": "The account is kept but not invited until a real vendor row exists. Never create a fake vendor.",
+      "policySkip": false,
+      "count": 1,
+      "rows": [
+        {
+          "entity": "user",
+          "sourceKey": "6",
+          "rowCount": 1,
+          "migrationAction": "account kept with subcontractor_id = NULL and not invited until a vendor row exists",
+          "decision": "pending",
+          "owner": null,
+          "notes": "subid = 99 has no app.subcontractors row"
+        }
+      ]
+    },
+    {
+      "exceptionClass": "unbalanced_totals",
+      "title": "Totals that do not match their lines",
+      "owner": "finance",
+      "description": "Both totals are recorded; the new total is recomputed from lines. Neither number is silently chosen.",
+      "policySkip": false,
+      "count": 7,
+      "rows": [
+        {
+          "entity": "customer_quote",
+          "sourceKey": "1",
+          "rowCount": 1,
+          "migrationAction": "legacy tax_amount kept as manual_tax_amount; recomputed tax recorded",
+          "decision": "pending",
+          "owner": null,
+          "notes": "subtotal = 44.49, computed tax = 578.37, legacy tax_amount = 113.00, difference = 465.37"
+        },
+        {
+          "entity": "customer_quote",
+          "sourceKey": "2",
+          "rowCount": 1,
+          "migrationAction": "legacy tax_amount kept as manual_tax_amount; recomputed tax recorded",
+          "decision": "pending",
+          "owner": null,
+          "notes": "subtotal = 132.48, computed tax = 1722.24, legacy tax_amount = 1234.50, difference = 487.74"
+        },
+        {
+          "entity": "invoice_tax",
+          "sourceKey": "2",
+          "rowCount": 1,
+          "migrationAction": "posted subtotal kept; difference recorded against the recomputed line total",
+          "decision": "pending",
+          "owner": null,
+          "notes": "posted subtotal = 100.00, lines = 310.50, posted tax = 13.00, posted total = 113.00"
+        },
+        {
+          "entity": "purchase_order_invoice",
+          "sourceKey": "1",
+          "rowCount": 1,
+          "migrationAction": "legacy sub_total kept; recomputed line total recorded",
+          "decision": "pending",
+          "owner": null,
+          "notes": "sum(linetotal) = 90.00, sub_total = 100.00, difference = -10.00"
+        },
+        {
+          "entity": "purchase_order_invoice",
+          "sourceKey": "3",
+          "rowCount": 1,
+          "migrationAction": "legacy sub_total kept; recomputed line total recorded",
+          "decision": "pending",
+          "owner": null,
+          "notes": "sum(linetotal) = 0.00, sub_total = 1234.50, difference = -1234.50"
+        },
+        {
+          "entity": "standalone_quote",
+          "sourceKey": "1",
+          "rowCount": 1,
+          "migrationAction": "legacy tax_amount kept as manual_tax_amount; recomputed tax recorded",
+          "decision": "pending",
+          "owner": null,
+          "notes": "subtotal = 44.49, computed tax = 578.37, legacy tax_amount = 0.00, difference = 578.37"
+        },
+        {
+          "entity": "standalone_quote",
+          "sourceKey": "2",
+          "rowCount": 1,
+          "migrationAction": "legacy tax_amount kept as manual_tax_amount; recomputed tax recorded",
+          "decision": "pending",
+          "owner": null,
+          "notes": "subtotal = 172.76, computed tax = 2245.88, legacy tax_amount = 410.00, difference = 1835.88"
+        }
+      ]
+    },
+    {
+      "exceptionClass": "unknown_enum",
+      "title": "Unknown status values",
+      "owner": "module owner",
+      "description": "Stored NULL rather than mapped to the nearest label; the raw value is in the exception.",
+      "policySkip": false,
+      "count": 13,
+      "rows": [
+        {
+          "entity": "invoice_tax",
+          "sourceKey": "1",
+          "rowCount": 1,
+          "migrationAction": "applied_tax_rate stored NULL: the value is not a 0..1 rate",
+          "decision": "pending",
+          "owner": null,
+          "notes": "appliedtaxrate = \"13.000\""
+        },
+        {
+          "entity": "invoice_tax",
+          "sourceKey": "2",
+          "rowCount": 1,
+          "migrationAction": "applied_tax_rate stored NULL: the value is not a 0..1 rate",
+          "decision": "pending",
+          "owner": null,
+          "notes": "appliedtaxrate = \"13.000\""
+        },
+        {
+          "entity": "invoice_tax",
+          "sourceKey": "3",
+          "rowCount": 1,
+          "migrationAction": "applied_tax_rate stored NULL: the value is not a 0..1 rate",
+          "decision": "pending",
+          "owner": null,
+          "notes": "appliedtaxrate = \"13.000\""
+        },
+        {
+          "entity": "invoice_tax",
+          "sourceKey": "4",
+          "rowCount": 1,
+          "migrationAction": "applied_tax_rate stored NULL: the value is not a 0..1 rate",
+          "decision": "pending",
+          "owner": null,
+          "notes": "appliedtaxrate = \"13.000\""
+        },
+        {
+          "entity": "part_salepurchase_log",
+          "sourceKey": "1",
+          "rowCount": 1,
+          "migrationAction": "row not inserted: transaction_type does not name a ledger type",
+          "decision": "pending",
+          "owner": null,
+          "notes": "transaction_type = \"\""
+        },
+        {
+          "entity": "rga",
+          "sourceKey": "1",
+          "rowCount": 1,
+          "migrationAction": "RGA not inserted: status is NOT NULL and outside 2/3/4/6/7/10/11",
+          "decision": "pending",
+          "owner": null,
+          "notes": "status = \"1\""
+        },
+        {
+          "entity": "rga",
+          "sourceKey": "2",
+          "rowCount": 1,
+          "migrationAction": "stored NULL, not the nearest label",
+          "decision": "pending",
+          "owner": null,
+          "notes": "replacement_type = \"replacement\""
+        },
+        {
+          "entity": "rga",
+          "sourceKey": "3",
+          "rowCount": 1,
+          "migrationAction": "stored rga_type 'rga' because the column is NOT NULL; replacement_type left NULL",
+          "decision": "pending",
+          "owner": null,
+          "notes": "rga_type = \"vendor_return\""
+        },
+        {
+          "entity": "rga",
+          "sourceKey": "4",
+          "rowCount": 1,
+          "migrationAction": "stored NULL, not the nearest label",
+          "decision": "pending",
+          "owner": null,
+          "notes": "replacement_type = \"replacement\""
+        },
+        {
+          "entity": "subcontractor_wsib_document",
+          "sourceKey": "3",
+          "rowCount": 1,
+          "migrationAction": "stored NULL, not the nearest label",
+          "decision": "pending",
+          "owner": null,
+          "notes": "document_type = \"wcb\""
+        },
+        {
+          "entity": "tjx_quote",
+          "sourceKey": "1",
+          "rowCount": 1,
+          "migrationAction": "applied_tax_rate stored NULL: the value is not a 0..1 rate",
+          "decision": "pending",
+          "owner": null,
+          "notes": "appliedtaxrate = \"13.000\""
+        },
+        {
+          "entity": "tjx_quote",
+          "sourceKey": "2",
+          "rowCount": 1,
+          "migrationAction": "quote not inserted: status is NOT NULL and outside 1/3/4/5",
+          "decision": "pending",
+          "owner": null,
+          "notes": "status = \"2\""
+        },
+        {
+          "entity": "tjx_quote_revision",
+          "sourceKey": "1",
+          "rowCount": 1,
+          "migrationAction": "stored NULL, not the nearest label",
+          "decision": "pending",
+          "owner": null,
+          "notes": "revision_type = \"manual\""
+        }
+      ]
+    },
+    {
+      "exceptionClass": "unparseable_json",
+      "title": "Unparseable JSON snapshots",
+      "owner": "data platform",
+      "description": "The raw text is preserved (or the snapshot skipped) and listed; nothing is guessed.",
+      "policySkip": false,
+      "count": 4,
+      "rows": [
+        {
+          "entity": "rejected_quote",
+          "sourceKey": "1",
+          "rowCount": 1,
+          "migrationAction": "stored NULL content",
+          "decision": "pending",
+          "owner": null,
+          "notes": "quote_content is not JSON; 57 characters stay in staging"
+        },
+        {
+          "entity": "rejected_quote",
+          "sourceKey": "2",
+          "rowCount": 1,
+          "migrationAction": "stored NULL content",
+          "decision": "pending",
+          "owner": null,
+          "notes": "quote_content is not JSON; 65 characters stay in staging"
+        },
+        {
+          "entity": "work_order_revision",
+          "sourceKey": "1",
+          "rowCount": 1,
+          "migrationAction": "stored NULL snapshot",
+          "decision": "pending",
+          "owner": null,
+          "notes": "data_wo_notes is not JSON; 57 characters stay in staging"
+        },
+        {
+          "entity": "work_order_revision",
+          "sourceKey": "2",
+          "rowCount": 1,
+          "migrationAction": "stored NULL snapshot",
+          "decision": "pending",
+          "owner": null,
+          "notes": "data_wo_notes is not JSON; 57 characters stay in staging"
+        }
+      ]
+    },
+    {
+      "exceptionClass": "unparseable_money",
+      "title": "Unparseable money",
+      "owner": "finance",
+      "description": "The raw value is listed with its source key and stored NULL. No rounding, no guessing.",
+      "policySkip": false,
+      "count": 5,
+      "rows": [
+        {
+          "entity": "customer_quote",
+          "sourceKey": "4",
+          "rowCount": 1,
+          "migrationAction": "stored NULL",
+          "decision": "pending",
+          "owner": null,
+          "notes": "tax_amount = \"n/a\""
+        },
+        {
+          "entity": "invoice_tax",
+          "sourceKey": "3",
+          "rowCount": 1,
+          "migrationAction": "stored NULL",
+          "decision": "pending",
+          "owner": null,
+          "notes": "tax_amount = \"n/a\""
+        },
+        {
+          "entity": "purchase_order_invoice",
+          "sourceKey": "4",
+          "rowCount": 1,
+          "migrationAction": "stored NULL",
+          "decision": "pending",
+          "owner": null,
+          "notes": "total_amount = \"n/a\""
+        },
+        {
+          "entity": "purchase_order_invoice_part",
+          "sourceKey": "3",
+          "rowCount": 1,
+          "migrationAction": "stored NULL",
+          "decision": "pending",
+          "owner": null,
+          "notes": "linetotal = \"n/a\""
+        },
+        {
+          "entity": "purchase_order_part",
+          "sourceKey": "4",
+          "rowCount": 1,
+          "migrationAction": "stored NULL",
+          "decision": "pending",
+          "owner": null,
+          "notes": "price = \"n/a\""
+        }
+      ]
+    },
+    {
+      "exceptionClass": "unresolved_part_line",
+      "title": "Unresolved part lines",
+      "owner": "operations",
+      "description": "Part numbers such as '---' are preserved as exceptions; no fake part is created.",
+      "policySkip": false,
+      "count": 5,
+      "rows": [
+        {
+          "entity": "part_salepurchase_log",
+          "sourceKey": "2",
+          "rowCount": 1,
+          "migrationAction": "row not inserted: part_no and qty are NOT NULL",
+          "decision": "pending",
+          "owner": null,
+          "notes": "partno = \"\", qty = \"2\""
+        },
+        {
+          "entity": "purchase_order_invoice_part",
+          "sourceKey": "2",
+          "rowCount": 1,
+          "migrationAction": "line kept without part_line_id",
+          "decision": "pending",
+          "owner": null,
+          "notes": "poid = \"2\", partno = \"CLS-1002\""
+        },
+        {
+          "entity": "purchase_order_invoice_part",
+          "sourceKey": "3",
+          "rowCount": 1,
+          "migrationAction": "line kept without part_line_id",
+          "decision": "pending",
+          "owner": null,
+          "notes": "poid = \"3\", partno = \"---\""
+        },
+        {
+          "entity": "purchase_order_invoice_part",
+          "sourceKey": "4",
+          "rowCount": 1,
+          "migrationAction": "line kept without part_line_id",
+          "decision": "pending",
+          "owner": null,
+          "notes": "poid = \"4\", partno = \"CLS-1004\""
+        },
+        {
+          "entity": "work_order_part",
+          "sourceKey": "3",
+          "rowCount": 1,
+          "migrationAction": "line kept with its non-part number; not linked to a part",
+          "decision": "pending",
+          "owner": null,
+          "notes": "woid = \"1003\", partno = \"---\""
+        }
+      ]
+    },
+    {
+      "exceptionClass": "zero_date",
+      "title": "Zero dates",
+      "owner": "data platform",
+      "description": "MySQL '0000-00-00' becomes NULL; it is not rewritten as 1970.",
+      "policySkip": false,
+      "count": 13,
+      "rows": [
+        {
+          "entity": "customer_quote",
+          "sourceKey": "4",
+          "rowCount": 1,
+          "migrationAction": "stored NULL",
+          "decision": "pending",
+          "owner": null,
+          "notes": "date_created is a zero date"
+        },
+        {
+          "entity": "customer_quote",
+          "sourceKey": "5",
+          "rowCount": 1,
+          "migrationAction": "stored NULL",
+          "decision": "pending",
+          "owner": null,
+          "notes": "date_approved is a zero date"
+        },
+        {
+          "entity": "invoice_hour",
+          "sourceKey": "4",
+          "rowCount": 1,
+          "migrationAction": "stored NULL",
+          "decision": "pending",
+          "owner": null,
+          "notes": "date is a zero date"
+        },
+        {
+          "entity": "purchase_order",
+          "sourceKey": "5",
+          "rowCount": 1,
+          "migrationAction": "stored NULL",
+          "decision": "pending",
+          "owner": null,
+          "notes": "expdeliverydate is a zero date"
+        },
+        {
+          "entity": "purchase_order_invoice",
+          "sourceKey": "3",
+          "rowCount": 1,
+          "migrationAction": "stored NULL",
+          "decision": "pending",
+          "owner": null,
+          "notes": "invoice_date is a zero date"
+        },
+        {
+          "entity": "rga",
+          "sourceKey": "4",
+          "rowCount": 1,
+          "migrationAction": "request_date stored as the import date: the column is NOT NULL and the source has no usable date",
+          "decision": "pending",
+          "owner": null,
+          "notes": "request_date = null"
+        },
+        {
+          "entity": "site",
+          "sourceKey": "5",
+          "rowCount": 1,
+          "migrationAction": "stored NULL",
+          "decision": "pending",
+          "owner": null,
+          "notes": "warranty_exp is a zero date"
+        },
+        {
+          "entity": "work_order",
+          "sourceKey": "1002",
+          "rowCount": 1,
+          "migrationAction": "stored NULL",
+          "decision": "pending",
+          "owner": null,
+          "notes": "completiondate is a zero date"
+        },
+        {
+          "entity": "work_order",
+          "sourceKey": "1004",
+          "rowCount": 1,
+          "migrationAction": "stored NULL",
+          "decision": "pending",
+          "owner": null,
+          "notes": "expcompletion is a zero date"
+        },
+        {
+          "entity": "work_order",
+          "sourceKey": "1006",
+          "rowCount": 1,
+          "migrationAction": "stored NULL",
+          "decision": "pending",
+          "owner": null,
+          "notes": "invdate is a zero date"
+        },
+        {
+          "entity": "work_order",
+          "sourceKey": "1009",
+          "rowCount": 1,
+          "migrationAction": "stored NULL",
+          "decision": "pending",
+          "owner": null,
+          "notes": "expcompletion is a zero date"
+        },
+        {
+          "entity": "work_order_hour",
+          "sourceKey": "5",
+          "rowCount": 1,
+          "migrationAction": "stored NULL",
+          "decision": "pending",
+          "owner": null,
+          "notes": "date is a zero date"
+        },
+        {
+          "entity": "work_order_note",
+          "sourceKey": "4",
+          "rowCount": 1,
+          "migrationAction": "stored NULL",
+          "decision": "pending",
+          "owner": null,
+          "notes": "date_created is a zero date"
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "parity": {
+    "total": 62,
+    "matched": 49,
+    "differed": 0,
+    "errored": 0,
+    "anchors": [
+      {
+        "group": "lookups",
+        "label": "wo_status rows (mirror, not part of this run)",
+        "mode": "oldOnly",
+        "oldValue": "5",
+        "newValue": null,
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "lookups",
+        "label": "wo_priority rows (mirror, not part of this run)",
+        "mode": "oldOnly",
+        "oldValue": "3",
+        "newValue": null,
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "lookups",
+        "label": "wo_servtype rows (mirror, not part of this run)",
+        "mode": "oldOnly",
+        "oldValue": "4",
+        "newValue": null,
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "lookups",
+        "label": "wo_categories rows (mirror, not part of this run)",
+        "mode": "oldOnly",
+        "oldValue": "4",
+        "newValue": null,
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "lookups",
+        "label": "po_status rows (mirror, not part of this run)",
+        "mode": "oldOnly",
+        "oldValue": "6",
+        "newValue": null,
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "lookups",
+        "label": "po_priority rows (mirror, not part of this run)",
+        "mode": "oldOnly",
+        "oldValue": "3",
+        "newValue": null,
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "lookups",
+        "label": "po_preorder_status rows (mirror, not part of this run)",
+        "mode": "oldOnly",
+        "oldValue": "3",
+        "newValue": null,
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "lookups",
+        "label": "customer_quote_status rows (mirror, not part of this run)",
+        "mode": "oldOnly",
+        "oldValue": "4",
+        "newValue": null,
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "lookups",
+        "label": "standalone_quote_status rows (mirror, not part of this run)",
+        "mode": "oldOnly",
+        "oldValue": "4",
+        "newValue": null,
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "lookups",
+        "label": "tjx_quote_status rows (mirror, not part of this run)",
+        "mode": "oldOnly",
+        "oldValue": "4",
+        "newValue": null,
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "lookups",
+        "label": "rga_status rows (mirror, not part of this run)",
+        "mode": "oldOnly",
+        "oldValue": "4",
+        "newValue": null,
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "parties",
+        "label": "customers",
+        "mode": "compare",
+        "oldValue": "6",
+        "newValue": "6",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "parties",
+        "label": "sites",
+        "mode": "compare",
+        "oldValue": "8",
+        "newValue": "8",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "parties",
+        "label": "sites without a billing customer",
+        "mode": "compare",
+        "oldValue": "2",
+        "newValue": "2",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "parties",
+        "label": "subcontractors",
+        "mode": "compare",
+        "oldValue": "5",
+        "newValue": "5",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "parties",
+        "label": "subcontractor interior rate sum",
+        "mode": "compare",
+        "oldValue": "15.00",
+        "newValue": "15",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "parties",
+        "label": "suppliers",
+        "mode": "compare",
+        "oldValue": "4",
+        "newValue": "4",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "parties",
+        "label": "subcontractor contacts",
+        "mode": "compare",
+        "oldValue": "5",
+        "newValue": "5",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "parties",
+        "label": "customer e-mails kept in the mirror (loaded from the dump, not this run)",
+        "mode": "oldOnly",
+        "oldValue": "4",
+        "newValue": null,
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "parties",
+        "label": "site address changes kept in the mirror (loaded from the dump, not this run)",
+        "mode": "oldOnly",
+        "oldValue": "3",
+        "newValue": null,
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "identity",
+        "label": "users (one per username; duplicates are quarantined, not duplicated)",
+        "mode": "compare",
+        "oldValue": "11",
+        "newValue": "11",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "identity",
+        "label": "disabled users",
+        "mode": "compare",
+        "oldValue": "3",
+        "newValue": "3",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "identity",
+        "label": "duplicate usernames",
+        "mode": "compare",
+        "oldValue": "1",
+        "newValue": "1",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "identity",
+        "label": "user permission grants (named + price management)",
+        "mode": "compare",
+        "oldValue": "5",
+        "newValue": "5",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "parts",
+        "label": "parts",
+        "mode": "compare",
+        "oldValue": "10",
+        "newValue": "10",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "parts",
+        "label": "parts sell-price sum",
+        "mode": "compare",
+        "oldValue": "509.45",
+        "newValue": "509.45",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "parts",
+        "label": "parts cost sum",
+        "mode": "compare",
+        "oldValue": "249.30",
+        "newValue": "249.3",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "parts",
+        "label": "part groups",
+        "mode": "compare",
+        "oldValue": "3",
+        "newValue": "3",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "parts",
+        "label": "supplier rate cards",
+        "mode": "compare",
+        "oldValue": "3",
+        "newValue": "3",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "parts",
+        "label": "selling rate cards",
+        "mode": "compare",
+        "oldValue": "4",
+        "newValue": "4",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "parts",
+        "label": "shared part mappings",
+        "mode": "compare",
+        "oldValue": "3",
+        "newValue": "3",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "parts",
+        "label": "price history rows",
+        "mode": "compare",
+        "oldValue": "4",
+        "newValue": "4",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "compliance",
+        "label": "subcontractor documents (wsib, insurance, additional)",
+        "mode": "compare",
+        "oldValue": "6",
+        "newValue": "6",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "compliance",
+        "label": "warranty rows (site + material)",
+        "mode": "compare",
+        "oldValue": "6",
+        "newValue": "6",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "work-orders",
+        "label": "work orders by status",
+        "mode": "compare",
+        "oldValue": "[{\"status\":\"1\",\"rows\":3},{\"status\":\"2\",\"rows\":3},{\"status\":\"3\",\"rows\":2},{\"status\":\"4\",\"rows\":1}]",
+        "newValue": "[{\"status\":\"1\",\"rows\":3},{\"status\":\"2\",\"rows\":3},{\"status\":\"3\",\"rows\":2},{\"status\":\"4\",\"rows\":1}]",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "work-orders",
+        "label": "work-order parts money",
+        "mode": "compare",
+        "oldValue": "178.25",
+        "newValue": "178.25",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "work-orders",
+        "label": "work-order labour hours",
+        "mode": "compare",
+        "oldValue": "21.00",
+        "newValue": "21",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "quotes",
+        "label": "quote headers (customer + standalone)",
+        "mode": "compare",
+        "oldValue": "8",
+        "newValue": "8",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "quotes",
+        "label": "quote parts lines",
+        "mode": "compare",
+        "oldValue": "7",
+        "newValue": "7",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "quotes",
+        "label": "quote labour hours",
+        "mode": "compare",
+        "oldValue": "9.00",
+        "newValue": "9",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "purchasing",
+        "label": "purchase orders",
+        "mode": "compare",
+        "oldValue": "8",
+        "newValue": "8",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "purchasing",
+        "label": "PO received quantity",
+        "mode": "compare",
+        "oldValue": "29.00",
+        "newValue": "29",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "purchasing",
+        "label": "supplier invoice totals",
+        "mode": "compare",
+        "oldValue": "1347.50",
+        "newValue": "1347.5",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "inventory",
+        "label": "sale movements: total quantity",
+        "mode": "compare",
+        "oldValue": "0",
+        "newValue": "0",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "inventory",
+        "label": "purchase movements: total quantity",
+        "mode": "compare",
+        "oldValue": "0",
+        "newValue": "0",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "inventory",
+        "label": "manual stock adjustments: row count",
+        "mode": "compare",
+        "oldValue": "4",
+        "newValue": "4",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "inventory",
+        "label": "adjustment quantities: total",
+        "mode": "compare",
+        "oldValue": "10",
+        "newValue": "10",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "invoicing-rga",
+        "label": "posted invoice totals (parseable rows only)",
+        "mode": "compare",
+        "oldValue": "113.00",
+        "newValue": "113",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "invoicing-rga",
+        "label": "invoices: one per work order with a posted snapshot",
+        "mode": "compare",
+        "oldValue": "4",
+        "newValue": "4",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "invoicing-rga",
+        "label": "invoice part lines: total amount",
+        "mode": "compare",
+        "oldValue": "327.7000",
+        "newValue": "327.7",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "invoicing-rga",
+        "label": "RGAs: count grouped by a status bucket (completed = 4)",
+        "mode": "compare",
+        "oldValue": "1",
+        "newValue": "1",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "invoicing-rga",
+        "label": "RGAs: count grouped by a status bucket (cancelled = 10)",
+        "mode": "compare",
+        "oldValue": "0",
+        "newValue": "0",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "invoicing-rga",
+        "label": "RGA part lines: row count",
+        "mode": "compare",
+        "oldValue": "3",
+        "newValue": "3",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "tjx",
+        "label": "quotes: row count",
+        "mode": "compare",
+        "oldValue": "2",
+        "newValue": "2",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "tjx",
+        "label": "quotes: posted total amount",
+        "mode": "compare",
+        "oldValue": "0.00",
+        "newValue": "0",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "tjx",
+        "label": "quotes: count grouped by a status bucket (approved = 4)",
+        "mode": "compare",
+        "oldValue": "0",
+        "newValue": "0",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "tjx",
+        "label": "quote revisions kept as snapshots",
+        "mode": "compare",
+        "oldValue": "1",
+        "newValue": "1",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "tjx",
+        "label": "subcontractor invoices: total amount",
+        "mode": "compare",
+        "oldValue": "0.00",
+        "newValue": "0",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "messaging-history",
+        "label": "messages kept",
+        "mode": "compare",
+        "oldValue": "0",
+        "newValue": "0",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "messaging-history",
+        "label": "message body characters preserved",
+        "mode": "compare",
+        "oldValue": "0",
+        "newValue": "0",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "messaging-history",
+        "label": "confirmation messages imported",
+        "mode": "compare",
+        "oldValue": "6",
+        "newValue": "6",
+        "match": true,
+        "error": null
+      },
+      {
+        "group": "messaging-history",
+        "label": "RGA reminder notifications kept",
+        "mode": "compare",
+        "oldValue": "2",
+        "newValue": "2",
+        "match": true,
+        "error": null
+      }
+    ]
+  },
+  "runs": [
+    {
+      "module": "lookups",
+      "phase": "transform",
+      "status": "passed",
+      "sourceRows": 44,
+      "transformedRows": 44,
+      "errorCount": 0
+    },
+    {
+      "module": "parties",
+      "phase": "transform",
+      "status": "passed",
+      "sourceRows": 35,
+      "transformedRows": 35,
+      "errorCount": 0
+    },
+    {
+      "module": "identity",
+      "phase": "transform",
+      "status": "passed",
+      "sourceRows": 20,
+      "transformedRows": 20,
+      "errorCount": 0
+    },
+    {
+      "module": "parts",
+      "phase": "transform",
+      "status": "passed",
+      "sourceRows": 34,
+      "transformedRows": 34,
+      "errorCount": 0
+    },
+    {
+      "module": "compliance",
+      "phase": "transform",
+      "status": "passed",
+      "sourceRows": 14,
+      "transformedRows": 14,
+      "errorCount": 0
+    },
+    {
+      "module": "work-orders",
+      "phase": "transform",
+      "status": "passed",
+      "sourceRows": 55,
+      "transformedRows": 55,
+      "errorCount": 0
+    },
+    {
+      "module": "quotes",
+      "phase": "transform",
+      "status": "passed",
+      "sourceRows": 32,
+      "transformedRows": 32,
+      "errorCount": 0
+    },
+    {
+      "module": "purchasing",
+      "phase": "transform",
+      "status": "passed",
+      "sourceRows": 44,
+      "transformedRows": 44,
+      "errorCount": 0
+    },
+    {
+      "module": "inventory",
+      "phase": "transform",
+      "status": "passed",
+      "sourceRows": 22,
+      "transformedRows": 22,
+      "errorCount": 0
+    },
+    {
+      "module": "invoicing-rga",
+      "phase": "transform",
+      "status": "passed",
+      "sourceRows": 33,
+      "transformedRows": 33,
+      "errorCount": 0
+    },
+    {
+      "module": "tjx",
+      "phase": "transform",
+      "status": "passed",
+      "sourceRows": 15,
+      "transformedRows": 15,
+      "errorCount": 0
+    },
+    {
+      "module": "messaging-history",
+      "phase": "transform",
+      "status": "passed",
+      "sourceRows": 23,
+      "transformedRows": 23,
+      "errorCount": 0
+    },
+    {
+      "module": "lookups",
+      "phase": "settle",
+      "status": "passed",
+      "sourceRows": 44,
+      "transformedRows": 44,
+      "errorCount": 0
+    },
+    {
+      "module": "parties",
+      "phase": "settle",
+      "status": "passed",
+      "sourceRows": 35,
+      "transformedRows": 35,
+      "errorCount": 0
+    },
+    {
+      "module": "identity",
+      "phase": "settle",
+      "status": "passed",
+      "sourceRows": 20,
+      "transformedRows": 20,
+      "errorCount": 0
+    },
+    {
+      "module": "parts",
+      "phase": "settle",
+      "status": "passed",
+      "sourceRows": 34,
+      "transformedRows": 34,
+      "errorCount": 0
+    },
+    {
+      "module": "compliance",
+      "phase": "settle",
+      "status": "passed",
+      "sourceRows": 14,
+      "transformedRows": 14,
+      "errorCount": 0
+    },
+    {
+      "module": "work-orders",
+      "phase": "settle",
+      "status": "passed",
+      "sourceRows": 55,
+      "transformedRows": 55,
+      "errorCount": 0
+    },
+    {
+      "module": "quotes",
+      "phase": "settle",
+      "status": "passed",
+      "sourceRows": 32,
+      "transformedRows": 32,
+      "errorCount": 0
+    },
+    {
+      "module": "purchasing",
+      "phase": "settle",
+      "status": "passed",
+      "sourceRows": 44,
+      "transformedRows": 44,
+      "errorCount": 0
+    },
+    {
+      "module": "inventory",
+      "phase": "settle",
+      "status": "passed",
+      "sourceRows": 22,
+      "transformedRows": 22,
+      "errorCount": 0
+    },
+    {
+      "module": "invoicing-rga",
+      "phase": "settle",
+      "status": "passed",
+      "sourceRows": 33,
+      "transformedRows": 33,
+      "errorCount": 0
+    },
+    {
+      "module": "tjx",
+      "phase": "settle",
+      "status": "passed",
+      "sourceRows": 15,
+      "transformedRows": 15,
+      "errorCount": 0
+    },
+    {
+      "module": "messaging-history",
+      "phase": "settle",
+      "status": "passed",
+      "sourceRows": 23,
+      "transformedRows": 23,
+      "errorCount": 0
+    },
+    {
+      "module": "lookups",
+      "phase": "verify",
+      "status": "passed",
+      "sourceRows": 44,
+      "transformedRows": 44,
+      "errorCount": 0
+    },
+    {
+      "module": "parties",
+      "phase": "verify",
+      "status": "passed",
+      "sourceRows": 35,
+      "transformedRows": 35,
+      "errorCount": 0
+    },
+    {
+      "module": "identity",
+      "phase": "verify",
+      "status": "passed",
+      "sourceRows": 20,
+      "transformedRows": 20,
+      "errorCount": 0
+    },
+    {
+      "module": "parts",
+      "phase": "verify",
+      "status": "passed",
+      "sourceRows": 34,
+      "transformedRows": 34,
+      "errorCount": 0
+    },
+    {
+      "module": "compliance",
+      "phase": "verify",
+      "status": "passed",
+      "sourceRows": 14,
+      "transformedRows": 14,
+      "errorCount": 0
+    },
+    {
+      "module": "work-orders",
+      "phase": "verify",
+      "status": "passed",
+      "sourceRows": 55,
+      "transformedRows": 55,
+      "errorCount": 0
+    },
+    {
+      "module": "quotes",
+      "phase": "verify",
+      "status": "passed",
+      "sourceRows": 32,
+      "transformedRows": 32,
+      "errorCount": 0
+    },
+    {
+      "module": "purchasing",
+      "phase": "verify",
+      "status": "passed",
+      "sourceRows": 44,
+      "transformedRows": 44,
+      "errorCount": 0
+    },
+    {
+      "module": "inventory",
+      "phase": "verify",
+      "status": "passed",
+      "sourceRows": 22,
+      "transformedRows": 22,
+      "errorCount": 0
+    },
+    {
+      "module": "invoicing-rga",
+      "phase": "verify",
+      "status": "passed",
+      "sourceRows": 33,
+      "transformedRows": 33,
+      "errorCount": 0
+    },
+    {
+      "module": "tjx",
+      "phase": "verify",
+      "status": "passed",
+      "sourceRows": 15,
+      "transformedRows": 15,
+      "errorCount": 0
+    },
+    {
+      "module": "messaging-history",
+      "phase": "verify",
+      "status": "passed",
+      "sourceRows": 23,
+      "transformedRows": 23,
+      "errorCount": 0
+    }
+  ],
+  "dumpObjects": {
+    "loaded": 164,
+    "skipped": 4,
+    "missing": 0,
+    "rows": 371
+  },
+  "totals": {
+    "expected": 371,
+    "staged": 371,
+    "mapped": 299,
+    "exceptions": 141,
+    "errors": 0,
+    "parityDiffered": 0
+  }
+}

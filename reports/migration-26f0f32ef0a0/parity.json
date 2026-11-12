@@ -1,0 +1,566 @@
+{
+  "total": 62,
+  "matched": 49,
+  "differed": 0,
+  "errored": 0,
+  "anchors": [
+    {
+      "group": "lookups",
+      "label": "wo_status rows (mirror, not part of this run)",
+      "mode": "oldOnly",
+      "oldValue": "5",
+      "newValue": null,
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "lookups",
+      "label": "wo_priority rows (mirror, not part of this run)",
+      "mode": "oldOnly",
+      "oldValue": "3",
+      "newValue": null,
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "lookups",
+      "label": "wo_servtype rows (mirror, not part of this run)",
+      "mode": "oldOnly",
+      "oldValue": "4",
+      "newValue": null,
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "lookups",
+      "label": "wo_categories rows (mirror, not part of this run)",
+      "mode": "oldOnly",
+      "oldValue": "4",
+      "newValue": null,
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "lookups",
+      "label": "po_status rows (mirror, not part of this run)",
+      "mode": "oldOnly",
+      "oldValue": "6",
+      "newValue": null,
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "lookups",
+      "label": "po_priority rows (mirror, not part of this run)",
+      "mode": "oldOnly",
+      "oldValue": "3",
+      "newValue": null,
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "lookups",
+      "label": "po_preorder_status rows (mirror, not part of this run)",
+      "mode": "oldOnly",
+      "oldValue": "3",
+      "newValue": null,
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "lookups",
+      "label": "customer_quote_status rows (mirror, not part of this run)",
+      "mode": "oldOnly",
+      "oldValue": "4",
+      "newValue": null,
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "lookups",
+      "label": "standalone_quote_status rows (mirror, not part of this run)",
+      "mode": "oldOnly",
+      "oldValue": "4",
+      "newValue": null,
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "lookups",
+      "label": "tjx_quote_status rows (mirror, not part of this run)",
+      "mode": "oldOnly",
+      "oldValue": "4",
+      "newValue": null,
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "lookups",
+      "label": "rga_status rows (mirror, not part of this run)",
+      "mode": "oldOnly",
+      "oldValue": "4",
+      "newValue": null,
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "parties",
+      "label": "customers",
+      "mode": "compare",
+      "oldValue": "6",
+      "newValue": "6",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "parties",
+      "label": "sites",
+      "mode": "compare",
+      "oldValue": "8",
+      "newValue": "8",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "parties",
+      "label": "sites without a billing customer",
+      "mode": "compare",
+      "oldValue": "2",
+      "newValue": "2",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "parties",
+      "label": "subcontractors",
+      "mode": "compare",
+      "oldValue": "5",
+      "newValue": "5",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "parties",
+      "label": "subcontractor interior rate sum",
+      "mode": "compare",
+      "oldValue": "15.00",
+      "newValue": "15",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "parties",
+      "label": "suppliers",
+      "mode": "compare",
+      "oldValue": "4",
+      "newValue": "4",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "parties",
+      "label": "subcontractor contacts",
+      "mode": "compare",
+      "oldValue": "5",
+      "newValue": "5",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "parties",
+      "label": "customer e-mails kept in the mirror (loaded from the dump, not this run)",
+      "mode": "oldOnly",
+      "oldValue": "4",
+      "newValue": null,
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "parties",
+      "label": "site address changes kept in the mirror (loaded from the dump, not this run)",
+      "mode": "oldOnly",
+      "oldValue": "3",
+      "newValue": null,
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "identity",
+      "label": "users (one per username; duplicates are quarantined, not duplicated)",
+      "mode": "compare",
+      "oldValue": "11",
+      "newValue": "11",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "identity",
+      "label": "disabled users",
+      "mode": "compare",
+      "oldValue": "3",
+      "newValue": "3",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "identity",
+      "label": "duplicate usernames",
+      "mode": "compare",
+      "oldValue": "1",
+      "newValue": "1",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "identity",
+      "label": "user permission grants (named + price management)",
+      "mode": "compare",
+      "oldValue": "5",
+      "newValue": "5",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "parts",
+      "label": "parts",
+      "mode": "compare",
+      "oldValue": "10",
+      "newValue": "10",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "parts",
+      "label": "parts sell-price sum",
+      "mode": "compare",
+      "oldValue": "509.45",
+      "newValue": "509.45",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "parts",
+      "label": "parts cost sum",
+      "mode": "compare",
+      "oldValue": "249.30",
+      "newValue": "249.3",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "parts",
+      "label": "part groups",
+      "mode": "compare",
+      "oldValue": "3",
+      "newValue": "3",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "parts",
+      "label": "supplier rate cards",
+      "mode": "compare",
+      "oldValue": "3",
+      "newValue": "3",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "parts",
+      "label": "selling rate cards",
+      "mode": "compare",
+      "oldValue": "4",
+      "newValue": "4",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "parts",
+      "label": "shared part mappings",
+      "mode": "compare",
+      "oldValue": "3",
+      "newValue": "3",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "parts",
+      "label": "price history rows",
+      "mode": "compare",
+      "oldValue": "4",
+      "newValue": "4",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "compliance",
+      "label": "subcontractor documents (wsib, insurance, additional)",
+      "mode": "compare",
+      "oldValue": "6",
+      "newValue": "6",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "compliance",
+      "label": "warranty rows (site + material)",
+      "mode": "compare",
+      "oldValue": "6",
+      "newValue": "6",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "work-orders",
+      "label": "work orders by status",
+      "mode": "compare",
+      "oldValue": "[{\"status\":\"1\",\"rows\":3},{\"status\":\"2\",\"rows\":3},{\"status\":\"3\",\"rows\":2},{\"status\":\"4\",\"rows\":1}]",
+      "newValue": "[{\"status\":\"1\",\"rows\":3},{\"status\":\"2\",\"rows\":3},{\"status\":\"3\",\"rows\":2},{\"status\":\"4\",\"rows\":1}]",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "work-orders",
+      "label": "work-order parts money",
+      "mode": "compare",
+      "oldValue": "178.25",
+      "newValue": "178.25",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "work-orders",
+      "label": "work-order labour hours",
+      "mode": "compare",
+      "oldValue": "21.00",
+      "newValue": "21",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "quotes",
+      "label": "quote headers (customer + standalone)",
+      "mode": "compare",
+      "oldValue": "8",
+      "newValue": "8",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "quotes",
+      "label": "quote parts lines",
+      "mode": "compare",
+      "oldValue": "7",
+      "newValue": "7",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "quotes",
+      "label": "quote labour hours",
+      "mode": "compare",
+      "oldValue": "9.00",
+      "newValue": "9",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "purchasing",
+      "label": "purchase orders",
+      "mode": "compare",
+      "oldValue": "8",
+      "newValue": "8",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "purchasing",
+      "label": "PO received quantity",
+      "mode": "compare",
+      "oldValue": "29.00",
+      "newValue": "29",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "purchasing",
+      "label": "supplier invoice totals",
+      "mode": "compare",
+      "oldValue": "1347.50",
+      "newValue": "1347.5",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "inventory",
+      "label": "sale movements: total quantity",
+      "mode": "compare",
+      "oldValue": "0",
+      "newValue": "0",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "inventory",
+      "label": "purchase movements: total quantity",
+      "mode": "compare",
+      "oldValue": "0",
+      "newValue": "0",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "inventory",
+      "label": "manual stock adjustments: row count",
+      "mode": "compare",
+      "oldValue": "4",
+      "newValue": "4",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "inventory",
+      "label": "adjustment quantities: total",
+      "mode": "compare",
+      "oldValue": "10",
+      "newValue": "10",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "invoicing-rga",
+      "label": "posted invoice totals (parseable rows only)",
+      "mode": "compare",
+      "oldValue": "113.00",
+      "newValue": "113",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "invoicing-rga",
+      "label": "invoices: one per work order with a posted snapshot",
+      "mode": "compare",
+      "oldValue": "4",
+      "newValue": "4",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "invoicing-rga",
+      "label": "invoice part lines: total amount",
+      "mode": "compare",
+      "oldValue": "327.7000",
+      "newValue": "327.7",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "invoicing-rga",
+      "label": "RGAs: count grouped by a status bucket (completed = 4)",
+      "mode": "compare",
+      "oldValue": "1",
+      "newValue": "1",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "invoicing-rga",
+      "label": "RGAs: count grouped by a status bucket (cancelled = 10)",
+      "mode": "compare",
+      "oldValue": "0",
+      "newValue": "0",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "invoicing-rga",
+      "label": "RGA part lines: row count",
+      "mode": "compare",
+      "oldValue": "3",
+      "newValue": "3",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "tjx",
+      "label": "quotes: row count",
+      "mode": "compare",
+      "oldValue": "2",
+      "newValue": "2",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "tjx",
+      "label": "quotes: posted total amount",
+      "mode": "compare",
+      "oldValue": "0.00",
+      "newValue": "0",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "tjx",
+      "label": "quotes: count grouped by a status bucket (approved = 4)",
+      "mode": "compare",
+      "oldValue": "0",
+      "newValue": "0",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "tjx",
+      "label": "quote revisions kept as snapshots",
+      "mode": "compare",
+      "oldValue": "1",
+      "newValue": "1",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "tjx",
+      "label": "subcontractor invoices: total amount",
+      "mode": "compare",
+      "oldValue": "0.00",
+      "newValue": "0",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "messaging-history",
+      "label": "messages kept",
+      "mode": "compare",
+      "oldValue": "0",
+      "newValue": "0",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "messaging-history",
+      "label": "message body characters preserved",
+      "mode": "compare",
+      "oldValue": "0",
+      "newValue": "0",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "messaging-history",
+      "label": "confirmation messages imported",
+      "mode": "compare",
+      "oldValue": "6",
+      "newValue": "6",
+      "match": true,
+      "error": null
+    },
+    {
+      "group": "messaging-history",
+      "label": "RGA reminder notifications kept",
+      "mode": "compare",
+      "oldValue": "2",
+      "newValue": "2",
+      "match": true,
+      "error": null
+    }
+  ]
+}
