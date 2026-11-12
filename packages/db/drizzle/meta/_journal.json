@@ -99,6 +99,13 @@
       "when": 1794453277479,
       "tag": "0013_yellow_raider",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1794454916063,
+      "tag": "0014_wandering_wolf_cub",
+      "breakpoints": true
     }
   ]
 }

@@ -1,0 +1,1 @@
+ALTER TABLE "app"."sage_reconciliation_findings" ADD COLUMN "decision_note" text;

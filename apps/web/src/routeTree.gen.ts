@@ -16,6 +16,7 @@ import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiReadyRouteImport } from './routes/api/ready'
 import { Route as AppAdminAuditRouteImport } from './routes/_app/admin/audit'
+import { Route as AppAdminReconciliationRouteImport } from './routes/_app/admin/reconciliation'
 import { Route as AppAdminSettingsRouteImport } from './routes/_app/admin/settings'
 import { Route as AppAdminUsersRouteImport } from './routes/_app/admin/users'
 import { Route as AppComplianceIndexRouteImport } from './routes/_app/compliance/index'
@@ -132,6 +133,11 @@ const ApiReadyRoute = ApiReadyRouteImport.update({
 const AppAdminAuditRoute = AppAdminAuditRouteImport.update({
   id: '/admin/audit',
   path: '/admin/audit',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAdminReconciliationRoute = AppAdminReconciliationRouteImport.update({
+  id: '/admin/reconciliation',
+  path: '/admin/reconciliation',
   getParentRoute: () => AppRoute,
 } as any)
 const AppAdminSettingsRoute = AppAdminSettingsRouteImport.update({
@@ -583,6 +589,7 @@ export interface FileRoutesByFullPath {
   '/api/health': typeof ApiHealthRoute
   '/api/ready': typeof ApiReadyRoute
   '/admin/audit': typeof AppAdminAuditRoute
+  '/admin/reconciliation': typeof AppAdminReconciliationRoute
   '/admin/settings': typeof AppAdminSettingsRoute
   '/admin/users': typeof AppAdminUsersRoute
   '/inventory/adjustments': typeof AppInventoryAdjustmentsRoute
@@ -674,6 +681,7 @@ export interface FileRoutesByTo {
   '/api/ready': typeof ApiReadyRoute
   '/': typeof AppIndexRoute
   '/admin/audit': typeof AppAdminAuditRoute
+  '/admin/reconciliation': typeof AppAdminReconciliationRoute
   '/admin/settings': typeof AppAdminSettingsRoute
   '/admin/users': typeof AppAdminUsersRoute
   '/inventory/adjustments': typeof AppInventoryAdjustmentsRoute
@@ -766,6 +774,7 @@ export interface FileRoutesById {
   '/api/ready': typeof ApiReadyRoute
   '/_app/': typeof AppIndexRoute
   '/_app/admin/audit': typeof AppAdminAuditRoute
+  '/_app/admin/reconciliation': typeof AppAdminReconciliationRoute
   '/_app/admin/settings': typeof AppAdminSettingsRoute
   '/_app/admin/users': typeof AppAdminUsersRoute
   '/_app/inventory/adjustments': typeof AppInventoryAdjustmentsRoute
@@ -859,6 +868,7 @@ export interface FileRouteTypes {
     | '/api/health'
     | '/api/ready'
     | '/admin/audit'
+    | '/admin/reconciliation'
     | '/admin/settings'
     | '/admin/users'
     | '/inventory/adjustments'
@@ -950,6 +960,7 @@ export interface FileRouteTypes {
     | '/api/ready'
     | '/'
     | '/admin/audit'
+    | '/admin/reconciliation'
     | '/admin/settings'
     | '/admin/users'
     | '/inventory/adjustments'
@@ -1041,6 +1052,7 @@ export interface FileRouteTypes {
     | '/api/ready'
     | '/_app/'
     | '/_app/admin/audit'
+    | '/_app/admin/reconciliation'
     | '/_app/admin/settings'
     | '/_app/admin/users'
     | '/_app/inventory/adjustments'
@@ -1191,6 +1203,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/audit'
       fullPath: '/admin/audit'
       preLoaderRoute: typeof AppAdminAuditRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/admin/reconciliation': {
+      id: '/_app/admin/reconciliation'
+      path: '/admin/reconciliation'
+      fullPath: '/admin/reconciliation'
+      preLoaderRoute: typeof AppAdminReconciliationRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/admin/settings': {
@@ -1793,6 +1812,7 @@ const AppPortalSubInvoicesRouteWithChildren =
 interface AppRouteChildren {
   AppIndexRoute: typeof AppIndexRoute
   AppAdminAuditRoute: typeof AppAdminAuditRoute
+  AppAdminReconciliationRoute: typeof AppAdminReconciliationRoute
   AppAdminSettingsRoute: typeof AppAdminSettingsRoute
   AppAdminUsersRoute: typeof AppAdminUsersRoute
   AppInventoryAdjustmentsRoute: typeof AppInventoryAdjustmentsRoute
@@ -1871,6 +1891,7 @@ interface AppRouteChildren {
 const AppRouteChildren: AppRouteChildren = {
   AppIndexRoute: AppIndexRoute,
   AppAdminAuditRoute: AppAdminAuditRoute,
+  AppAdminReconciliationRoute: AppAdminReconciliationRoute,
   AppAdminSettingsRoute: AppAdminSettingsRoute,
   AppAdminUsersRoute: AppAdminUsersRoute,
   AppInventoryAdjustmentsRoute: AppInventoryAdjustmentsRoute,

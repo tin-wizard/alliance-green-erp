@@ -390,6 +390,14 @@ export const PERMISSIONS = [
     defaultRoles: ['admin'],
   },
   {
+    key: 'sage:reconcile',
+    module: 'sage',
+    label: 'Decide reconciliation findings',
+    description:
+      'Record the decision on a reconciliation finding: accepted, fixed externally or excluded. Admin only, audited.',
+    defaultRoles: ['admin'],
+  },
+  {
     key: 'workorder:create',
     module: 'workorder',
     label: 'Create work orders',

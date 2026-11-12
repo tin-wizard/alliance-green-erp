@@ -86,6 +86,8 @@ export const sageReconciliationFindings = app.table(
     owner: text('owner').notNull(),
     /** open | accepted | fixed_externally | excluded */
     decision: text('decision').notNull().default('open'),
+    /** The human's words. A decision without a reason is not evidence. */
+    decisionNote: text('decision_note'),
     decidedAt: timestamp('decided_at', { withTimezone: true }),
     decidedBy: uuid('decided_by'),
   },

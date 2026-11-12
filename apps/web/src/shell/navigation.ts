@@ -1,6 +1,7 @@
 import {
   LayoutDashboard,
   ScrollText,
+  Scale,
   Settings,
   Users,
   type LucideIcon,
@@ -55,6 +56,12 @@ const CORE_GROUPS: NavGroup[] = [
       { label: 'Users & roles', to: '/admin/users', icon: Users, permission: 'admin:users' },
       { label: 'Audit log', to: '/admin/audit', icon: ScrollText, permission: 'admin:audit' },
       { label: 'Settings', to: '/admin/settings', icon: Settings, permission: 'admin:settings' },
+      {
+        label: 'Sage reconciliation',
+        to: '/admin/reconciliation',
+        icon: Scale,
+        permission: 'sage:read',
+      },
     ],
   },
 ]
