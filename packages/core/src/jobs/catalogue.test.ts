@@ -105,20 +105,25 @@ describe('registerCatalogueJobs', () => {
     ).toEqual([...ADR_KEYS].sort())
   })
 
-  test('the RGA and Sage plans ship with a handler; the rest still await theirs', () => {
+  test('every catalogue job now ships with a handler', () => {
     resetRegistryForTests()
     registerCatalogueJobs()
-    // The RGA module registers its handler at app start, not in this pure test,
+    // Each module registers its handler at app start, not in this pure test,
     // so the catalogue's own claim is the published status.
     const registered = JOB_CATALOGUE.filter((job) => job.status === 'registered').map((job) => job.key)
-    expect(registered).toEqual([
-      'sage.keepalive',
-      'sage.quota-guard',
-      'sage.poll-external',
-      'sage.reconcile',
-      'sage.probe',
-      'purchasing.rga-notifications',
-    ])
+    expect(registered.sort()).toEqual(
+      [
+        'sage.keepalive',
+        'sage.quota-guard',
+        'sage.poll-external',
+        'sage.reconcile',
+        'sage.probe',
+        'purchasing.rga-notifications',
+        'platform.notifications-drain',
+        'compliance.document-expiry',
+        'compliance.wsib-reminders',
+      ].sort(),
+    )
     expect(JOB_CATALOGUE.filter((job) => hasHandler(job.key))).toEqual([])
   })
 
