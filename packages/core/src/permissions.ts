@@ -327,6 +327,27 @@ export const PERMISSIONS = [
     defaultRoles: [],
   },
   {
+    key: 'messages:read',
+    module: 'messaging',
+    label: 'Read internal messages',
+    description: 'See internal message threads and the notification centre.',
+    defaultRoles: ['admin', 'technician'],
+  },
+  {
+    key: 'messages:write',
+    module: 'messaging',
+    label: 'Send internal messages',
+    description: 'Start and reply to internal message threads.',
+    defaultRoles: ['admin', 'technician'],
+  },
+  {
+    key: 'messages:admin',
+    module: 'messaging',
+    label: 'Administer the notification outbox',
+    description: 'See every outbox row, failures and attempt state, and retry a failed message.',
+    defaultRoles: ['admin'],
+  },
+  {
     key: 'admin:users',
     module: 'admin',
     label: 'Manage users and roles',

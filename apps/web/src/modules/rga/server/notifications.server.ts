@@ -6,6 +6,7 @@
  * the business date, so a retry or a second run on the same day adds nothing.
  */
 import { and, eq, inArray, sql } from 'drizzle-orm'
+import { queueNotification } from '@cls/notifications'
 import type { Tx } from '@cls/db'
 import { rgaNotifications, rgas, users } from '@cls/db/schema'
 import { ValidationError } from '@cls/core'
@@ -70,6 +71,21 @@ export async function runRgaNotificationJobCore(
       .onConflictDoNothing()
       .returning({ id: rgaNotifications.id })
     queued += inserted.length
+    if (inserted[0]) {
+      await queueNotification(tx, {
+        kind: 'rga',
+        templateKey: 'rga-reminder',
+        entityType: 'rga',
+        entityId: String(row.id),
+        recipientUserId: row.createdBy,
+        recipientEmail: row.creatorEmail,
+        subject: `Reminder to follow up on status of ${row.rgaType} ${rgaNumber(row.id)}`,
+        bodyText: `${rgaNumber(row.id)} is still ${statusLabel(row.status)}. Update the return or record the credit.`,
+        dedupeKey: `rga:${row.id}:reminder:${businessDate}`,
+        legacyRef: `rga_notifications:${inserted[0].id}`,
+        payload: { rgaId: row.id, businessDate },
+      })
+    }
   }
 
   return { businessDate, evaluated: due.length, queued }
@@ -107,5 +123,20 @@ export async function queueRgaReminderCore(
     summary: `Queued ${notifyType.toLowerCase()} for RGA R-${row.id}.`,
     after: notification ? { notificationId: notification.id, dueAt: dueAt.toISOString() } : null,
   })
+  if (notification) {
+    await queueNotification(tx, {
+      kind: 'rga',
+      templateKey: `rga-${notifyType.toLowerCase()}`,
+      entityType: 'rga',
+      entityId: String(row.id),
+      recipientUserId: row.createdBy ?? session.user.id,
+      recipientEmail: session.user.email,
+      subject: `${notifyType} for ${rgaNumber(row.id)}`,
+      bodyText: `${rgaNumber(row.id)} is still ${statusLabel(row.status)}.`,
+      dedupeKey: `rga:${row.id}:${notifyType.toLowerCase()}:${dateKey(dueAt)}`,
+      legacyRef: `rga_notifications:${notification.id}`,
+      createdBy: session.user.id,
+    })
+  }
   return notification ?? null
 }

@@ -7,8 +7,9 @@
  * durable queue.
  */
 import { and, eq, lt, sql } from 'drizzle-orm'
+import { queueNotification } from '@cls/notifications'
 import type { Db, Tx } from '@cls/db'
-import { complianceReminders, subcontractorDocuments } from '@cls/db/schema'
+import { complianceReminders, subcontractorDocuments, subcontractors } from '@cls/db/schema'
 import { businessToday } from '../lib/compliance'
 import { latestCurrentDocuments } from './documents.server'
 
@@ -66,6 +67,7 @@ export async function runExpiryRemindersInTx(
     let scanned = 0
     let queued = 0
     let skipped = 0
+    const contacts = new Map<number, { email: string | null; name: string }>()
 
     for (const document of latest.values()) {
       scanned += 1
@@ -101,6 +103,31 @@ export async function runExpiryRemindersInTx(
           )}::jsonb`,
         })
         .where(eq(subcontractorDocuments.id, document.id))
+      let contact = contacts.get(document.subcontractorId)
+      if (!contact) {
+        const [row] = await tx
+          .select({ email: subcontractors.contactEmail, name: subcontractors.name })
+          .from(subcontractors)
+          .where(eq(subcontractors.id, document.subcontractorId))
+          .limit(1)
+        contact = row ?? { email: null, name: `Subcontractor ${document.subcontractorId}` }
+        contacts.set(document.subcontractorId, contact)
+      }
+      await queueNotification(tx, {
+        kind: 'compliance',
+        templateKey: `compliance-${document.kind}-expiry`,
+        entityType: 'subcontractor_document',
+        entityId: document.id,
+        recipientEmail: contact.email,
+        recipientName: contact.name,
+        subject: `${document.kind === 'wsib' ? 'WSIB' : 'Insurance'} document ${
+          window === 0 ? 'expires today' : window === -1 ? 'has expired' : `expires in ${window} days`
+        } — ${contact.name}`,
+        bodyText: `The ${document.kind} document for ${contact.name} expires on ${document.expiresOn}. Upload a replacement before the expiry date.`,
+        dedupeKey: `compliance:${document.id}:${window}`,
+        payload: { documentId: document.id, windowDays: window, dueOn: document.expiresOn },
+        legacyRef: `compliance_reminders:${inserted[0]!.id}`,
+      })
     }
 
     return {

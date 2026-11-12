@@ -1,0 +1,16 @@
+{
+  "name": "@cls/notifications",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@cls/db": "workspace:*",
+    "drizzle-orm": "^0.45.4"
+  }
+}

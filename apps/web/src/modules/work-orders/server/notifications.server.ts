@@ -6,6 +6,7 @@
  * A queue row is part of the same transaction as the status change.
  */
 import { eq } from 'drizzle-orm'
+import { queueNotification as queueOutboxNotification } from '@cls/notifications'
 import type { Tx } from '@cls/db'
 import { workOrderNotifications, workOrders } from '@cls/db/schema'
 import type { AuthSessionView } from '../../../server/auth.types'
@@ -79,6 +80,16 @@ export async function queueNotification(
     subject: input.template.subject,
     body: input.template.body,
     status: input.recipient ? 'queued' : 'skipped',
+  })
+  await queueOutboxNotification(tx, {
+    kind: 'dispatch',
+    templateKey: `work-order-${input.event}`,
+    entityType: 'work_order',
+    entityId: String(input.workOrderId),
+    recipientEmail: input.recipient ?? null,
+    subject: input.template.subject,
+    bodyText: input.template.body,
+    payload: { event: input.event, workOrderId: input.workOrderId },
   })
 }
 

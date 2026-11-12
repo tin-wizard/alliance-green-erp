@@ -28,6 +28,7 @@ import { Route as AppInvoicingNewRouteImport } from './routes/_app/invoicing/new
 import { Route as AppInvoicingSubcontractorRouteImport } from './routes/_app/invoicing/subcontractor'
 import { Route as AppMasterDataIndexRouteImport } from './routes/_app/master-data/index'
 import { Route as AppMasterDataImportRouteImport } from './routes/_app/master-data/import'
+import { Route as AppMessagesIndexRouteImport } from './routes/_app/messages/index'
 import { Route as AppPurchasingIndexRouteImport } from './routes/_app/purchasing/index'
 import { Route as AppPurchasingNewRouteImport } from './routes/_app/purchasing/new'
 import { Route as AppQuotesIndexRouteImport } from './routes/_app/quotes/index'
@@ -191,6 +192,11 @@ const AppMasterDataIndexRoute = AppMasterDataIndexRouteImport.update({
 const AppMasterDataImportRoute = AppMasterDataImportRouteImport.update({
   id: '/master-data/import',
   path: '/master-data/import',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMessagesIndexRoute = AppMessagesIndexRouteImport.update({
+  id: '/messages/',
+  path: '/messages/',
   getParentRoute: () => AppRoute,
 } as any)
 const AppPurchasingIndexRoute = AppPurchasingIndexRouteImport.update({
@@ -592,6 +598,7 @@ export interface FileRoutesByFullPath {
   '/inventory/': typeof AppInventoryIndexRoute
   '/invoicing/': typeof AppInvoicingIndexRoute
   '/master-data/': typeof AppMasterDataIndexRoute
+  '/messages/': typeof AppMessagesIndexRoute
   '/purchasing/': typeof AppPurchasingIndexRoute
   '/quotes/': typeof AppQuotesIndexRoute
   '/reports/': typeof AppReportsIndexRoute
@@ -681,6 +688,7 @@ export interface FileRoutesByTo {
   '/inventory': typeof AppInventoryIndexRoute
   '/invoicing': typeof AppInvoicingIndexRoute
   '/master-data': typeof AppMasterDataIndexRoute
+  '/messages': typeof AppMessagesIndexRoute
   '/purchasing': typeof AppPurchasingIndexRoute
   '/quotes': typeof AppQuotesIndexRoute
   '/reports': typeof AppReportsIndexRoute
@@ -771,6 +779,7 @@ export interface FileRoutesById {
   '/_app/inventory/': typeof AppInventoryIndexRoute
   '/_app/invoicing/': typeof AppInvoicingIndexRoute
   '/_app/master-data/': typeof AppMasterDataIndexRoute
+  '/_app/messages/': typeof AppMessagesIndexRoute
   '/_app/purchasing/': typeof AppPurchasingIndexRoute
   '/_app/quotes/': typeof AppQuotesIndexRoute
   '/_app/reports/': typeof AppReportsIndexRoute
@@ -862,6 +871,7 @@ export interface FileRouteTypes {
     | '/inventory/'
     | '/invoicing/'
     | '/master-data/'
+    | '/messages/'
     | '/purchasing/'
     | '/quotes/'
     | '/reports/'
@@ -951,6 +961,7 @@ export interface FileRouteTypes {
     | '/inventory'
     | '/invoicing'
     | '/master-data'
+    | '/messages'
     | '/purchasing'
     | '/quotes'
     | '/reports'
@@ -1040,6 +1051,7 @@ export interface FileRouteTypes {
     | '/_app/inventory/'
     | '/_app/invoicing/'
     | '/_app/master-data/'
+    | '/_app/messages/'
     | '/_app/purchasing/'
     | '/_app/quotes/'
     | '/_app/reports/'
@@ -1251,6 +1263,13 @@ declare module '@tanstack/react-router' {
       path: '/master-data/import'
       fullPath: '/master-data/import'
       preLoaderRoute: typeof AppMasterDataImportRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/messages/': {
+      id: '/_app/messages/'
+      path: '/messages'
+      fullPath: '/messages/'
+      preLoaderRoute: typeof AppMessagesIndexRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/purchasing/': {
@@ -1772,6 +1791,7 @@ interface AppRouteChildren {
   AppInventoryIndexRoute: typeof AppInventoryIndexRoute
   AppInvoicingIndexRoute: typeof AppInvoicingIndexRoute
   AppMasterDataIndexRoute: typeof AppMasterDataIndexRoute
+  AppMessagesIndexRoute: typeof AppMessagesIndexRoute
   AppPurchasingIndexRoute: typeof AppPurchasingIndexRoute
   AppQuotesIndexRoute: typeof AppQuotesIndexRoute
   AppReportsIndexRoute: typeof AppReportsIndexRoute
@@ -1848,6 +1868,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppInventoryIndexRoute: AppInventoryIndexRoute,
   AppInvoicingIndexRoute: AppInvoicingIndexRoute,
   AppMasterDataIndexRoute: AppMasterDataIndexRoute,
+  AppMessagesIndexRoute: AppMessagesIndexRoute,
   AppPurchasingIndexRoute: AppPurchasingIndexRoute,
   AppQuotesIndexRoute: AppQuotesIndexRoute,
   AppReportsIndexRoute: AppReportsIndexRoute,

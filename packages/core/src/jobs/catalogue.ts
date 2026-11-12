@@ -46,7 +46,7 @@ export const JOB_CATALOGUE: readonly JobDefinition[] = [
     staleAfterMs: 15 * MINUTE,
     description: 'Drain the notification outbox, batched with FOR UPDATE SKIP LOCKED.',
     replaces: 'retry_emails.php',
-    status: 'awaiting-handler',
+    status: 'registered',
   }),
   defineJob({
     key: 'pricing.expire-price-locks',

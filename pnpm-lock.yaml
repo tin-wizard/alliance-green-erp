@@ -239,6 +239,9 @@ importers:
       '@cls/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@cls/notifications':
+        specifier: workspace:*
+        version: link:../../packages/notifications
       '@cls/pdf':
         specifier: workspace:*
         version: link:../../packages/pdf
@@ -374,6 +377,15 @@ importers:
       tsx:
         specifier: ^4.20.6
         version: 4.23.15
+
+  packages/notifications:
+    dependencies:
+      '@cls/db':
+        specifier: workspace:*
+        version: link:../db
+      drizzle-orm:
+        specifier: ^0.45.4
+        version: 0.45.4(mysql2@3.24.6(@types/node@22.20.5))(postgres@4.1.0)
 
   packages/pdf:
     dependencies:

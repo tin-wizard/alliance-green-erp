@@ -67,6 +67,9 @@ const jobsScheduler = createMiddleware().server(async ({ next }) => {
     import('./modules/compliance/server/jobs.server').then(({ registerComplianceJobs }) =>
       registerComplianceJobs(),
     ),
+    import('./modules/messaging/server/jobs.server').then(({ registerMessagingJobs }) =>
+      registerMessagingJobs(),
+    ),
   ])
     .then(() => import('./modules/jobs/server/ticker.server'))
     .then(({ startScheduler }) => startScheduler())
