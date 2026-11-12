@@ -40,6 +40,7 @@ export * from './app/rga'
 export * from './app/tjx'
 export * from './app/notifications'
 export * from './app/messaging'
+export * from './app/settings'
 export * from './app/jobs'
 
 export const userRoleEnum = app.enum('user_role', [

@@ -16,6 +16,7 @@ import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiReadyRouteImport } from './routes/api/ready'
 import { Route as AppAdminAuditRouteImport } from './routes/_app/admin/audit'
+import { Route as AppAdminSettingsRouteImport } from './routes/_app/admin/settings'
 import { Route as AppAdminUsersRouteImport } from './routes/_app/admin/users'
 import { Route as AppComplianceIndexRouteImport } from './routes/_app/compliance/index'
 import { Route as AppInventoryIndexRouteImport } from './routes/_app/inventory/index'
@@ -131,6 +132,11 @@ const ApiReadyRoute = ApiReadyRouteImport.update({
 const AppAdminAuditRoute = AppAdminAuditRouteImport.update({
   id: '/admin/audit',
   path: '/admin/audit',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAdminSettingsRoute = AppAdminSettingsRouteImport.update({
+  id: '/admin/settings',
+  path: '/admin/settings',
   getParentRoute: () => AppRoute,
 } as any)
 const AppAdminUsersRoute = AppAdminUsersRouteImport.update({
@@ -577,6 +583,7 @@ export interface FileRoutesByFullPath {
   '/api/health': typeof ApiHealthRoute
   '/api/ready': typeof ApiReadyRoute
   '/admin/audit': typeof AppAdminAuditRoute
+  '/admin/settings': typeof AppAdminSettingsRoute
   '/admin/users': typeof AppAdminUsersRoute
   '/inventory/adjustments': typeof AppInventoryAdjustmentsRoute
   '/inventory/movements': typeof AppInventoryMovementsRoute
@@ -667,6 +674,7 @@ export interface FileRoutesByTo {
   '/api/ready': typeof ApiReadyRoute
   '/': typeof AppIndexRoute
   '/admin/audit': typeof AppAdminAuditRoute
+  '/admin/settings': typeof AppAdminSettingsRoute
   '/admin/users': typeof AppAdminUsersRoute
   '/inventory/adjustments': typeof AppInventoryAdjustmentsRoute
   '/inventory/movements': typeof AppInventoryMovementsRoute
@@ -758,6 +766,7 @@ export interface FileRoutesById {
   '/api/ready': typeof ApiReadyRoute
   '/_app/': typeof AppIndexRoute
   '/_app/admin/audit': typeof AppAdminAuditRoute
+  '/_app/admin/settings': typeof AppAdminSettingsRoute
   '/_app/admin/users': typeof AppAdminUsersRoute
   '/_app/inventory/adjustments': typeof AppInventoryAdjustmentsRoute
   '/_app/inventory/movements': typeof AppInventoryMovementsRoute
@@ -850,6 +859,7 @@ export interface FileRouteTypes {
     | '/api/health'
     | '/api/ready'
     | '/admin/audit'
+    | '/admin/settings'
     | '/admin/users'
     | '/inventory/adjustments'
     | '/inventory/movements'
@@ -940,6 +950,7 @@ export interface FileRouteTypes {
     | '/api/ready'
     | '/'
     | '/admin/audit'
+    | '/admin/settings'
     | '/admin/users'
     | '/inventory/adjustments'
     | '/inventory/movements'
@@ -1030,6 +1041,7 @@ export interface FileRouteTypes {
     | '/api/ready'
     | '/_app/'
     | '/_app/admin/audit'
+    | '/_app/admin/settings'
     | '/_app/admin/users'
     | '/_app/inventory/adjustments'
     | '/_app/inventory/movements'
@@ -1179,6 +1191,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/audit'
       fullPath: '/admin/audit'
       preLoaderRoute: typeof AppAdminAuditRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/admin/settings': {
+      id: '/_app/admin/settings'
+      path: '/admin/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AppAdminSettingsRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/admin/users': {
@@ -1774,6 +1793,7 @@ const AppPortalSubInvoicesRouteWithChildren =
 interface AppRouteChildren {
   AppIndexRoute: typeof AppIndexRoute
   AppAdminAuditRoute: typeof AppAdminAuditRoute
+  AppAdminSettingsRoute: typeof AppAdminSettingsRoute
   AppAdminUsersRoute: typeof AppAdminUsersRoute
   AppInventoryAdjustmentsRoute: typeof AppInventoryAdjustmentsRoute
   AppInventoryMovementsRoute: typeof AppInventoryMovementsRoute
@@ -1851,6 +1871,7 @@ interface AppRouteChildren {
 const AppRouteChildren: AppRouteChildren = {
   AppIndexRoute: AppIndexRoute,
   AppAdminAuditRoute: AppAdminAuditRoute,
+  AppAdminSettingsRoute: AppAdminSettingsRoute,
   AppAdminUsersRoute: AppAdminUsersRoute,
   AppInventoryAdjustmentsRoute: AppInventoryAdjustmentsRoute,
   AppInventoryMovementsRoute: AppInventoryMovementsRoute,

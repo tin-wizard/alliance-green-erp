@@ -1,6 +1,7 @@
 import {
   LayoutDashboard,
   ScrollText,
+  Settings,
   Users,
   type LucideIcon,
 } from 'lucide-react'
@@ -53,6 +54,7 @@ const CORE_GROUPS: NavGroup[] = [
     items: [
       { label: 'Users & roles', to: '/admin/users', icon: Users, permission: 'admin:users' },
       { label: 'Audit log', to: '/admin/audit', icon: ScrollText, permission: 'admin:audit' },
+      { label: 'Settings', to: '/admin/settings', icon: Settings, permission: 'admin:settings' },
     ],
   },
 ]
