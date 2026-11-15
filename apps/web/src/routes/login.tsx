@@ -51,12 +51,12 @@ function LoginPage() {
 
   return (
     <div className="flex min-h-screen bg-app">
-      <div className="hidden w-[44%] max-w-[560px] flex-col justify-between bg-ink px-12 py-10 lg:flex">
+      <div className="hidden w-[44%] max-w-[560px] flex-col justify-between bg-[var(--shell-sidebar-bg)] px-12 py-10 lg:flex">
         <div>
           <p className="text-[15px] font-semibold tracking-[0.01em] text-white">
             CLS Green System
           </p>
-          <p className="mt-1 text-[9.5px] font-semibold uppercase tracking-[0.22em] text-[#918f88]">
+          <p className="mt-1 text-[9.5px] font-semibold uppercase tracking-[0.22em] text-[var(--shell-sidebar-fg-faint)]">
             Operations
           </p>
         </div>
@@ -64,12 +64,11 @@ function LoginPage() {
           <p className="max-w-[30ch] font-serif text-[40px] leading-[1.1] text-white">
             Work orders, quotes, purchasing and invoicing in one place.
           </p>
-          <p className="mt-5 max-w-[42ch] text-[14px] leading-relaxed text-fg-inverse-muted">
-            The replacement for the Alliance Lighting workorder system. Local server, company
-            network only.
+          <p className="mt-5 max-w-[42ch] text-[14px] leading-relaxed text-[var(--shell-sidebar-fg-muted)]">
+            The replacement for the Alliance Lighting workorder system.
           </p>
         </div>
-        <p className="text-[11px] text-[#8c8a84]">v{APP_VERSION} · local server</p>
+        <p className="text-[11px] text-[var(--shell-sidebar-fg-faint)]">v{APP_VERSION} · Alliance Lighting</p>
       </div>
 
       <main className="flex flex-1 items-center justify-center px-6 py-12">
