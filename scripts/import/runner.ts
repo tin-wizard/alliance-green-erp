@@ -170,31 +170,50 @@ async function stageTable(db: Db, dumpId: string, table: SourceTable): Promise<s
     sql`delete from ${sql.raw(`migration."${staging}"`)} where "_dump_id" = ${dumpId}`,
   )
 
-  for (const row of table.rows) {
-    const values: Record<string, string | null> = {}
-    for (const column of columns) values[column] = row.values[column] ?? null
-    const hash = rowHash(values)
-    hashes.push(hash)
+  const names = ['_row_no', '_source_pk', '_row_hash', '_dump_id', ...columns]
+  const manifestTable = ALL_TABLES.find((entry) => entry.table === table.table)
+  const header = sql`insert into ${sql.raw(`migration."${staging}"`)} (${sql.raw(
+    names.map((name) => `"${name}"`).join(', '),
+  )}) values `
+  // One round trip per batch, not per row: a real dump is millions of rows and
+  // the loader's speed must not scale with the network's latency. The batch
+  // stays well under Postgres's 65,535-parameter limit and caps row count so a
+  // table of large text columns does not build an enormous statement.
+  const batchSize = Math.max(1, Math.min(500, Math.floor(30_000 / names.length)))
 
-    const names = ['_row_no', '_source_pk', '_row_hash', '_dump_id', ...columns]
-    const manifestTable = ALL_TABLES.find((entry) => entry.table === table.table)
-    const key = manifestTable
-      ? sourceKey(manifestTable, { ...values, _row_no: String(row.rowNo) })
-      : String(row.rowNo)
-    const params: Array<string | number | null> = [
-      row.rowNo,
-      key,
-      hash,
-      dumpId,
-      ...columns.map((column) => values[column] ?? null),
-    ]
-    const insert = sql`insert into ${sql.raw(`migration."${staging}"`)} (${sql.raw(
-      names.map((name) => `"${name}"`).join(', '),
-    )}) values (${sql.join(
-      params.map((param) => sql`${param}`),
-      sql`, `,
-    )})`
-    await db.execute(insert)
+  for (let offset = 0; offset < table.rows.length; offset += batchSize) {
+    const tuples = table.rows.slice(offset, offset + batchSize).map((row) => {
+      const values: Record<string, string | null> = {}
+      for (const column of columns) values[column] = row.values[column] ?? null
+      const hash = rowHash(values)
+      hashes.push(hash)
+
+      const key = manifestTable
+        ? sourceKey(manifestTable, { ...values, _row_no: String(row.rowNo) })
+        : String(row.rowNo)
+      // Postgres text cannot hold a NUL byte, and legacy free-text columns do
+      // (14 values in the 2026-11 dump). The hash above is of the original, so
+      // parity stays honest; the staged copy loses only the NUL.
+      const params: Array<string | number | null> = [
+        row.rowNo,
+        key,
+        hash,
+        dumpId,
+        ...columns.map((column) => {
+          const value = values[column] ?? null
+          if (value !== null && value.includes('\u0000')) {
+            console.warn(`[stage] ${table.table}.${column} row ${row.rowNo}: stripped NUL byte(s)`)
+            return value.replaceAll('\u0000', '')
+          }
+          return value
+        }),
+      ]
+      return sql`(${sql.join(
+        params.map((param) => sql`${param}`),
+        sql`, `,
+      )})`
+    })
+    await db.execute(sql`${header}${sql.join(tuples, sql`, `)}`)
   }
 
   return sha256(hashes.join('\n'))
