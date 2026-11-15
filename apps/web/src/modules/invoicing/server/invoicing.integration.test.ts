@@ -42,8 +42,9 @@ import {
 } from './sales.server'
 import { getInvoiceDetail } from './get.server'
 import {
-  processSagePostingCore,
+  claimSagePosting,
   queueSalesInvoicePostingCore,
+  recordSagePostingOutcome,
   recordStockPostingCore,
 } from './posting.server'
 import { regenerateInvoiceDocument, renderInvoicePdfCore } from './pdf.server'
@@ -75,9 +76,9 @@ async function inRollback(fn: (tx: Tx) => Promise<void>): Promise<void> {
   }
 }
 
-const ADMIN_ID = '00000000-0000-4000-8000-0000000000a1'
-const SUB_USER = '00000000-0000-4000-8000-0000000000a2'
-const OTHER_SUB_USER = '00000000-0000-4000-8000-0000000000a3'
+const ADMIN_ID = '00000000-0000-4000-8000-0000000000fa'
+const SUB_USER = '00000000-0000-4000-8000-0000000000fb'
+const OTHER_SUB_USER = '00000000-0000-4000-8000-0000000000fc'
 
 function adminSession(): AuthSessionView {
   return {
@@ -395,11 +396,20 @@ describe.skipIf(!databaseConfigured())('Invoicing lifecycle', () => {
         .select()
         .from(sagePostings)
         .where(eq(sagePostings.docId, second.invoiceId))
-      const first = await processSagePostingCore(tx, posting!.id, session)
-      expect(first.status).toBe('sent')
-      const again = await processSagePostingCore(tx, posting!.id, session)
-      expect(again.status).toBe('sent')
-      expect(again.externalId).toBe(first.externalId)
+      // The worker's two transactions are driven by hand here so the test can
+      // roll back; the gateway call itself is covered in the gateway contract.
+      const first = await claimSagePosting(tx, posting!.id)
+      expect(first.kind).toBe('claimed')
+      if (first.kind !== 'claimed') throw new Error('expected a claim')
+      const sent = await recordSagePostingOutcome(
+        tx,
+        first.posting,
+        { ok: true, externalId: 'TEST-EXT-1', duplicate: false },
+        session,
+      )
+      expect(sent.status).toBe('sent')
+      const again = await claimSagePosting(tx, posting!.id)
+      expect(again).toMatchObject({ kind: 'done', result: { status: 'sent', externalId: 'TEST-EXT-1' } })
       const links = await tx
         .select()
         .from(sageLinks)

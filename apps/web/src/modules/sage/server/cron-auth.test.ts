@@ -14,6 +14,12 @@ function requestWith(secret?: string): Request {
   })
 }
 
+function requestWithBearer(secret?: string): Request {
+  return new Request('https://app.example/api/cron/jobs', {
+    headers: secret === undefined ? {} : { authorization: `Bearer ${secret}` },
+  })
+}
+
 describe('cron secret gate', () => {
   test('an unset secret refuses every call with 503', async () => {
     delete process.env.SAGE_CRON_SECRET
@@ -48,5 +54,12 @@ describe('cron secret gate', () => {
     process.env.SAGE_CRON_SECRET = 'correct-secret'
     const response = assertCronSecret(requestWith('wrong'))
     expect(response?.headers.get('cache-control')).toBe('no-store')
+  })
+
+  test('Vercel Cron passes the same secret as an Authorization bearer', async () => {
+    process.env.SAGE_CRON_SECRET = 'correct-secret'
+    expect(assertCronSecret(requestWithBearer('correct-secret'))).toBeNull()
+    expect(assertCronSecret(requestWithBearer('wrong-secret'))?.status).toBe(403)
+    expect(assertCronSecret(requestWithBearer())?.status).toBe(403)
   })
 })

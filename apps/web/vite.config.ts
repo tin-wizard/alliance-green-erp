@@ -5,7 +5,7 @@ import tailwindcss from '@tailwindcss/vite'
 import { nitro } from 'nitro/vite'
 
 // TanStack Start -> Vite -> Nitro (node-server). The output is one Node process
-// that can run on the LAN host next to Sage 50. See docs/adr/0002.
+// that can run on the LAN host. See docs/adr/0002.
 export default defineConfig({
   server: {
     port: Number(process.env.PORT ?? 3000),
@@ -22,5 +22,12 @@ export default defineConfig({
   ssr: {
     external: ['@react-pdf/renderer', '@react-pdf/font', '@react-pdf/layout', '@react-pdf/pdfkit'],
   },
-  plugins: [tanstackStart(), nitro({ preset: 'node-server' }), viteReact(), tailwindcss()],
+  plugins: [
+    tanstackStart(),
+    // LAN host keeps the single-process node-server preset; a Vercel build
+    // needs the serverless `vercel` preset (ADR 0002 + Vercel deployment).
+    nitro({ preset: process.env.VERCEL ? 'vercel' : 'node-server' }),
+    viteReact(),
+    tailwindcss(),
+  ],
 })

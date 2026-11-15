@@ -23,10 +23,86 @@ import {
   decideFindingFn,
   listReconciliationFn,
 } from '../../../modules/sage/server/decisions.functions'
+import {
+  listSageOutboxFn,
+  retrySagePostingFn,
+} from '../../../modules/invoicing/server/invoicing.functions'
 
 export const Route = createFileRoute('/_app/admin/reconciliation')({
   component: ReconciliationPage,
 })
+
+/**
+ * Failed and dead-lettered outbox rows. A failed row retries on its own; a dead
+ * letter never does, so it needs a person to look at the error and requeue it.
+ */
+function SageOutboxCard() {
+  const queryClient = useQueryClient()
+  const query = useQuery({ queryKey: ['sage', 'outbox'], queryFn: () => listSageOutboxFn() })
+  const retry = useMutation({
+    mutationFn: (postingId: number) => retrySagePostingFn({ data: { postingId } }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['sage', 'outbox'] }),
+  })
+
+  return (
+    <Card title="Sage outbox needing attention" padded={false}>
+      {query.isPending ? (
+        <p className="px-4 py-3 text-[12.5px] text-fg-muted">Loading outbox…</p>
+      ) : query.isError ? (
+        <p className="px-4 py-3 text-[12.5px] text-danger">
+          {query.error instanceof Error ? query.error.message : String(query.error)}
+        </p>
+      ) : query.data.length === 0 ? (
+        <p className="px-4 py-3 text-[12.5px] text-fg-muted">
+          Nothing stuck. The worker posts queued documents every tick.
+        </p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse text-[12.5px]" data-testid="sage-outbox">
+            <thead>
+              <tr className="bg-subtle text-left text-[10.5px] uppercase tracking-[0.08em] text-fg-muted">
+                <th scope="col" className="px-4 py-2 font-semibold">Document</th>
+                <th scope="col" className="px-4 py-2 font-semibold">Status</th>
+                <th scope="col" className="px-4 py-2 font-semibold">Attempts</th>
+                <th scope="col" className="px-4 py-2 font-semibold">Last error</th>
+                <th scope="col" className="px-4 py-2 font-semibold">Updated</th>
+                <th scope="col" className="px-4 py-2 font-semibold" />
+              </tr>
+            </thead>
+            <tbody>
+              {query.data.map((row) => (
+                <tr key={row.id} className="border-t border-hair align-top">
+                  <td className="px-4 py-2 text-fg-secondary">
+                    {row.docType} #{row.docId}
+                    <span className="block font-mono text-[10.5px] text-fg-muted">{row.externalRef}</span>
+                  </td>
+                  <td className="px-4 py-2">
+                    <Tag tone={row.status === 'dead_letter' ? 'danger' : 'warning'}>{row.status}</Tag>
+                  </td>
+                  <td className="px-4 py-2 text-fg-muted">{row.attempt}</td>
+                  <td className="max-w-[320px] px-4 py-2 text-fg-secondary">{row.lastError ?? '—'}</td>
+                  <td className="whitespace-nowrap px-4 py-2 text-fg-muted">
+                    {formatDateTime(row.updatedAt)}
+                  </td>
+                  <td className="px-4 py-2 text-right">
+                    <Button size="sm" onClick={() => retry.mutate(row.id)} disabled={retry.isPending}>
+                      Requeue
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {retry.isError ? (
+        <p className="px-4 py-2 text-[12px] text-danger">
+          {retry.error instanceof Error ? retry.error.message : String(retry.error)}
+        </p>
+      ) : null}
+    </Card>
+  )
+}
 
 function severityTone(severity: string): 'danger' | 'warning' | 'info' {
   if (severity === 'blocker') return 'danger'
@@ -119,6 +195,8 @@ function ReconciliationPage() {
         title="Sage reconciliation"
         description="Every daily run writes one row and one row per finding. A warning that goes undecided fails the next run, so a finding is an instruction, not a notification."
       />
+
+      <SageOutboxCard />
 
       {errors.length > 0 ? (
         <Card title="Runs that could not compare anything">

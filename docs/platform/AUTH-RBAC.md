@@ -184,7 +184,9 @@ consulted for authorization.
 
 ## 5. Permission matrix (role defaults)
 
-39 permissions, 54 role grants. Generated from `packages/core/src/permissions.ts`.
+53 permissions, 79 role grants. Generated from `packages/core/src/permissions.ts`; the
+matrix is code-owned, so run `pnpm db:seed` after changing it — the seed replaces the role grants
+wholesale and leaves per-user grants alone.
 
 | Permission | Module | Admin | Technician | Subcontractor | Supplier |
 |---|---|---|---|---|---|
@@ -192,45 +194,75 @@ consulted for authorization.
 | `workorder:write` | workorder | yes | yes | – | – |
 | `workorder:approve` | workorder | yes | – | – | – |
 | `workorder:override_wsib_hold` | workorder | yes | – | – | – |
-| `workorder:dispatch` | workorder | yes | – | – | – |
-| `workorder:capture` | workorder | yes | yes | yes | – |
 | `quote:read` | quote | yes | yes | yes | – |
 | `quote:write` | quote | yes | yes | – | – |
 | `quote:approve` | quote | yes | – | – | – |
 | `purchasing:read` | purchasing | yes | yes | – | yes |
 | `purchasing:write` | purchasing | yes | yes | – | – |
 | `purchasing:approve` | purchasing | yes | – | – | – |
-| `po.approve` | purchasing | – | – | – | – |
-| `po.issue` | purchasing | – | – | – | – |
+| `po.approve` | purchasing | yes | – | – | – |
+| `po.issue` | purchasing | yes | – | – | – |
+| `rga:read` | rga | yes | yes | yes | – |
+| `rga:write` | rga | yes | yes | yes | – |
+| `rga:approve` | rga | yes | – | – | – |
+| `rga:credit` | rga | yes | – | – | – |
 | `inventory:read` | inventory | yes | yes | – | yes |
 | `inventory:write` | inventory | yes | – | – | – |
 | `inventory:adjust` | inventory | yes | – | – | – |
 | `inventory:edit_price` | inventory | yes | – | – | – |
+| `inventory:sub_stock` | inventory | yes | – | yes | – |
 | `invoice:read` | invoice | yes | yes | yes | – |
 | `invoice:write` | invoice | yes | – | – | – |
 | `invoice:issue` | invoice | yes | – | – | – |
 | `invoice.calculate` | invoice | yes | – | – | – |
-| `invoice.post_sage` | invoice | – | – | – | – |
+| `invoice.post_sage` | invoice | yes | – | – | – |
 | `tjx:read` | tjx | yes | yes | – | – |
 | `tjx:write` | tjx | yes | yes | – | – |
 | `compliance:read` | compliance | yes | yes | – | – |
 | `compliance:write` | compliance | yes | – | – | – |
-| `pma.certificate.download` | compliance | – | – | – | – |
 | `customer:read` | customer | yes | yes | yes | – |
 | `customer:write` | customer | yes | – | – | – |
 | `subcontractor:read` | customer | yes | yes | – | – |
 | `subcontractor:write` | customer | yes | – | – | – |
 | `supplier:read` | purchasing | yes | – | – | – |
 | `supplier:write` | purchasing | yes | – | – | – |
-| `subcontractor.rates.download` | customer | – | – | – | – |
 | `reports:read` | reports | yes | yes | – | – |
 | `report.download_rates` | reports | – | – | – | – |
+| `pma.certificate.download` | compliance | – | – | – | – |
+| `subcontractor.rates.download` | customer | – | – | – | – |
+| `messages:read` | messaging | yes | yes | – | – |
+| `messages:write` | messaging | yes | yes | – | – |
+| `messages:admin` | messaging | yes | – | – | – |
 | `admin:users` | admin | yes | – | – | – |
 | `admin:audit` | admin | yes | – | – | – |
 | `admin:settings` | admin | yes | – | – | – |
 | `sage:read` | sage | yes | – | – | – |
 | `sage:sync` | sage | yes | – | – | – |
 | `sage:write` | sage | yes | – | – | – |
+| `sage:reconcile` | sage | yes | – | – | – |
+| `workorder:create` | workorder | yes | – | – | – |
+| `workorder:dispatch` | workorder | yes | – | – | – |
+| `workorder:capture` | workorder | yes | yes | yes | – |
+
+### 5.0 Keys added while the modules were built
+
+These were added after the first draft of this document and are recorded here, because each one
+widens a default role and a widening is a decision:
+
+- `messages:read`, `messages:write`, `messages:admin` — the messaging module. Admin and technician
+  get read/write because the legacy message screens were open to both roles; `messages:admin`
+  (broadcast, delete) is admin only.
+- `workorder:create` — open a work order and allocate its number. Admin only; technicians capture
+  against assigned work orders.
+- `workorder:dispatch` — send a work order to a technician. Admin only, matching the legacy
+  dispatcher screen.
+- `sage:reconcile` — decide a reconciliation finding. Admin only, audited.
+- `po.approve`, `po.issue` and `invoice.post_sage` were reserved with no role. They are now granted
+  to admin: D16/D17 say every admin approves and issues purchase orders, and the Sage outbox
+  admin screen needs a person who can requeue a dead letter.
+
+**Decision (quality fix wave):** the keys above ship with these defaults. Widening any of them to a
+non-admin role later is a permission migration, not an edit to this table alone.
 
 `inventory:edit_price` replaces the legacy `user_permissions_price_management` table.
 `workorder:override_wsib_hold` replaces `user_permissions_without_wsib_insurance`.
@@ -247,18 +279,19 @@ The rebuild replaces the names with capabilities:
 | Legacy behaviour | Rebuild |
 |---|---|
 | `carmen` or `ASzpytka` may run the invoice calculator | `invoice.calculate` |
-| `ASzpytka` may transfer a calculated invoice to Sage | reserved `invoice.post_sage` |
-| hard-coded PO issue / approval checks | reserved `po.issue`, `po.approve` |
+| `ASzpytka` may transfer a calculated invoice to Sage | `invoice.post_sage` |
+| hard-coded PO issue / approval checks | `po.issue`, `po.approve` |
 | hard-coded rate-sheet download | reserved `report.download_rates`, `subcontractor.rates.download` |
 | hard-coded PMA certificate download | reserved `pma.certificate.download` |
 
-**Decision:** `invoice.calculate` is granted to **every application admin** (33 of 39 permissions
+**Decision:** `invoice.calculate` is granted to **every application admin** (50 of 53 permissions
 for that role). This is a deliberate widening: legacy allowed 2 of 13 admin-level users to invoice;
 the rebuild allows all admins. It is accepted as a change in financial control because admin is
 now an explicit, audited grant that can be denied per user with `app.user_permissions.is_allowed =
-false`, and every use records the permission key. The six `*.*` keys other than
-`invoice.calculate` are reserved with **no default role grant**; their modules decide who gets them
-and can scope them.
+false`, and every use records the permission key. `invoice.post_sage` and `po.issue`/`po.approve` are granted to admin for the same
+reason. Three download keys (`report.download_rates`, `subcontractor.rates.download`,
+`pma.certificate.download`) remain reserved with **no default role grant**; those modules decide who
+gets them and can scope them.
 
 There is no separate `super_admin` role in the rebuild. The **11 legacy super-admin accounts**
 (`users.access = 9`, counted in `green-system/RUNBOOK.md`) are application `admin` users and are
@@ -281,7 +314,7 @@ for the actual rate download rather than copying the broken check.
 | Column | Meaning |
 |---|---|
 | `user_id` | application user |
-| `permission_key` | one of the 39 keys |
+| `permission_key` | one of the 53 keys |
 | `is_allowed` | true = grant, false = explicit deny |
 | `expires_at` | NULL = never; otherwise ignored after this instant |
 | `scope_subcontractor_id` | for the WSIB override: a Sage vendor id; NULL = global |
@@ -379,7 +412,8 @@ entity, permission, summary and request metadata only.
   sign-in extraction; provider 401 mapping.
 - `packages/auth/src/session-cookie.test.ts`: seal/unseal, wrong secret, tampering.
 - `packages/auth/src/permissions.test.ts`: role defaults, grant, deny, expiry, scoped WSIB, the
-  `invoice.calculate` matrix (admins only) and the six reserved keys (no default grants).
+  `invoice.calculate` matrix (admins only), the PO and manual Sage posting grants, and the three
+  reserved keys (no default grants).
 - `packages/auth/src/rate-limit.test.ts`: window and retry.
 - Live: JWKS 200 with one Ed25519 key; unknown sign-in 401 `INVALID_EMAIL_OR_PASSWORD`; a
   locally-signed token rejected by the live JWKS.
@@ -388,8 +422,9 @@ entity, permission, summary and request metadata only.
   `emailVerified=true`; the app row links on first sign-in.
 - `pnpm test:e2e`: **9 passed**, including the real signed-in flow (sign in → dashboard → sign out
   → login) and the sealed `cls_session` cookie check.
-- Database: 39 permission definitions, 54 role grants; `invoice.calculate` is held by `admin`
-  only; the six reserved keys have zero grants.
+- Database: 53 permission definitions, 79 role grants; `invoice.calculate`, `po.approve`,
+  `po.issue` and `invoice.post_sage` are held by `admin` only; the three reserved download keys
+  have zero grants.
 
 ---
 

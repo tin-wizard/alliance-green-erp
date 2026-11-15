@@ -218,8 +218,8 @@ export const PERMISSIONS = [
     module: 'invoice',
     label: 'Post invoice to Sage',
     description:
-      'Reserved for the invoice module: transfer a calculated invoice into Sage 50. Replaces the legacy ASzpytka-only Sage transfer buttons.',
-    defaultRoles: [],
+      'Post an issued invoice to Sage Business Cloud Accounting by hand, and requeue a failed or dead-lettered outbox row. The worker itself posts without a person. Replaces the legacy ASzpytka-only Sage transfer buttons.',
+    defaultRoles: ['admin'],
   },
   {
     key: 'tjx:read',
@@ -371,22 +371,22 @@ export const PERMISSIONS = [
   {
     key: 'sage:read',
     module: 'sage',
-    label: 'Read from Sage 50',
-    description: 'Run read-only Sage synchronisation.',
+    label: 'Read from Sage Business Cloud',
+    description: 'Run read-only Sage synchronisation and reconciliation.',
     defaultRoles: ['admin'],
   },
   {
     key: 'sage:sync',
     module: 'sage',
-    label: 'Sync with Sage 50',
-    description: 'Push and pull customers, vendors, projects and invoices.',
+    label: 'Sync with Sage Business Cloud',
+    description: 'Push and pull customers, vendors, invoices and contacts.',
     defaultRoles: ['admin'],
   },
   {
     key: 'sage:write',
     module: 'sage',
-    label: 'Write to Sage 50',
-    description: 'Create or change records in the Sage company database.',
+    label: 'Write to Sage Business Cloud',
+    description: 'Create or change records in the Sage company.',
     defaultRoles: ['admin'],
   },
   {

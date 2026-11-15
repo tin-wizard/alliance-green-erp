@@ -3,11 +3,11 @@
  * worker boundary, idempotent by external reference and never called from the
  * issue path.
  */
-import { and, asc, eq, sql } from 'drizzle-orm'
+import { and, asc, desc, eq, inArray, sql } from 'drizzle-orm'
 import { ValidationError } from '@cls/core'
 import { getSageInvoiceGateway, type SageInvoiceLine } from '@cls/sage'
 import { format, salesTaxRate, LEGACY_PART_PLACEHOLDER, LEGACY_PART_PLACEHOLDER_MESSAGE } from '@cls/pricing'
-import type { Executor, Tx } from '@cls/db'
+import { getDb, type Executor, type Tx } from '@cls/db'
 import {
   invoiceLabourLines,
   invoicePartLines,
@@ -216,18 +216,38 @@ export async function queueSubcontractorPostingCore(
   })
 }
 
+/**
+ * A posting that fails more often than this stops retrying every tick. Five
+ * tries covers an outage; beyond that the failure is not transient, so the row
+ * goes to `dead_letter` for a human to look at.
+ */
+export const SAGE_POSTING_MAX_ATTEMPTS = 5
+
+/** A claim older than this belongs to a worker that died mid-call. */
+export const SAGE_POSTING_STALE_CLAIM_MS = 10 * 60 * 1000
+
 export interface ProcessPostingResult {
-  status: 'sent' | 'failed'
+  status: 'sent' | 'failed' | 'dead_letter'
   externalId: string | null
   error: string | null
 }
 
-/** Worker entry point. A failure never rolls back the issued invoice. */
-export async function processSagePostingCore(
-  tx: Tx,
-  postingId: number,
-  session: AuthSessionView | null,
-): Promise<ProcessPostingResult> {
+type SagePosting = typeof sagePostings.$inferSelect
+
+export type PostingOutcome =
+  | { ok: true; externalId: string; duplicate: boolean }
+  | { ok: false; error: string }
+
+type Claim =
+  | { kind: 'claimed'; posting: SagePosting }
+  | { kind: 'done'; result: ProcessPostingResult }
+
+/**
+ * First short transaction: take the row, count the attempt, release the lock.
+ * The Sage call happens after this commits, never inside it — otherwise a
+ * failed write would roll the attempt back and re-send an accepted document.
+ */
+export async function claimSagePosting(tx: Tx, postingId: number): Promise<Claim> {
   const [posting] = await tx
     .select()
     .from(sagePostings)
@@ -245,17 +265,134 @@ export async function processSagePostingCore(
   if (link) {
     await tx
       .update(sagePostings)
-      .set({ status: 'sent', response: { externalId: link.externalId }, updatedAt: new Date() })
+      .set({
+        status: 'sent',
+        response: { externalId: link.externalId },
+        claimedAt: null,
+        updatedAt: new Date(),
+      })
       .where(eq(sagePostings.id, posting.id))
-    return { status: 'sent', externalId: link.externalId, error: null }
+    return { kind: 'done', result: { status: 'sent', externalId: link.externalId, error: null } }
+  }
+  if (posting.status === 'sent') {
+    const externalId = (posting.response?.externalId as string | undefined) ?? null
+    return { kind: 'done', result: { status: 'sent', externalId, error: null } }
+  }
+  // A fresh claim belongs to a worker that is probably still calling Sage. The
+  // attempt cap below is what eventually recovers a claim that never returns.
+  if (
+    posting.status === 'processing' &&
+    posting.claimedAt &&
+    Date.now() - posting.claimedAt.getTime() < SAGE_POSTING_STALE_CLAIM_MS
+  ) {
+    return {
+      kind: 'done',
+      result: { status: 'failed', externalId: null, error: 'Another worker is posting this document.' },
+    }
+  }
+  if (posting.status === 'dead_letter' || posting.attempt >= SAGE_POSTING_MAX_ATTEMPTS) {
+    if (posting.status !== 'dead_letter') {
+      await tx
+        .update(sagePostings)
+        .set({
+          status: 'dead_letter',
+          lastError: posting.lastError ?? `Gave up after ${posting.attempt} attempts.`,
+          claimedAt: null,
+          updatedAt: new Date(),
+        })
+        .where(eq(sagePostings.id, posting.id))
+    }
+    return {
+      kind: 'done',
+      result: {
+        status: 'dead_letter',
+        externalId: null,
+        error: posting.lastError ?? `Gave up after ${posting.attempt} attempts.`,
+      },
+    }
+  }
+  const [claimed] = await tx
+    .update(sagePostings)
+    .set({
+      status: 'processing',
+      attempt: posting.attempt + 1,
+      claimedAt: new Date(),
+      updatedAt: new Date(),
+    })
+    .where(eq(sagePostings.id, posting.id))
+    .returning()
+  return { kind: 'claimed', posting: claimed! }
+}
+
+/** Second short transaction: write what Sage answered. */
+export async function recordSagePostingOutcome(
+  tx: Tx,
+  posting: SagePosting,
+  outcome: PostingOutcome,
+  session: AuthSessionView | null,
+): Promise<ProcessPostingResult> {
+  if (!outcome.ok) {
+    const status = posting.attempt >= SAGE_POSTING_MAX_ATTEMPTS ? 'dead_letter' : 'failed'
+    await tx
+      .update(sagePostings)
+      .set({ status, lastError: outcome.error, claimedAt: null, updatedAt: new Date() })
+      .where(eq(sagePostings.id, posting.id))
+    return { status, externalId: null, error: outcome.error }
   }
 
   await tx
+    .insert(sageLinks)
+    .values({
+      docType: posting.docType,
+      docId: posting.docId,
+      externalRef: posting.externalRef,
+      externalId: outcome.externalId,
+    })
+    .onConflictDoNothing()
+  await tx
     .update(sagePostings)
-    .set({ status: 'processing', attempt: posting.attempt + 1, updatedAt: new Date() })
+    .set({
+      status: 'sent',
+      response: { externalId: outcome.externalId, duplicate: outcome.duplicate },
+      processedAt: new Date(),
+      claimedAt: null,
+      updatedAt: new Date(),
+      lastError: null,
+    })
     .where(eq(sagePostings.id, posting.id))
+  if (posting.docType === 'sales_invoice') {
+    await tx
+      .update(salesInvoices)
+      .set({ updatedAt: new Date(), version: sql`${salesInvoices.version} + 1` })
+      .where(eq(salesInvoices.id, posting.docId))
+    if (session) {
+      await auditInvoice(tx, session, 'invoice.sage_posted', posting.docId, {
+        summary: `Sage accepted invoice posting ${posting.externalRef}.`,
+        permission: 'invoice.post_sage',
+        after: { externalId: outcome.externalId },
+      })
+    }
+  }
+  return { status: 'sent', externalId: outcome.externalId, error: null }
+}
 
+/**
+ * Worker entry point. Claim in one transaction, call Sage outside any
+ * transaction, record the answer in a second one. A failure never rolls back
+ * the issued invoice, and an accepted document is never posted twice: the
+ * gateway is idempotent by external reference.
+ */
+export async function processSagePosting(
+  postingId: number,
+  session: AuthSessionView | null,
+): Promise<ProcessPostingResult> {
+  const db = getDb()
+  const claim = await db.transaction((tx) => claimSagePosting(tx, postingId))
+  if (claim.kind === 'done') return claim.result
+
+  const posting = claim.posting
   const gateway = getSageInvoiceGateway()
+  let outcome: PostingOutcome
   try {
     const result =
       posting.docType === 'sales_invoice'
@@ -263,47 +400,48 @@ export async function processSagePostingCore(
         : posting.docType === 'purchase_credit_note'
           ? await gateway.postPurchaseCreditNote(posting.payload as never)
           : await gateway.postPurchaseInvoice(posting.payload as never)
-    await tx
-      .insert(sageLinks)
-      .values({
-        docType: posting.docType,
-        docId: posting.docId,
-        externalRef: posting.externalRef,
-        externalId: result.externalId,
-      })
-      .onConflictDoNothing()
-    await tx
-      .update(sagePostings)
-      .set({
-        status: 'sent',
-        response: { externalId: result.externalId, duplicate: result.duplicate },
-        processedAt: new Date(),
-        updatedAt: new Date(),
-        lastError: null,
-      })
-      .where(eq(sagePostings.id, posting.id))
-    if (posting.docType === 'sales_invoice') {
-      await tx
-        .update(salesInvoices)
-        .set({ updatedAt: new Date(), version: sql`${salesInvoices.version} + 1` })
-        .where(eq(salesInvoices.id, posting.docId))
-      if (session) {
-        await auditInvoice(tx, session, 'invoice.sage_posted', posting.docId, {
-          summary: `Sage accepted invoice posting ${posting.externalRef}.`,
-          permission: 'invoice.post_sage',
-          after: { externalId: result.externalId },
-        })
-      }
-    }
-    return { status: 'sent', externalId: result.externalId, error: null }
+    outcome = { ok: true, externalId: result.externalId, duplicate: result.duplicate }
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error)
-    await tx
-      .update(sagePostings)
-      .set({ status: 'failed', lastError: message, updatedAt: new Date() })
-      .where(eq(sagePostings.id, posting.id))
-    return { status: 'failed', externalId: null, error: message }
+    outcome = { ok: false, error: error instanceof Error ? error.message : String(error) }
   }
+  return db.transaction((tx) => recordSagePostingOutcome(tx, posting, outcome, session))
+}
+
+/**
+ * Rows a human has to look at: failed ones retry on their own, dead letters do
+ * not, so the admin screen lists both and lets somebody put one back in the queue.
+ */
+export interface SageOutboxRow {
+  id: number
+  docType: string
+  docId: number
+  externalRef: string
+  status: string
+  attempt: number
+  lastError: string | null
+  updatedAt: string
+}
+
+export async function listSageOutbox(
+  executor: Executor,
+  limit = 50,
+): Promise<SageOutboxRow[]> {
+  const rows = await executor
+    .select({
+      id: sagePostings.id,
+      docType: sagePostings.docType,
+      docId: sagePostings.docId,
+      externalRef: sagePostings.externalRef,
+      status: sagePostings.status,
+      attempt: sagePostings.attempt,
+      lastError: sagePostings.lastError,
+      updatedAt: sagePostings.updatedAt,
+    })
+    .from(sagePostings)
+    .where(inArray(sagePostings.status, ['failed', 'dead_letter']))
+    .orderBy(desc(sagePostings.updatedAt))
+    .limit(limit)
+  return rows.map((row) => ({ ...row, updatedAt: row.updatedAt.toISOString() }))
 }
 
 export async function retrySagePostingCore(
@@ -317,12 +455,14 @@ export async function retrySagePostingCore(
     .from(sagePostings)
     .where(eq(sagePostings.id, postingId))
     .for('update')
-  if (!posting || posting.status === 'cancelled') {
+  if (!posting || posting.status === 'cancelled' || posting.status === 'sent') {
     throw new ValidationError('That Sage posting cannot be retried.')
   }
+  // A human retry starts a fresh attempt budget, otherwise a poisoned row would
+  // go straight back to dead_letter on the next tick.
   await tx
     .update(sagePostings)
-    .set({ status: 'queued', lastError: null, updatedAt: new Date() })
+    .set({ status: 'queued', attempt: 0, claimedAt: null, lastError: null, updatedAt: new Date() })
     .where(eq(sagePostings.id, postingId))
 }
 

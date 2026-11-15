@@ -10,8 +10,8 @@ describe('role matrix', () => {
     expect(defaultGrantedPermissions('supplier')).not.toContain('invoice.calculate')
   })
 
-  it('grants PO approval and issue to every admin (deliberate widening)', () => {
-    for (const key of ['po.approve', 'po.issue']) {
+  it('grants PO approval, PO issue and manual Sage posting to every admin (deliberate widening)', () => {
+    for (const key of ['po.approve', 'po.issue', 'invoice.post_sage']) {
       const definition = PERMISSIONS.find((permission) => permission.key === key)
       expect(definition, key).toBeDefined()
       expect(definition?.defaultRoles, key).toEqual(['admin'])
@@ -23,7 +23,6 @@ describe('role matrix', () => {
 
   it('reserves the module gates without granting them to a role', () => {
     const reserved = [
-      'invoice.post_sage',
       'pma.certificate.download',
       'subcontractor.rates.download',
     ]

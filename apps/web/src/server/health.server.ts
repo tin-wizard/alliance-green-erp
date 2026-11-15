@@ -85,8 +85,21 @@ async function authHealth(): Promise<ServiceHealth> {
 }
 
 /**
- * One health report used by the `/api/health` server route, the readiness
- * probe and the dashboard card, so they can never disagree.
+ * What an anonymous caller may see: are we up, nothing else. The full report
+ * names buckets, hosts and Sage state, so it stays behind authentication (the
+ * dashboard reads it through `getSystemStatusFn`).
+ */
+export async function buildPublicHealth(): Promise<{ status: 'ok' | 'degraded'; checkedAt: string }> {
+  const database = await checkDatabase()
+  return {
+    status: database.status === 'ok' ? 'ok' : 'degraded',
+    checkedAt: new Date().toISOString(),
+  }
+}
+
+/**
+ * One health report used by the dashboard card and, when signed in, by
+ * `/api/health`, so they can never disagree.
  *
  * Only the database makes the app `degraded`: Sage is cloud and optional, and
  * AI is intentionally off. Storage and auth report their own state.

@@ -44,6 +44,7 @@ import { Route as AppWarrantiesIndexRouteImport } from './routes/_app/warranties
 import { Route as AppWorkOrdersIndexRouteImport } from './routes/_app/work-orders/index'
 import { Route as AppWorkOrdersNewRouteImport } from './routes/_app/work-orders/new'
 import { Route as ApiCronComplianceExpiryRouteImport } from './routes/api/cron/compliance-expiry'
+import { Route as ApiCronJobsRouteImport } from './routes/api/cron/jobs'
 import { Route as ApiCronSageKeepaliveRouteImport } from './routes/api/cron/sage-keepalive'
 import { Route as ApiCronSagePostingsRouteImport } from './routes/api/cron/sage-postings'
 import { Route as ApiSageProbeRouteImport } from './routes/api/sage/probe'
@@ -274,6 +275,11 @@ const AppWorkOrdersNewRoute = AppWorkOrdersNewRouteImport.update({
 const ApiCronComplianceExpiryRoute = ApiCronComplianceExpiryRouteImport.update({
   id: '/api/cron/compliance-expiry',
   path: '/api/cron/compliance-expiry',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCronJobsRoute = ApiCronJobsRouteImport.update({
+  id: '/api/cron/jobs',
+  path: '/api/cron/jobs',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiCronSageKeepaliveRoute = ApiCronSageKeepaliveRouteImport.update({
@@ -605,6 +611,7 @@ export interface FileRoutesByFullPath {
   '/rgas/new': typeof AppRgasNewRoute
   '/work-orders/new': typeof AppWorkOrdersNewRoute
   '/api/cron/compliance-expiry': typeof ApiCronComplianceExpiryRoute
+  '/api/cron/jobs': typeof ApiCronJobsRoute
   '/api/cron/sage-keepalive': typeof ApiCronSageKeepaliveRoute
   '/api/cron/sage-postings': typeof ApiCronSagePostingsRoute
   '/api/sage/probe': typeof ApiSageProbeRoute
@@ -697,6 +704,7 @@ export interface FileRoutesByTo {
   '/rgas/new': typeof AppRgasNewRoute
   '/work-orders/new': typeof AppWorkOrdersNewRoute
   '/api/cron/compliance-expiry': typeof ApiCronComplianceExpiryRoute
+  '/api/cron/jobs': typeof ApiCronJobsRoute
   '/api/cron/sage-keepalive': typeof ApiCronSageKeepaliveRoute
   '/api/cron/sage-postings': typeof ApiCronSagePostingsRoute
   '/api/sage/probe': typeof ApiSageProbeRoute
@@ -790,6 +798,7 @@ export interface FileRoutesById {
   '/_app/rgas/new': typeof AppRgasNewRoute
   '/_app/work-orders/new': typeof AppWorkOrdersNewRoute
   '/api/cron/compliance-expiry': typeof ApiCronComplianceExpiryRoute
+  '/api/cron/jobs': typeof ApiCronJobsRoute
   '/api/cron/sage-keepalive': typeof ApiCronSageKeepaliveRoute
   '/api/cron/sage-postings': typeof ApiCronSagePostingsRoute
   '/api/sage/probe': typeof ApiSageProbeRoute
@@ -884,6 +893,7 @@ export interface FileRouteTypes {
     | '/rgas/new'
     | '/work-orders/new'
     | '/api/cron/compliance-expiry'
+    | '/api/cron/jobs'
     | '/api/cron/sage-keepalive'
     | '/api/cron/sage-postings'
     | '/api/sage/probe'
@@ -976,6 +986,7 @@ export interface FileRouteTypes {
     | '/rgas/new'
     | '/work-orders/new'
     | '/api/cron/compliance-expiry'
+    | '/api/cron/jobs'
     | '/api/cron/sage-keepalive'
     | '/api/cron/sage-postings'
     | '/api/sage/probe'
@@ -1068,6 +1079,7 @@ export interface FileRouteTypes {
     | '/_app/rgas/new'
     | '/_app/work-orders/new'
     | '/api/cron/compliance-expiry'
+    | '/api/cron/jobs'
     | '/api/cron/sage-keepalive'
     | '/api/cron/sage-postings'
     | '/api/sage/probe'
@@ -1145,6 +1157,7 @@ export interface RootRouteChildren {
   ApiHealthRoute: typeof ApiHealthRoute
   ApiReadyRoute: typeof ApiReadyRoute
   ApiCronComplianceExpiryRoute: typeof ApiCronComplianceExpiryRoute
+  ApiCronJobsRoute: typeof ApiCronJobsRoute
   ApiCronSageKeepaliveRoute: typeof ApiCronSageKeepaliveRoute
   ApiCronSagePostingsRoute: typeof ApiCronSagePostingsRoute
   ApiSageProbeRoute: typeof ApiSageProbeRoute
@@ -1399,6 +1412,13 @@ declare module '@tanstack/react-router' {
       path: '/api/cron/compliance-expiry'
       fullPath: '/api/cron/compliance-expiry'
       preLoaderRoute: typeof ApiCronComplianceExpiryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/cron/jobs': {
+      id: '/api/cron/jobs'
+      path: '/api/cron/jobs'
+      fullPath: '/api/cron/jobs'
+      preLoaderRoute: typeof ApiCronJobsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/cron/sage-keepalive': {
@@ -1978,6 +1998,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiHealthRoute: ApiHealthRoute,
   ApiReadyRoute: ApiReadyRoute,
   ApiCronComplianceExpiryRoute: ApiCronComplianceExpiryRoute,
+  ApiCronJobsRoute: ApiCronJobsRoute,
   ApiCronSageKeepaliveRoute: ApiCronSageKeepaliveRoute,
   ApiCronSagePostingsRoute: ApiCronSagePostingsRoute,
   ApiSageProbeRoute: ApiSageProbeRoute,
