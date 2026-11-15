@@ -9,6 +9,8 @@ evidence gates.
 
 - No money math here. The two quote triplets and the subcontractor purchase
   total come from `@cls/pricing`; every save and submit recalculates server-side.
+  The without-markup line prices the raw accumulated quantity; its 3-decimal
+  quantity is display only (N7).
 - No direct work-order insert. Conversion calls `createWorkOrderCore`.
 - No direct invoice lifecycle. A TJX subcontractor invoice hands its financial
   document to Invoicing's `createSubcontractorInvoiceCore`, and approval or

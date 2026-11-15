@@ -1,4 +1,12 @@
 import { z } from 'zod'
+import { LEGACY_PART_PLACEHOLDER, LEGACY_PART_PLACEHOLDER_MESSAGE } from '@cls/pricing'
+
+const postablePartNo = z
+  .string()
+  .trim()
+  .min(1)
+  .max(100)
+  .refine((value) => value !== LEGACY_PART_PLACEHOLDER, LEGACY_PART_PLACEHOLDER_MESSAGE)
 
 const signedDecimal = z
   .string()
@@ -47,7 +55,7 @@ export const saveInvoiceSchema = z.object({
   parts: z
     .array(
       z.object({
-        partNo: z.string().trim().min(1).max(100),
+        partNo: postablePartNo,
         description: z.string().trim().max(500).nullish(),
         qty: signedDecimal,
         price: money,
@@ -92,7 +100,21 @@ export const previewInvoiceSchema = z.object({
     )
     .min(1, 'Enter labour before calculating.'),
   parts: z
-    .array(z.object({ partNo: z.string().trim().max(100).nullish(), qty: signedDecimal, price: money }))
+    .array(
+      z.object({
+        partNo: z
+          .string()
+          .trim()
+          .max(100)
+          .nullish()
+          .refine(
+            (value) => (value ?? '') !== LEGACY_PART_PLACEHOLDER,
+            LEGACY_PART_PLACEHOLDER_MESSAGE,
+          ),
+        qty: signedDecimal,
+        price: money,
+      }),
+    )
     .default([]),
   specialParts: z
     .array(

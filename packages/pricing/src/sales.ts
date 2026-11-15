@@ -100,6 +100,17 @@ export const LEGACY_CENT_CORRECTION = {
   correctedTax: '13262.84',
 } as const
 
+export const LEGACY_PART_PLACEHOLDER = '---'
+export const LEGACY_PART_PLACEHOLDER_MESSAGE =
+  "Part '---' is a legacy placeholder and cannot be invoiced."
+
+/** C6: the stored placeholder is rejected at every invoice entry point. */
+export function assertPostablePartNo(partNo: string | null | undefined): void {
+  if ((partNo ?? '').trim() === LEGACY_PART_PLACEHOLDER) {
+    throw new PricingError(LEGACY_PART_PLACEHOLDER_MESSAGE)
+  }
+}
+
 const HUNDREDTHS = 2
 
 function requireAtMostTwoDecimals(value: Decimal, field: string): void {
@@ -139,6 +150,7 @@ export function calculateSalesInvoice(input: SalesInvoiceInput): SalesInvoiceTot
   }
 
   for (const line of input.parts ?? []) {
+    assertPostablePartNo(line.partNo)
     const qty = requireDecimal(line.qty, 'part quantity')
     const price = requireDecimal(line.price, 'part price')
     requireAtMostTwoDecimals(price, 'part price')

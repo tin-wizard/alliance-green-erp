@@ -18,6 +18,7 @@ import { ALL_PERMISSIONS, NotFoundError, ValidationError } from '@cls/core'
 import { getDb, type Tx } from '@cls/db'
 import {
   invoiceLabourLines,
+  invoicePartLines,
   sageLinks,
   sagePostings,
   salesInvoices,
@@ -42,6 +43,7 @@ import {
 import { getInvoiceDetail } from './get.server'
 import {
   processSagePostingCore,
+  queueSalesInvoicePostingCore,
   recordStockPostingCore,
 } from './posting.server'
 import { regenerateInvoiceDocument, renderInvoicePdfCore } from './pdf.server'
@@ -403,6 +405,58 @@ describe.skipIf(!databaseConfigured())('Invoicing lifecycle', () => {
         .from(sageLinks)
         .where(eq(sageLinks.externalRef, `cls:sales_invoice:${second.invoiceId}`))
       expect(links).toHaveLength(1)
+    })
+  })
+
+  test('the --- part placeholder is rejected before and at the Sage boundary', async () => {
+    resetSageInvoiceGateway()
+    await inRollback(async (tx) => {
+      await seed(tx)
+      const session = adminSession()
+      const created = await createInvoiceFromSnapshotCore(tx, { workOrderId: 9_400_001 }, session)
+
+      await expect(
+        saveInvoiceDraftCore(
+          tx,
+          {
+            invoiceId: created.invoiceId,
+            version: created.version,
+            taxProvince: 'ON',
+            labour: [
+              {
+                date: '2026-02-01',
+                hours: '1.00',
+                rateCode: 1,
+                hourlyRate: '10.00',
+              },
+            ],
+            parts: [
+              { partNo: '---', qty: '1', price: '5.00', isLocalPart: false },
+            ],
+            specialParts: [],
+            totals: {
+              labour: '10.00',
+              material: '5.00',
+              subtotal: '15.00',
+              tax: '1.95',
+              total: '16.95',
+            },
+          },
+          session,
+        ),
+      ).rejects.toThrow(/placeholder/i)
+
+      await tx.insert(invoicePartLines).values({
+        invoiceId: created.invoiceId,
+        position: 1,
+        partNo: '---',
+        qty: '1.00',
+        price: '5.00',
+        amount: '5.00',
+      })
+      await expect(
+        queueSalesInvoicePostingCore(tx, created.invoiceId, session),
+      ).rejects.toThrow(/placeholder/i)
     })
   })
 

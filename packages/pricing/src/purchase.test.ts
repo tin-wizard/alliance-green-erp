@@ -105,4 +105,17 @@ describe('subcontractor purchase contract', () => {
     expect(before?.taxRate).toBe('0.13')
     expect(after?.taxRate).toBe('0.12')
   })
+
+  test('MB boundary compares the full timestamp, not the date slice', () => {
+    const atBoundary = calculateSubcontractorPurchaseTotals({
+      taxProvince: 'MB',
+      labour: [{ date: '2019-06-30 23:59:59', hours: '1', hourlyRate: '100.00' }],
+    })
+    const secondBefore = calculateSubcontractorPurchaseTotals({
+      taxProvince: 'MB',
+      labour: [{ date: '2019-06-30 23:59:58', hours: '1', hourlyRate: '100.00' }],
+    })
+    expect(atBoundary?.taxRate).toBe('0.12')
+    expect(secondBefore?.taxRate).toBe('0.13')
+  })
 })

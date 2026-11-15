@@ -81,8 +81,8 @@
    "note": "three 0.165 lines: per-line rounding gives 0.51, one rounding of the raw sum gives 0.50",
    "taxprov": "ON",
    "input": {
-    "hhours": [],
-    "rrate": [],
+    "hhours": ["0"],
+    "rrate": ["0.00"],
     "part_qty": [
      "1.5",
      "1.5",
@@ -114,8 +114,8 @@
    "note": "fractional quantity 2.5 x 10.01 = 25.025 -> stored 25.03",
    "taxprov": "ON",
    "input": {
-    "hhours": [],
-    "rrate": [],
+    "hhours": ["0"],
+    "rrate": ["0.00"],
     "part_qty": [
      "2.5"
     ],

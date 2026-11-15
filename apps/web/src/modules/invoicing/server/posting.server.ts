@@ -6,7 +6,7 @@
 import { and, asc, eq, sql } from 'drizzle-orm'
 import { ValidationError } from '@cls/core'
 import { getSageInvoiceGateway, type SageInvoiceLine } from '@cls/sage'
-import { format, salesTaxRate } from '@cls/pricing'
+import { format, salesTaxRate, LEGACY_PART_PLACEHOLDER, LEGACY_PART_PLACEHOLDER_MESSAGE } from '@cls/pricing'
 import type { Executor, Tx } from '@cls/db'
 import {
   invoiceLabourLines,
@@ -60,6 +60,9 @@ async function salesInvoicePayload(
       .where(eq(invoiceSpecialPartLines.invoiceId, invoiceId))
       .orderBy(asc(invoiceSpecialPartLines.position)),
   ])
+  if (parts.some((line) => line.partNo.trim() === LEGACY_PART_PLACEHOLDER)) {
+    throw new ValidationError(LEGACY_PART_PLACEHOLDER_MESSAGE)
+  }
   const taxRate = taxRateFor(invoice.taxProvince, invoice.appliedTaxRate)
   const lines: SageInvoiceLine[] = [
     ...labour.map((line) => ({

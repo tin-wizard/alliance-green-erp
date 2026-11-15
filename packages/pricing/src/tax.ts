@@ -124,9 +124,24 @@ export function purchaseTaxRate(
 /**
  * `is_purchase_invoice_date_before_july_2019` (`functions.php:4615`): the
  * invoice date is the earliest `wo_hours.date`; no hours means "before".
+ * The legacy comparison is `strtotime(date) < strtotime('2019-07-01') - 1`, so
+ * `2019-06-30 23:59:59` is already on the 12% side.
  */
 export function isBeforeJuly2019(date: string | null | undefined): boolean {
   const text = (date ?? '').trim()
-  if (!/^\d{4}-\d{2}-\d{2}/.test(text)) return true
-  return text.slice(0, 10) < '2019-07-01'
+  if (!text) return true
+  const iso = /^\d{4}-\d{2}-\d{2}$/.test(text)
+    ? `${text}T00:00:00Z`
+    : /(?:Z|[+-]\d{2}:?\d{2})$/.test(text.replace(' ', 'T'))
+      ? text.replace(' ', 'T')
+      : `${text.replace(' ', 'T')}Z`
+  const timestamp = Date.parse(iso)
+  if (Number.isNaN(timestamp)) return true
+  return timestamp < Date.parse('2019-07-01T00:00:00Z') - 1000
+}
+
+/** True for a non-blank code the sales table knows. Blank is the ON default. */
+export function isKnownSalesProvince(province: string | null | undefined): boolean {
+  const key = (province ?? '').trim().toUpperCase()
+  return key !== '' && key in SALES_TAX_TABLE
 }

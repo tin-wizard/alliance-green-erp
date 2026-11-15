@@ -536,6 +536,43 @@
         "prices": { "WIN-1300": "10.00" }
       },
       "expectedError": "quantity"
+    },
+    {
+      "id": "tjx-e14-raw-without-markup",
+      "note": "Without markup, price the raw 1.1115 quantity: 111.15, not round3(1.1115) × 100.",
+      "provenance": "audits/MONEY-AUDIT.md N7; app/tjxpanel/ajaxCalculateTJXQuote.php:278-288",
+      "input": {
+        "taxRate": "0.13",
+        "fixtures": [
+          {
+            "quantity": "1",
+            "parts": [{ "partNo": "WIN-1400", "markup": "1", "ratioPerFixture": "1.1115" }]
+          }
+        ],
+        "specialParts": [],
+        "prices": { "WIN-1400": "100.00" }
+      },
+      "expected": {
+        "parts": [
+          {
+            "partNo": "WIN-1400",
+            "qtyWithMarkup": "2.000",
+            "qtyWithoutMarkup": "1.112",
+            "unitPrice": "100.00",
+            "lineWithMarkup": "200.00",
+            "lineWithoutMarkup": "111.15",
+            "taxWithMarkup": "26.00",
+            "taxWithoutMarkup": "14.45"
+          }
+        ],
+        "specialParts": [],
+        "subtotal": "200.00",
+        "tax": "26.00",
+        "total": "226.00",
+        "withoutMarkupSubtotal": "111.15",
+        "withoutMarkupTax": "14.45",
+        "withoutMarkupTotal": "125.60"
+      }
     }
   ]
 }
