@@ -308,10 +308,24 @@ export async function listMessageUsers(
   executor?: Executor,
 ): Promise<{ id: string; name: string; email: string }[]> {
   const db = executor ?? getDb()
+  const conditions = [
+    eq(users.isEnabled, true),
+    sql`${users.id} <> ${session.user.id}`,
+  ]
+  if (session.user.role === 'subcontractor') {
+    const ownVendor =
+      session.user.subcontractorId === null
+        ? undefined
+        : and(
+            eq(users.role, 'subcontractor'),
+            eq(users.subcontractorId, session.user.subcontractorId),
+          )
+    conditions.push(or(eq(users.role, 'admin'), ownVendor)!)
+  }
   const rows = await db
     .select({ id: users.id, name: users.displayName, email: users.email })
     .from(users)
-    .where(and(eq(users.isEnabled, true), sql`${users.id} <> ${session.user.id}`))
+    .where(and(...conditions))
     .orderBy(asc(users.displayName))
     .limit(500)
   return rows

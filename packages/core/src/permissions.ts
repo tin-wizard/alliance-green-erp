@@ -307,8 +307,8 @@ export const PERMISSIONS = [
     module: 'reports',
     label: 'Download rate reports',
     description:
-      'Reserved for the reports module: download subcontractor and customer rate sheets. Replaces the legacy username gate on the rate download screens.',
-    defaultRoles: [],
+      'Read and edit TJX rate cards. Replaces the legacy username gate on the rate download screens and the admin-only rate editor.',
+    defaultRoles: ['admin'],
   },
   {
     key: 'pma.certificate.download',

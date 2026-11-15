@@ -24,7 +24,6 @@ describe('role matrix', () => {
   it('reserves the module gates without granting them to a role', () => {
     const reserved = [
       'invoice.post_sage',
-      'report.download_rates',
       'pma.certificate.download',
       'subcontractor.rates.download',
     ]

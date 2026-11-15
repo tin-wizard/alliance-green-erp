@@ -21,7 +21,10 @@ evidence gates.
   `unique(subcontractor_id, invoice_number)` is load-bearing. The TJX row keeps
   the subcontractor's original number and links the newest standard invoice.
 - No part price writes. `parts.sell_price`, `cost` and `installCostPerUnit`
-  belong to Inventory; TJX rates live in `tjx_subcontractor_rates`.
+  belong to Inventory; TJX rates live in `tjx_subcontractor_rates`. Reading or
+  editing a rate card requires `report.download_rates`, granted to admin — the
+  role the legacy username-gated rate sheets and admin-only rate editor served.
+  Saving also requires `tjx:write`.
 - No duplicate work-order parts table. Work-order parts stay in Work Orders.
 
 ## Subcontractor invoice
