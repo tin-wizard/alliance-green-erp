@@ -18,9 +18,10 @@ import type {
 } from '../types'
 import { evaluateWsibGate, triageColumns } from '../lib/rules'
 import { getSubcontractorWsibState } from '../lib/lookups'
-import { assertPermission, hasScopedGrant, loadAccessibleWorkOrder } from './access.server'
+import { assertPermission, hasGrant, hasScopedGrant, loadAccessibleWorkOrder } from './access.server'
 import { auditWorkOrder } from './records.server'
 import { transitionWorkOrderCore } from './transition.server'
+import { ALLOWED_TRANSITIONS, transitionPermission } from '../lib/status'
 
 export async function setTriage(
   input: TriageInput,
@@ -76,7 +77,7 @@ async function applyOne(
   const before = await loadAccessibleWorkOrder(session, id, tx)
 
   if (input.change.kind === 'priority') {
-    await tx
+    const [after] = await tx
       .update(workOrders)
       .set({
         priorityId: input.change.priorityId,
@@ -84,7 +85,9 @@ async function applyOne(
         updatedBy: session.user.id,
         updatedAt: new Date(),
       })
-      .where(eq(workOrders.id, id))
+      .where(and(eq(workOrders.id, id), eq(workOrders.version, before.version)))
+      .returning({ version: workOrders.version })
+    if (!after) throw new ValidationError('This work order changed since you loaded it.')
     await auditWorkOrder(tx, session, 'workorder.bulk_priority', id, {
       summary: 'Priority changed by bulk action.',
       before: { priorityId: before.priorityId },
@@ -109,7 +112,7 @@ async function applyOne(
     if (!gate.allowed) throw new ValidationError(gate.reason ?? 'WSIB check failed.')
   }
 
-  await tx
+  const [after] = await tx
     .update(workOrders)
     .set({
       subcontractorId,
@@ -117,7 +120,9 @@ async function applyOne(
       updatedBy: session.user.id,
       updatedAt: new Date(),
     })
-    .where(eq(workOrders.id, id))
+    .where(and(eq(workOrders.id, id), eq(workOrders.version, before.version)))
+    .returning({ version: workOrders.version })
+  if (!after) throw new ValidationError('This work order changed since you loaded it.')
   await tx
     .delete(workOrderAssignments)
     .where(
@@ -163,7 +168,7 @@ export async function bulkUpdate(
 }
 
 export function canBulkChangeStatus(session: AuthSessionView): boolean {
-  return session.user.grants.some((grant) =>
-    ['workorder:write', 'workorder:approve', 'workorder:dispatch'].includes(grant.key),
-  )
+  return Object.values(ALLOWED_TRANSITIONS)
+    .flat()
+    .some((to) => hasGrant(session, transitionPermission(to)))
 }
