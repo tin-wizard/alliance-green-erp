@@ -215,6 +215,17 @@ export function formatMoney(value: string | null | undefined): string {
   }).format(number)
 }
 
+/** Stock and line quantities: plain number, up to 2 decimals, never a currency. */
+export function formatQuantity(value: string | null | undefined): string {
+  if (value === null || value === undefined || value === '') return '—'
+  const number = Number(value)
+  if (!Number.isFinite(number)) return value
+  return new Intl.NumberFormat('en-CA', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(number)
+}
+
 export function formatDate(value: string | null | undefined): string {
   if (!value) return '—'
   const date = new Date(`${value.slice(0, 10)}T12:00:00`)
