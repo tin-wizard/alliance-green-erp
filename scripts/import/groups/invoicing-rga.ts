@@ -51,6 +51,7 @@ import {
 } from '@cls/db/schema'
 import { stagingTable } from '../manifest'
 import type { GroupTransformer, TransformContext, TransformHelpers } from '../types'
+import { selectIdMemo } from '../exists-memo'
 
 const GROUP = 'invoicing-rga'
 const CALC_TYPES = ['sub', 'sub_project', 'local', 'local_project'] as const
@@ -169,11 +170,7 @@ async function resolveWorkOrder(
   if (legacyId === null) return null
   const mapped = await helpers.targetKey('work_order', 'workorder', String(legacyId))
   const candidate = intOf(mapped) ?? legacyId
-  const [row] = await tx
-    .select({ id: workOrders.id })
-    .from(workOrders)
-    .where(eq(workOrders.id, candidate))
-    .limit(1)
+  const [row] = await selectIdMemo(tx, workOrders.id, candidate)
   return row?.id ?? null
 }
 
@@ -185,7 +182,7 @@ async function resolveSite(
   if (legacyId === null) return null
   const mapped = await helpers.targetKey('site', 'sites', String(legacyId))
   const candidate = intOf(mapped) ?? legacyId
-  const [row] = await tx.select({ id: sites.id }).from(sites).where(eq(sites.id, candidate)).limit(1)
+  const [row] = await selectIdMemo(tx, sites.id, candidate)
   return row?.id ?? null
 }
 
@@ -197,11 +194,7 @@ async function resolveSubcontractor(
   if (legacyId === null) return null
   const mapped = await helpers.targetKey('subcontractor', 'subcontractor', String(legacyId))
   const candidate = intOf(mapped) ?? legacyId
-  const [row] = await tx
-    .select({ id: subcontractors.id })
-    .from(subcontractors)
-    .where(eq(subcontractors.id, candidate))
-    .limit(1)
+  const [row] = await selectIdMemo(tx, subcontractors.id, candidate)
   return row?.id ?? null
 }
 
@@ -213,11 +206,7 @@ async function resolveSupplier(
   if (legacyId === null) return null
   const mapped = await helpers.targetKey('supplier', 'suppliers', String(legacyId))
   const candidate = intOf(mapped) ?? legacyId
-  const [row] = await tx
-    .select({ id: suppliers.id })
-    .from(suppliers)
-    .where(eq(suppliers.id, candidate))
-    .limit(1)
+  const [row] = await selectIdMemo(tx, suppliers.id, candidate)
   return row?.id ?? null
 }
 
@@ -229,11 +218,7 @@ async function resolvePurchaseOrder(
   if (legacyId === null) return null
   const mapped = await helpers.targetKey('purchase_order', 'purchaseorder', String(legacyId))
   const candidate = intOf(mapped) ?? legacyId
-  const [row] = await tx
-    .select({ id: purchaseOrders.id })
-    .from(purchaseOrders)
-    .where(eq(purchaseOrders.id, candidate))
-    .limit(1)
+  const [row] = await selectIdMemo(tx, purchaseOrders.id, candidate)
   return row?.id ?? null
 }
 
@@ -264,7 +249,7 @@ async function resolveUser(
   if (legacyId === null) return null
   const mapped = await helpers.targetKey('user', 'users', String(legacyId))
   if (mapped !== null) {
-    const [byId] = await tx.select({ id: users.id }).from(users).where(eq(users.id, mapped)).limit(1)
+    const [byId] = await selectIdMemo(tx, users.id, mapped)
     if (byId) return byId.id
   }
   const [row] = await tx
@@ -894,7 +879,7 @@ async function resolveRga(
   const mapped = await helpers.targetKey('rga', 'rga', String(legacyId))
   const candidate = intOf(mapped)
   if (candidate === null) return null
-  const [row] = await tx.select({ id: rgas.id }).from(rgas).where(eq(rgas.id, candidate)).limit(1)
+  const [row] = await selectIdMemo(tx, rgas.id, candidate)
   return row?.id ?? null
 }
 

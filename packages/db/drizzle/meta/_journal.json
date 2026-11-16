@@ -134,6 +134,20 @@
       "when": 1794772963592,
       "tag": "0018_bell_quoting",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1794818244196,
+      "tag": "0019_sub_stock_notification_code_per_sub",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1794819013526,
+      "tag": "0020_work_order_revision_legacy_type",
+      "breakpoints": true
     }
   ]
 }

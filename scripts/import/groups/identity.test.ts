@@ -291,6 +291,24 @@ describe.skipIf(!configured)('identity group', () => {
     expect(after).toHaveLength(1)
   })
 
+  test('the permission_type catalogue is kept in the mirror, not raised as an error', async () => {
+    const sourceKey = `permission_type:${marker}:1`
+    await transform('permission_type', sourceKey, {
+      id: '1',
+      permission_name: 'perm_edit_wsib_insurance',
+      permission_label: 'Edit WSIB Insurance Document',
+      sort_order: '10',
+    })
+    const recorded = await exceptionFor('not_migrated', 'permission_type', 'permission_type')
+    expect(recorded?.migrationAction).toContain('ERP permission catalogue replaces it')
+    const [mapped] = await getDb()
+      .select()
+      .from(migrationRowMap)
+      .where(and(eq(migrationRowMap.entity, 'permission_type'), eq(migrationRowMap.sourceKey, sourceKey)))
+      .limit(1)
+    expect(mapped?.targetTable).toBe('public.permission_type')
+  })
+
   test('the price-editor grant table becomes inventory:edit_price', async () => {
     await transform('users', `users:${marker}:${priceEditorId}`, {
       id: String(priceEditorId),

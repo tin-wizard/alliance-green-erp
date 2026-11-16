@@ -110,7 +110,7 @@ export async function setSubStockSubscriptionCore(
       notificationCode: code,
     })
     .onConflictDoUpdate({
-      target: subStockNotifications.notificationCode,
+      target: [subStockNotifications.notificationCode, subStockNotifications.subcontractorId],
       set: { containStock: input.containStock, userId: session.user.id },
     })
     .returning()

@@ -275,6 +275,8 @@ export const workOrderRevisions = app.table(
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     revisedByUserId: uuid('revised_by_user_id'),
     revisionType: workOrderRevisionType('revision_type').notNull().default('manual'),
+    /** The event name the legacy portal wrote (`OnSubmitEditWo`), kept verbatim beside the mapped type. */
+    legacyRevisionType: text('legacy_revision_type'),
     dataWorkorder: jsonb('data_workorder').$type<Record<string, unknown>>(),
     dataWoHours: jsonb('data_wo_hours').$type<unknown[]>(),
     dataWoLocalHours: jsonb('data_wo_local_hours').$type<unknown[]>(),

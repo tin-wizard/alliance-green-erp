@@ -436,7 +436,8 @@ describe.skipIf(!databaseConfigured())('inventory integration', () => {
         message: 'Please count the shelves.',
       })
 
-      const portal = await listSubStockPortal(subSession, {}, tx)
+      // The portal lists the first 100 parts of the real catalogue, so search for ours.
+      const portal = await listSubStockPortal(subSession, { search: 'INV-SUB' }, tx)
       expect(portal.parts.map((part) => part.partNumber)).toContain('INV-SUB-VISIBLE')
       expect(portal.parts.map((part) => part.partNumber)).not.toContain('INV-SUB-HIDDEN')
       expect(portal.unread).toBe(1)

@@ -23,7 +23,7 @@
  * counter from the ledger, and a ledger that disagrees with a counter is a
  * finding for the report, not something migration "corrects".
  */
-import { eq, sql } from 'drizzle-orm'
+import { sql } from 'drizzle-orm'
 import type { Tx } from '@cls/db'
 import {
   inventoryMovements,
@@ -36,6 +36,7 @@ import {
 } from '@cls/db/schema'
 import { stagingTable } from '../manifest'
 import type { GroupTransformer, TransformContext, TransformHelpers } from '../types'
+import { selectIdMemo } from '../exists-memo'
 
 const GROUP = 'inventory'
 const ADJUSTMENT_TYPES = ['global', 'alliance', 'subcontractor', 'customer', 'contractor'] as const
@@ -145,7 +146,7 @@ async function resolveSite(
   if (legacyId === null) return null
   const mapped = await helpers.targetKey('site', 'sites', String(legacyId))
   const candidate = intOf(mapped) ?? legacyId
-  const [row] = await tx.select({ id: sites.id }).from(sites).where(eq(sites.id, candidate)).limit(1)
+  const [row] = await selectIdMemo(tx, sites.id, candidate)
   return row?.id ?? null
 }
 
@@ -157,11 +158,7 @@ async function resolveSubcontractor(
   if (legacyId === null) return null
   const mapped = await helpers.targetKey('subcontractor', 'subcontractor', String(legacyId))
   const candidate = intOf(mapped) ?? legacyId
-  const [row] = await tx
-    .select({ id: subcontractors.id })
-    .from(subcontractors)
-    .where(eq(subcontractors.id, candidate))
-    .limit(1)
+  const [row] = await selectIdMemo(tx, subcontractors.id, candidate)
   return row?.id ?? null
 }
 
@@ -173,11 +170,7 @@ async function resolveWorkOrder(
   if (legacyId === null) return null
   const mapped = await helpers.targetKey('work_order', 'workorder', String(legacyId))
   const candidate = intOf(mapped) ?? legacyId
-  const [row] = await tx
-    .select({ id: workOrders.id })
-    .from(workOrders)
-    .where(eq(workOrders.id, candidate))
-    .limit(1)
+  const [row] = await selectIdMemo(tx, workOrders.id, candidate)
   return row?.id ?? null
 }
 

@@ -1,0 +1,2 @@
+DROP INDEX "app"."sub_stock_notifications_code_unique";--> statement-breakpoint
+CREATE UNIQUE INDEX "sub_stock_notifications_code_unique" ON "app"."sub_stock_notifications" USING btree ("notification_code","subcontractor_id");
