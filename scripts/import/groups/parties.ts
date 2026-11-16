@@ -21,6 +21,7 @@ import { eq } from 'drizzle-orm'
 import type { Tx } from '@cls/db'
 import { customers, subcontractorContacts, subcontractors, suppliers, sites } from '@cls/db/schema'
 import type { GroupTransformer, TransformContext, TransformHelpers } from '../types'
+import { selectIdMemo } from '../exists-memo'
 
 const GROUP = 'parties'
 
@@ -79,11 +80,7 @@ async function resolveCustomer(
   if (legacyId === null) return null
   const mapped = await helpers.targetKey('customer', 'customer', String(legacyId))
   const candidate = intOf(mapped) ?? legacyId
-  const [row] = await tx
-    .select({ id: customers.id })
-    .from(customers)
-    .where(eq(customers.id, candidate))
-    .limit(1)
+  const [row] = await selectIdMemo(tx, customers.id, candidate)
   return row?.id ?? null
 }
 
@@ -260,11 +257,7 @@ async function transformSubcontractorContact(context: TransformContext): Promise
   if (subid !== null) {
     const mapped = await helpers.targetKey('subcontractor', 'subcontractor', String(subid))
     subcontractorId = intOf(mapped) ?? subid
-    const [parent] = await tx
-      .select({ id: subcontractors.id })
-      .from(subcontractors)
-      .where(eq(subcontractors.id, subcontractorId))
-      .limit(1)
+    const [parent] = await selectIdMemo(tx, subcontractors.id, subcontractorId)
     if (!parent) subcontractorId = null
   }
 
@@ -314,7 +307,19 @@ async function transformSubcontractorContact(context: TransformContext): Promise
 async function transformSupplier(context: TransformContext): Promise<void> {
   const { tx, helpers, sourceKey } = context
   const id = requiredId(context)
-  const sageVendorId = helpers.int('sage_vendor_id')
+  const rawVendorId = helpers.int('sage_vendor_id')
+  // Legacy writes 0 for "no vendor". It is not an id, and `sage_vendor_id` is
+  // unique, so only the first such supplier could ever keep it.
+  const sageVendorId = rawVendorId !== null && rawVendorId > 0 ? rawVendorId : null
+  if (rawVendorId !== null && rawVendorId <= 0) {
+    await helpers.exception({
+      exceptionClass: 'supplier_without_vendor',
+      entity: 'supplier',
+      sourceKey,
+      action: 'supplier kept with sage_vendor_id = NULL until the Sage reconciliation import links it',
+      notes: `sage_vendor_id = ${rawVendorId}`,
+    })
+  }
 
   if (sageVendorId !== null) {
     // `sage_vendor_id` is unique in `app`. Two legacy suppliers claiming one vendor
@@ -376,11 +381,7 @@ async function transformSiteAddressChange(context: TransformContext): Promise<vo
   const { tx, helpers, sourceKey } = context
   const siteId = helpers.int('site_id')
   if (siteId !== null) {
-    const [site] = await tx
-      .select({ id: sites.id })
-      .from(sites)
-      .where(eq(sites.id, siteId))
-      .limit(1)
+    const [site] = await selectIdMemo(tx, sites.id, siteId)
     if (!site) {
       await helpers.exception({
         exceptionClass: 'orphan_line',

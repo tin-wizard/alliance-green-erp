@@ -52,6 +52,34 @@ export const EXCEPTION_CLASSES: Record<ExceptionClass, ExceptionClassMeta> = {
     description: 'The account is kept but not invited until a real vendor row exists. Never create a fake vendor.',
     policySkip: false,
   },
+  supplier_without_vendor: {
+    title: 'Suppliers without a Sage vendor',
+    owner: 'operations',
+    description:
+      'The legacy supplier has sage_vendor_id 0, which means no vendor link. It is kept with a null vendor id until the Sage reconciliation import links it. Zero is never stored as a vendor id, and two suppliers claiming the same real vendor still fail loudly.',
+    policySkip: false,
+  },
+  last_revision_recomputed: {
+    title: 'Work-order revision chain ends recomputed',
+    owner: 'data platform',
+    description:
+      'The legacy is_last_revision flag is set on every revision row, so it is ignored. Each work order\'s chain end is its highest revision id; every other revision is stored as not last.',
+    policySkip: false,
+  },
+  negative_quantity: {
+    title: 'Purchase-order lines with a negative quantity (stock write-offs and internal returns)',
+    owner: 'business owner',
+    description:
+      'The legacy portal let a purchase-order line carry a negative quantity. In the 2026-11 dump these are not supplier returns: no RGA references them, none was ever received, 51 of 56 part lines are priced at 0, and the PO notes say "write off", "removing material from <subcontractor> stock" and "material returned by <subcontractor>". They are stock corrections booked through $0 purchase orders, and only 5 part lines and 5 special lines carry money (about -$3,300 in all). The ERP stores quantities as zero or more, so the lines are not inserted. The owner decides: model them as inventory adjustments (recommended), or allow negative PO lines, or book the priced ones as supplier credits.',
+    policySkip: false,
+  },
+  duplicate_master_name: {
+    title: 'Master rows that share a name',
+    owner: 'business owner',
+    description:
+      'Two legacy master rows (such as TJX rooms) have the same name ignoring case. The ERP keeps one, and the second is mapped onto the first so quotes using either still resolve. Confirm they really are one room, or rename one.',
+    policySkip: false,
+  },
   orphan_workorder_site: {
     title: 'Work orders whose site does not exist',
     owner: 'operations',

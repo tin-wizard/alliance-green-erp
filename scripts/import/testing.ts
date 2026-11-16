@@ -5,6 +5,7 @@
  * unit test needs: no dump, no loader, no checkpoints. The rehearsal exercises
  * the whole path; these tests pin the mapping rules row by row.
  */
+import { clearExistsMemo } from './exists-memo'
 import type { Tx } from '@cls/db'
 import { getConfig } from '@cls/core/env.server'
 import { createHelpers } from './helpers'
@@ -35,6 +36,8 @@ export async function runTransformerRow(
   transformer: GroupTransformer,
   input: TransformerRowInput,
 ): Promise<void> {
+  // A test row must see the database as it is, never a previous test's memo.
+  clearExistsMemo()
   await transformer.transform(contextFor(tx, input))
 }
 

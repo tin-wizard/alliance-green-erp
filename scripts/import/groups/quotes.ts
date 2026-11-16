@@ -47,6 +47,7 @@ import {
   workOrders,
 } from '@cls/db/schema'
 import type { GroupTransformer, TransformContext, TransformHelpers } from '../types'
+import { selectIdMemo } from '../exists-memo'
 
 const GROUP = 'quotes'
 
@@ -191,11 +192,7 @@ async function resolveSite(
   if (legacyId === null) return null
   const mapped = await helpers.targetKey('site', 'sites', String(legacyId))
   const candidate = intOf(mapped) ?? legacyId
-  const [row] = await tx
-    .select({ id: sites.id })
-    .from(sites)
-    .where(eq(sites.id, candidate))
-    .limit(1)
+  const [row] = await selectIdMemo(tx, sites.id, candidate)
   return row?.id ?? null
 }
 
@@ -233,11 +230,7 @@ async function resolveQuoteId(
     }
   }
   // No mapping yet: a customer quote keeps its number, so the id is its own key.
-  const [row] = await tx
-    .select({ id: quotes.id })
-    .from(quotes)
-    .where(eq(quotes.id, legacyId))
-    .limit(1)
+  const [row] = await selectIdMemo(tx, quotes.id, legacyId)
   return row?.id ?? null
 }
 
@@ -451,11 +444,7 @@ async function transformQuoteHeader(
   let convertedWorkOrderId: number | null = null
   if (kind === 'customer' && workOrderNumber !== null) {
     // A reserved number that has a work order is a quote that was converted.
-    const [converted] = await tx
-      .select({ id: workOrders.id })
-      .from(workOrders)
-      .where(eq(workOrders.id, workOrderNumber))
-      .limit(1)
+    const [converted] = await selectIdMemo(tx, workOrders.id, workOrderNumber)
     convertedWorkOrderId = converted?.id ?? null
   }
 

@@ -57,6 +57,7 @@ import {
   users,
 } from '@cls/db/schema'
 import type { GroupTransformer, TransformContext, TransformHelpers } from '../types'
+import { selectIdMemo } from '../exists-memo'
 
 const GROUP = 'purchasing'
 
@@ -241,11 +242,7 @@ async function resolveSupplier(
   if (legacyId === null) return null
   const mapped = await helpers.targetKey('supplier', 'suppliers', String(legacyId))
   const candidate = intOf(mapped) ?? legacyId
-  const [row] = await tx
-    .select({ id: suppliers.id })
-    .from(suppliers)
-    .where(eq(suppliers.id, candidate))
-    .limit(1)
+  const [row] = await selectIdMemo(tx, suppliers.id, candidate)
   return row?.id ?? null
 }
 
@@ -288,20 +285,12 @@ async function resolveQuote(
     const candidate = intOf(mapped)
     if (candidate !== null) return candidate
   }
-  const [row] = await tx
-    .select({ id: quotes.id })
-    .from(quotes)
-    .where(eq(quotes.id, legacyId))
-    .limit(1)
+  const [row] = await selectIdMemo(tx, quotes.id, legacyId)
   return row?.id ?? null
 }
 
 async function poExists(tx: Tx, id: number): Promise<boolean> {
-  const [row] = await tx
-    .select({ id: purchaseOrders.id })
-    .from(purchaseOrders)
-    .where(eq(purchaseOrders.id, id))
-    .limit(1)
+  const [row] = await selectIdMemo(tx, purchaseOrders.id, id)
   return row !== undefined
 }
 
@@ -580,6 +569,31 @@ async function ensureOpeningReceipt(context: TransformContext, poId: number): Pr
   return receipt!.id
 }
 
+/**
+ * The ERP stores purchase-order quantities as zero or more. The legacy portal let
+ * a line carry a negative quantity (32 purchase orders, 71 lines in the 2026-11
+ * dump). The data says they are stock write-offs and internal returns booked
+ * through $0 purchase orders, not supplier returns: no RGA references them, none
+ * was received, most are priced at 0, and the PO notes say "write off" and
+ * "removing material from ... stock". How the ERP keeps them is the business
+ * owner's call, so the line is not inserted and the decision is recorded, never
+ * guessed.
+ */
+async function skipNegativeQuantity(
+  context: TransformContext,
+  qty: string,
+): Promise<boolean> {
+  if (Number(qty) >= 0) return false
+  await recordException(context.helpers, {
+    exceptionClass: 'negative_quantity',
+    entity: entityFor(context.table),
+    sourceKey: context.sourceKey,
+    action: 'line not inserted: the ERP requires qty >= 0; the owner decides how a negative line is kept',
+    notes: `poid = ${JSON.stringify(context.row.poid)}, qty = ${JSON.stringify(context.row.qty)}, price = ${JSON.stringify(context.row.price)}`,
+  })
+  return true
+}
+
 async function transformPurchaseOrderPart(context: TransformContext): Promise<void> {
   if (await alreadyMapped(context)) return
   const { tx, helpers } = context
@@ -597,6 +611,8 @@ async function transformPurchaseOrderPart(context: TransformContext): Promise<vo
     })
   }
 
+  const qty = await requiredMoney(helpers, context, 'qty')
+  if (await skipNegativeQuantity(context, qty)) return
   const qtyReceived = await requiredMoney(helpers, context, 'qty_received')
   const [inserted] = await tx
     .insert(purchaseOrderParts)
@@ -604,7 +620,7 @@ async function transformPurchaseOrderPart(context: TransformContext): Promise<vo
       poId,
       partNo: partNo ?? '',
       description: null,
-      qty: await requiredMoney(helpers, context, 'qty'),
+      qty,
       qtyReceived,
       price: await requiredMoney(helpers, context, 'price'),
       modelNumber: helpers.text('model_number'),
@@ -634,13 +650,15 @@ async function transformPurchaseOrderSpecialPart(context: TransformContext): Pro
   const poId = await requirePurchaseOrder(context, 'poid')
   if (poId === null) return
 
+  const qty = await requiredMoney(helpers, context, 'qty')
+  if (await skipNegativeQuantity(context, qty)) return
   const qtyReceived = await requiredMoney(helpers, context, 'qty_received')
   const [inserted] = await tx
     .insert(purchaseOrderSpecialParts)
     .values({
       poId,
       name: helpers.text('name') ?? '',
-      qty: await requiredMoney(helpers, context, 'qty'),
+      qty,
       qtyReceived,
       price: await requiredMoney(helpers, context, 'price'),
       modelNumber: helpers.text('model_number'),
@@ -708,11 +726,7 @@ async function requirePreorder(context: TransformContext): Promise<number | null
   const { tx, helpers } = context
   const id = helpers.int('pre_poid')
   if (id !== null) {
-    const [row] = await tx
-      .select({ id: purchaseOrderPreorders.id })
-      .from(purchaseOrderPreorders)
-      .where(eq(purchaseOrderPreorders.id, id))
-      .limit(1)
+    const [row] = await selectIdMemo(tx, purchaseOrderPreorders.id, id)
     if (row) return row.id
   }
   await recordException(helpers, {
@@ -1048,11 +1062,7 @@ async function transformPurchaseOrderInvoiceSpecialLine(context: TransformContex
   const [invoice] =
     invoiceLegacyId === null
       ? []
-      : await tx
-          .select({ id: purchaseOrderInvoices.id })
-          .from(purchaseOrderInvoices)
-          .where(eq(purchaseOrderInvoices.id, invoiceLegacyId))
-          .limit(1)
+      : await selectIdMemo(tx, purchaseOrderInvoices.id, invoiceLegacyId)
 
   if (!invoice) {
     await recordException(helpers, {
@@ -1154,11 +1164,7 @@ async function transformRfqLine(context: TransformContext): Promise<void> {
   const [rfq] =
     rfqId === null
       ? []
-      : await tx
-          .select({ id: purchaseOrderRfqs.id })
-          .from(purchaseOrderRfqs)
-          .where(eq(purchaseOrderRfqs.id, rfqId))
-          .limit(1)
+      : await selectIdMemo(tx, purchaseOrderRfqs.id, rfqId)
 
   if (!rfq) {
     await recordException(helpers, {
@@ -1219,11 +1225,7 @@ async function transformRfqSupplier(context: TransformContext): Promise<void> {
   const [rfq] =
     rfqId === null
       ? []
-      : await tx
-          .select({ id: purchaseOrderRfqs.id })
-          .from(purchaseOrderRfqs)
-          .where(eq(purchaseOrderRfqs.id, rfqId))
-          .limit(1)
+      : await selectIdMemo(tx, purchaseOrderRfqs.id, rfqId)
 
   if (!rfq) {
     await recordException(helpers, {
@@ -1270,11 +1272,7 @@ async function transformSupplierQuote(context: TransformContext): Promise<void> 
   const [rfq] =
     rfqId === null
       ? []
-      : await tx
-          .select({ id: purchaseOrderRfqs.id })
-          .from(purchaseOrderRfqs)
-          .where(eq(purchaseOrderRfqs.id, rfqId))
-          .limit(1)
+      : await selectIdMemo(tx, purchaseOrderRfqs.id, rfqId)
 
   if (!rfq) {
     await recordException(helpers, {
@@ -1403,11 +1401,7 @@ async function transformPreorderSupplier(context: TransformContext): Promise<voi
   const [preorder] =
     preorderId === null
       ? []
-      : await tx
-          .select({ id: purchaseOrderPreorders.id })
-          .from(purchaseOrderPreorders)
-          .where(eq(purchaseOrderPreorders.id, preorderId))
-          .limit(1)
+      : await selectIdMemo(tx, purchaseOrderPreorders.id, preorderId)
 
   if (!preorder) {
     await recordException(helpers, {

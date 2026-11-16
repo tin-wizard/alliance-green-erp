@@ -41,12 +41,13 @@ import {
   workOrderTax,
 } from '@cls/db/schema'
 import type { GroupTransformer, TransformContext, TransformHelpers } from '../types'
+import { selectIdMemo } from '../exists-memo'
+import { stagingTable } from '../manifest'
 
 const GROUP = 'work-orders'
 
 /** The 12 legacy `wo_status` codes, stored verbatim (BUSINESS-RULES C5). */
 const WO_STATUS_CODES = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'] as const
-const WO_NOTE_TYPES = ['note', 'status', 'dispatch', 'completion', 'system'] as const
 const WO_REVISION_TYPES = [
   'create',
   'update',
@@ -56,6 +57,26 @@ const WO_REVISION_TYPES = [
   'cancel',
   'manual',
 ] as const
+
+/**
+ * The legacy portal wrote an event name per revision (12 distinct in the 2026-11
+ * dump). The ERP has seven types; the unambiguous names map onto them, and the
+ * exact legacy name is always kept in `legacy_revision_type`.
+ */
+const LEGACY_REVISION_TYPES: Readonly<Record<string, (typeof WO_REVISION_TYPES)[number]>> = {
+  OnSubmitAddWo: 'create',
+  OnSubmitLocalAdd: 'create',
+  OnSubmitEditWo: 'update',
+  OnSubmitModifyEdit: 'update',
+  OnSubmitModifyEdit_Tech: 'update',
+  OnSubmitModifyDelete: 'update',
+  OnSubmitModifyDelete_Tech: 'update',
+  OnSubmitEditReport_Tech: 'update',
+  ModifyAddSubmit: 'update',
+  OnSubmitCloseout_Tech: 'complete',
+  'OnInvoiceSubmit-SUB': 'manual',
+  'OnQuoteSubmit-SUB': 'manual',
+}
 
 /** §5: these ids are operator placeholders, not work orders. */
 const PLACEHOLDER_WORK_ORDERS = new Set(['99999999', '44444444', '9999999', '9999998', '0'])
@@ -132,6 +153,29 @@ function stamp(value: string | null): Date | null {
   return value === null ? null : (sql`${value}::timestamp` as unknown as Date)
 }
 
+const TORONTO_CLOCK = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'America/Toronto',
+  hourCycle: 'h23',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+})
+
+/**
+ * Some legacy columns hold a Unix timestamp in seconds (`workorder.completiondate`
+ * is one in 42,067 of 44,206 rows). The other legacy timestamps are the wall clock
+ * the portal showed in Toronto, so the instant is written as that same wall clock.
+ */
+function epochSecondsToToronto(seconds: number): string {
+  const parts = Object.fromEntries(
+    TORONTO_CLOCK.formatToParts(new Date(seconds * 1000)).map((part) => [part.type, part.value]),
+  )
+  return `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute}:${parts.second}`
+}
+
 async function timestampOf(
   helpers: TransformHelpers,
   context: TransformContext,
@@ -139,6 +183,7 @@ async function timestampOf(
 ): Promise<string | null> {
   const value = helpers.timestamp(column)
   if (value === null) return null
+  if (/^\d{9,10}$/.test(value)) return epochSecondsToToronto(Number(value))
   if (ISO_TIMESTAMP.test(value)) return value
   await recordException(helpers, {
     exceptionClass: 'unparseable_timestamp',
@@ -232,11 +277,7 @@ async function resolveSite(
   if (legacyId === null) return null
   const mapped = await helpers.targetKey('site', 'sites', String(legacyId))
   const candidate = intOf(mapped) ?? legacyId
-  const [row] = await tx
-    .select({ id: sites.id })
-    .from(sites)
-    .where(eq(sites.id, candidate))
-    .limit(1)
+  const [row] = await selectIdMemo(tx, sites.id, candidate)
   return row?.id ?? null
 }
 
@@ -248,11 +289,7 @@ async function resolveSubcontractor(
   if (legacyId === null) return null
   const mapped = await helpers.targetKey('subcontractor', 'subcontractor', String(legacyId))
   const candidate = intOf(mapped) ?? legacyId
-  const [row] = await tx
-    .select({ id: subcontractors.id })
-    .from(subcontractors)
-    .where(eq(subcontractors.id, candidate))
-    .limit(1)
+  const [row] = await selectIdMemo(tx, subcontractors.id, candidate)
   return row?.id ?? null
 }
 
@@ -665,16 +702,9 @@ async function transformWorkOrderNote(context: TransformContext): Promise<void> 
   const parent = await requireWorkOrder(context, 'woid')
   if (parent === null) return
 
-  const notesType = helpers.enumOf('notes_type', WO_NOTE_TYPES)
-  if (notesType === null && (context.row.notes_type ?? '').trim() !== '') {
-    await helpers.exception({
-      exceptionClass: 'unknown_enum',
-      entity: 'work_order_note',
-      sourceKey: context.sourceKey,
-      action: "stored notes_type 'note'",
-      notes: `notes_type = ${JSON.stringify(context.row.notes_type)}`,
-    })
-  }
+  // `notes_type` is free text in the target, so the legacy type (EditWoNotes,
+  // StatusChanged, PopUpResponseBox ...) is kept as written; a blank one is a plain note.
+  const notesType = helpers.text('notes_type')
 
   const createdAt = stamp(await timestampOf(helpers, context, 'date_created'))
   const [inserted] = await tx
@@ -694,18 +724,54 @@ async function transformWorkOrderNote(context: TransformContext): Promise<void> 
   await rememberRow(context, 'work_order_notes', String(inserted!.id))
 }
 
+/**
+ * The legacy `is_last_revision` flag is 1 on every revision row (193,421 of
+ * 193,421 in the 2026-11 dump), so it cannot say which revision ends a work
+ * order's chain, and the target allows only one chain end per work order. The
+ * chain end is the highest revision id of the work order, computed once per dump
+ * from the staged rows so the answer does not depend on row order or on how many
+ * rows run at once.
+ */
+const chainEnds = new Map<string, Promise<Map<string, number>>>()
+
+async function chainEndFor(tx: Tx, dumpId: string, workOrder: string): Promise<number | null> {
+  let loaded = chainEnds.get(dumpId)
+  if (!loaded) {
+    loaded = (async () => {
+      const rows = (await tx.execute(
+        sql`select btrim(woid) as woid, max(btrim(revision_id)::int) as last_id
+            from ${sql.raw(`migration."${stagingTable('wo_revisions')}"`)}
+            where "_dump_id" = ${dumpId} and btrim(revision_id) ~ '^[0-9]+$' and btrim(woid) <> ''
+            group by 1`,
+      )) as unknown as Array<{ woid: string; last_id: number }>
+      return new Map(rows.map((row) => [row.woid, Number(row.last_id)]))
+    })()
+    chainEnds.set(dumpId, loaded)
+    loaded.catch(() => chainEnds.delete(dumpId))
+  }
+  return (await loaded).get(workOrder.trim()) ?? null
+}
+
+/** Forget the computed chain ends (a new load of the same dump id replaces the rows). */
+export function clearChainEnds(): void {
+  chainEnds.clear()
+}
+
 async function transformWorkOrderRevision(context: TransformContext): Promise<void> {
   const { tx, helpers, sourceKey } = context
   const parent = await requireWorkOrder(context, 'woid')
   if (parent === null) return
 
-  const revisionType = helpers.enumOf('revision_type', WO_REVISION_TYPES)
-  if (revisionType === null && (context.row.revision_type ?? '').trim() !== '') {
+  const legacyType = helpers.text('revision_type')
+  const revisionType =
+    helpers.enumOf('revision_type', WO_REVISION_TYPES) ??
+    (legacyType === null ? null : (LEGACY_REVISION_TYPES[legacyType] ?? null))
+  if (revisionType === null && legacyType !== null) {
     await helpers.exception({
       exceptionClass: 'unknown_enum',
       entity: 'work_order_revision',
       sourceKey,
-      action: "stored revision_type 'manual'",
+      action: "stored revision_type 'manual'; the legacy name is kept in legacy_revision_type",
       notes: `revision_type = ${JSON.stringify(context.row.revision_type)}`,
     })
   }
@@ -715,6 +781,7 @@ async function transformWorkOrderRevision(context: TransformContext): Promise<vo
     workOrderId: parent.id,
     revisedByUserId: await resolveUser(tx, helpers, helpers.int('revised_by_user')),
     revisionType: revisionType ?? 'manual',
+    legacyRevisionType: legacyType,
     dataWorkorder: (await parseJson(helpers, context, 'data_workorder')) as Record<
       string,
       unknown
@@ -729,11 +796,22 @@ async function transformWorkOrderRevision(context: TransformContext): Promise<vo
     > | null,
     dataWoTax: (await parseJson(helpers, context, 'data_wo_tax')) as Record<string, unknown> | null,
     dataWoNotes: (await parseJson(helpers, context, 'data_wo_notes')) as unknown[] | null,
-    isLastRevision: helpers.flag('is_last_revision') === 1,
+    isLastRevision: false,
     ...(createdAt === null ? {} : { createdAt }),
   }
 
   const revisionId = intOf(context.row.revision_id)
+  const chainEnd = await chainEndFor(tx, context.dumpId, context.row.woid ?? '')
+  values.isLastRevision = revisionId !== null && chainEnd === revisionId
+  if (helpers.flag('is_last_revision') === 1 && !values.isLastRevision) {
+    await helpers.exception({
+      exceptionClass: 'last_revision_recomputed',
+      entity: 'work_order_revision',
+      sourceKey: context.table,
+      action: 'is_last_revision recomputed: only the highest revision id of each work order ends its chain',
+      notes: 'the legacy flag is 1 on every revision row, so it cannot identify the chain end',
+    })
+  }
   if (revisionId === null) {
     const [inserted] = await tx
       .insert(workOrderRevisions)

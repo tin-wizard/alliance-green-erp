@@ -33,6 +33,11 @@ export interface ManifestGroup {
   /** Transformer module under `scripts/import/groups/`, or null for skip-only. */
   transformer: string | null
   tables: ManifestTable[]
+  /**
+   * Slices of a batch to run at once. Only for groups whose rows do not read
+   * one another's results within an entity; the default is one at a time.
+   */
+  concurrency?: number
 }
 
 function table(tableName: string, entity: string, fixtureRows: number): ManifestTable {
@@ -64,6 +69,8 @@ export const GROUPS: ManifestGroup[] = [
     order: 2,
     name: 'parties',
     transformer: 'parties',
+    // Explicit legacy ids with upserts: rows never read each other's results.
+    concurrency: 24,
     tables: [
       table('customer', 'customer', 6),
       table('sites', 'site', 8),
@@ -90,6 +97,8 @@ export const GROUPS: ManifestGroup[] = [
     order: 4,
     name: 'parts',
     transformer: 'parts',
+    // Rates and history read parts; only `parts` itself is serial.
+    concurrency: 24,
     tables: [
       table('parts', 'part', 10),
       table('parts_group', 'part_group', 3),
@@ -111,6 +120,8 @@ export const GROUPS: ManifestGroup[] = [
     order: 5,
     name: 'compliance',
     transformer: 'compliance',
+    // Document and warranty rows: each reads earlier entities and writes only itself.
+    concurrency: 24,
     tables: [
       table('subcontractor_wsib_insurance_documents', 'subcontractor_wsib_document', 3),
       table('subcontractor_additional_documents', 'subcontractor_document', 3),
@@ -123,6 +134,8 @@ export const GROUPS: ManifestGroup[] = [
     order: 6,
     name: 'work-orders',
     transformer: 'work-orders',
+    // Child rows read the work order; only `workorder` itself (parent links) is serial.
+    concurrency: 24,
     tables: [
       table('workorder', 'work_order', 14),
       table('wo_hours', 'work_order_hour', 6),
@@ -228,6 +241,8 @@ export const GROUPS: ManifestGroup[] = [
     order: 9,
     name: 'inventory',
     transformer: 'inventory',
+    // Movement and adjustment rows are independent inserts.
+    concurrency: 24,
     tables: [
       table('parts_inventory', 'part_inventory', 4),
       table('parts_inventory_adjustment', 'part_inventory_adjustment', 4),
@@ -242,6 +257,8 @@ export const GROUPS: ManifestGroup[] = [
     order: 10,
     name: 'invoicing-rga',
     transformer: 'invoicing-rga',
+    // Lines create their invoice header with ON CONFLICT DO NOTHING, so a race is safe.
+    concurrency: 16,
     tables: [
       table('inv_project', 'invoice_project', 5),
       table('inv_hours', 'invoice_hour', 4),
@@ -293,6 +310,8 @@ export const GROUPS: ManifestGroup[] = [
     order: 12,
     name: 'messaging-history',
     transformer: 'messaging',
+    // Only `messages` (thread creation) is serial.
+    concurrency: 24,
     tables: [
       table('messages', 'message', 5),
       table('messages_links', 'message_link', 4),
@@ -427,6 +446,26 @@ export function dispositionFor(tableName: string): Disposition {
   const outOfScope = OUT_OF_SCOPE_TABLES.find((entry) => entry.table === tableName)
   if (outOfScope) return { kind: 'out_of_scope', reason: outOfScope.reason }
   return { kind: 'unknown', table: tableName }
+}
+
+/**
+ * Tables whose transformer reads or creates a row that another row of the SAME
+ * table may also create (a message thread, a part found by its code). They run
+ * one row at a time even inside a parallel group, so the first row in dump order
+ * wins exactly as it always did. `workorder` is not here: it looks up sites and
+ * subcontractors and upserts by its own id, and never reads another work order.
+ */
+export const SERIAL_TABLES: ReadonlySet<string> = new Set(['messages', 'parts'])
+
+/**
+ * Legacy credentials the migration never uses (users authenticate through Neon
+ * Auth). The staging table keeps the column so the schema stays a mirror, but the
+ * loader writes NULL: the 2026-11 dump held unsalted MD5 passwords and plaintext
+ * mailbox passwords, and staging is a database other people can read. The row
+ * hash is still computed from the real value, so parity is unaffected.
+ */
+export const NEVER_STAGED_COLUMNS: Readonly<Record<string, ReadonlySet<string>>> = {
+  users: new Set(['password', 'mailing_password', 'cls_mailing_password']),
 }
 
 export const ALL_TABLES: ManifestTable[] = GROUPS.flatMap((group) => group.tables)

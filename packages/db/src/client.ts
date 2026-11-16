@@ -53,7 +53,8 @@ export function getSql(): ReturnType<typeof postgres> {
   if (!sqlClient) {
     const url = getConfig().databaseUrl as string
     sqlClient = postgres(url, {
-      max: 10,
+      // A migration runs several transactions at once; the app keeps the default.
+      max: Number(process.env.DB_POOL_MAX) > 0 ? Number(process.env.DB_POOL_MAX) : 10,
       idle_timeout: 20,
       connect_timeout: 10,
       prepare: false,

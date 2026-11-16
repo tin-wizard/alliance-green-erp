@@ -14,6 +14,10 @@ export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
+  // Assertions wait for the page to catch up with the database. Against a Neon
+  // branch in another region a request is dozens of 100 ms queries, so a run from
+  // a laptop needs more than the 5 s default; CI next to the database does not.
+  expect: { timeout: Number(process.env.E2E_EXPECT_TIMEOUT_MS) > 0 ? Number(process.env.E2E_EXPECT_TIMEOUT_MS) : 5_000 },
   retries: 0,
   reporter: [['list']],
   use: {

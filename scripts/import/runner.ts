@@ -21,12 +21,21 @@ import {
   migrationModules,
   migrationRuns,
 } from '@cls/db/schema'
-import { ALL_TABLES, GROUPS, MANIFEST_VERSION, SKIPPED_DATED_DUPLICATES, stagingTable, type ManifestGroup, type ManifestTable } from './manifest'
-import { createHelpers } from './helpers'
+import { ALL_TABLES, GROUPS, MANIFEST_VERSION, NEVER_STAGED_COLUMNS, SERIAL_TABLES, SKIPPED_DATED_DUPLICATES, stagingTable, type ManifestGroup, type ManifestTable } from './manifest'
+import { createHelpers, RowMapCache, RowMapPending } from './helpers'
+import { clearExistsMemo } from './exists-memo'
 import type { GroupTransformer, LegacySource, SourceTable } from './types'
 import legacy from './legacy-schema.json' with { type: 'json' }
 
 const BATCH_SIZE = 1_000
+
+/** Slices of one batch that run at once, for groups whose rows do not depend on each other. */
+function concurrencyFor(group: ManifestGroup, table: ManifestTable): number {
+  if (SERIAL_TABLES.has(table.table)) return 1
+  const fromEnv = Number(process.env.MIGRATION_CONCURRENCY)
+  const configured = group.concurrency ?? (Number.isFinite(fromEnv) && fromEnv > 0 ? fromEnv : 1)
+  return Math.max(1, Math.floor(configured))
+}
 
 const legacyTables = (legacy as { tables: Record<string, { columns: { name: string }[] }> }).tables
 
@@ -200,6 +209,7 @@ async function stageTable(db: Db, dumpId: string, table: SourceTable): Promise<s
         hash,
         dumpId,
         ...columns.map((column) => {
+          if (NEVER_STAGED_COLUMNS[table.table]?.has(column)) return null
           const value = values[column] ?? null
           if (value !== null && value.includes('\u0000')) {
             console.warn(`[stage] ${table.table}.${column} row ${row.rowNo}: stripped NUL byte(s)`)
@@ -378,6 +388,9 @@ async function transformEntity(
   let errors = 0
   let status = 'passed'
   let batchNo = checkpoint?.batchNo ?? 0
+  const concurrency = concurrencyFor(input.group, input.table)
+  clearExistsMemo()
+  const cache = new RowMapCache()
 
   for (;;) {
     const rows = (await db.execute(
@@ -401,38 +414,42 @@ async function transformEntity(
       }
     })
 
-    // One transaction per batch: the advisory lock is taken once, and a commit
-    // records the checkpoint. A savepoint per row keeps one bad row from
-    // discarding its 999 neighbours.
+    // The batch is cut into slices. Each slice is one transaction, so the whole
+    // batch costs a handful of round trips per row instead of a dozen. The first
+    // pass runs a slice with no savepoints; if any row throws, that slice rolls
+    // back and replays row by row with a savepoint each, so one bad row never
+    // discards its neighbours and the result matches the one-row-at-a-time path.
+    // An advisory lock held for the whole batch keeps two runners off one entity.
     let batchTransformed = 0
     let batchErrors = 0
     let batchFailed = false
     try {
-      await db.transaction(async (tx) => {
-        await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${`migration:${input.table.entity}`}))`)
-        for (const entry of batch) {
-          const outcome = await transformOneRow(tx, {
-            runId: input.runId,
-            dumpId: input.dumpId,
-            group: input.group.name,
-            table: input.table.table,
-            entity: input.table.entity,
-            transformer: input.transformer,
-            entry,
-          })
-          if (outcome === 'transformed') batchTransformed += 1
-          else batchErrors += 1
+      await db.transaction(async (lockTx) => {
+        await lockTx.execute(sql`select pg_advisory_xact_lock(hashtext(${`migration:${input.table.entity}`}))`)
+        const slices = sliceBatch(batch, concurrency)
+        const results = await Promise.all(
+          slices.map((slice) =>
+            runSlice(db, {
+              runId: input.runId,
+              dumpId: input.dumpId,
+              group: input.group.name,
+              table: input.table.table,
+              entity: input.table.entity,
+              transformer: input.transformer,
+              cache,
+              slice,
+            }),
+          ),
+        )
+        for (const result of results) {
+          batchTransformed += result.transformed
+          batchErrors += result.errors
         }
         const last = batch[batch.length - 1]
         if (last) {
-          await tx
+          await lockTx
             .insert(migrationCheckpoints)
-            .values({
-              runId: input.runId,
-              entity: input.table.entity,
-              lastSourceKey: last.key,
-              batchNo,
-            })
+            .values({ runId: input.runId, entity: input.table.entity, lastSourceKey: last.key, batchNo })
             .onConflictDoUpdate({
               target: [migrationCheckpoints.runId, migrationCheckpoints.entity],
               set: { lastSourceKey: last.key, batchNo, updatedAt: new Date() },
@@ -441,6 +458,8 @@ async function transformEntity(
       })
     } catch (error) {
       batchFailed = true
+      batchTransformed = 0
+      batchErrors = 0
       await db.insert(migrationErrors).values({
         runId: input.runId,
         entity: input.table.entity,
@@ -514,6 +533,54 @@ async function transformEntity(
   return { entity: input.table.entity, sourceRows, transformed, errors, status }
 }
 
+function sliceBatch<T>(batch: T[], parts: number): T[][] {
+  if (parts <= 1 || batch.length <= 1) return [batch]
+  const size = Math.ceil(batch.length / parts)
+  const slices: T[][] = []
+  for (let offset = 0; offset < batch.length; offset += size) slices.push(batch.slice(offset, offset + size))
+  return slices
+}
+
+interface SliceInput {
+  runId: string
+  dumpId: string
+  group: string
+  table: string
+  entity: string
+  transformer: GroupTransformer
+  cache: RowMapCache
+  slice: StagedEntry[]
+}
+
+/**
+ * One slice, one transaction. Optimistic first (no savepoints, one flush of the
+ * buffered crosswalk); on any throw the transaction rolls back and the slice is
+ * replayed with a savepoint per row, which is the original per-row behaviour.
+ */
+async function runSlice(db: Db, input: SliceInput): Promise<{ transformed: number; errors: number }> {
+  for (const savepoint of [false, true]) {
+    const pending = new RowMapPending(input.cache)
+    try {
+      return await db.transaction(async (tx) => {
+        let transformed = 0
+        let errors = 0
+        for (const entry of input.slice) {
+          const outcome = await transformOneRow(tx, { ...input, entry, savepoint, pending })
+          if (outcome === 'transformed') transformed += 1
+          else errors += 1
+        }
+        await pending.flush(tx, input.dumpId)
+        return { transformed, errors }
+      })
+    } catch (error) {
+      // The slice's transaction rolled back, so its buffered mappings are void.
+      pending.discard()
+      if (savepoint) throw error
+    }
+  }
+  throw new Error('unreachable')
+}
+
 interface StagedEntry {
   rowNo: number
   key: string
@@ -532,11 +599,18 @@ async function transformOneRow(
     entity: string
     transformer: GroupTransformer
     entry: StagedEntry
+    /** Savepoint per row (replay mode); off for the optimistic pass. */
+    savepoint?: boolean
+    cache?: RowMapCache
+    pending?: RowMapPending
   },
 ): Promise<'transformed' | 'failed'> {
   const { entry } = input
+  const useSavepoint = input.savepoint ?? true
+  const rowMap = input.cache && input.pending ? { cache: input.cache, pending: input.pending } : undefined
+  const mark = rowMap?.pending.size ?? 0
   const pendingDecisions: Array<Parameters<typeof writeDecision>[1]> = []
-  await tx.execute(sql.raw('savepoint migration_row'))
+  if (useSavepoint) await tx.execute(sql.raw('savepoint migration_row'))
   try {
     const context = {
       tx,
@@ -547,6 +621,7 @@ async function transformOneRow(
       row: entry.values,
     }
     const helpers = createHelpers(context, {
+      rowMap,
       onUnparseableMoney: (column, value) =>
         pendingDecisions.push({
           exceptionClass: 'unparseable_money',
@@ -573,10 +648,26 @@ async function transformOneRow(
         }),
     })
     await input.transformer.transform({ ...context, helpers })
-    for (const pending of pendingDecisions) await writeDecision(tx, pending)
-    await tx.execute(sql.raw('release savepoint migration_row'))
+    for (const decision of pendingDecisions) {
+      if (rowMap) {
+        rowMap.pending.addException({
+          exceptionClass: decision.exceptionClass,
+          entity: decision.entity,
+          sourceKey: decision.sourceKey,
+          rowCount: 1,
+          migrationAction: decision.action,
+          notes: decision.notes,
+        })
+      } else {
+        await writeDecision(tx, decision)
+      }
+    }
+    if (useSavepoint) await tx.execute(sql.raw('release savepoint migration_row'))
     return 'transformed'
   } catch (error) {
+    // Without a savepoint the whole slice rolls back and is replayed; let it.
+    if (!useSavepoint) throw error
+    rowMap?.pending.rollbackTo(mark)
     await tx.execute(sql.raw('rollback to savepoint migration_row'))
     await tx.insert(migrationErrors).values({
       runId: input.runId,

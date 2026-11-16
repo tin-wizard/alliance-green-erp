@@ -62,6 +62,7 @@ import {
 } from '@cls/db/schema'
 import { stagingTable } from '../manifest'
 import type { GroupTransformer, TransformContext, TransformHelpers } from '../types'
+import { selectIdMemo } from '../exists-memo'
 
 const GROUP = 'tjx'
 const QUOTE_STATUSES = [1, 3, 4, 5] as const
@@ -193,7 +194,7 @@ async function resolveSite(
   if (legacyId === null) return null
   const mapped = await helpers.targetKey('site', 'sites', String(legacyId))
   const candidate = intOf(mapped) ?? legacyId
-  const [row] = await tx.select({ id: sites.id }).from(sites).where(eq(sites.id, candidate)).limit(1)
+  const [row] = await selectIdMemo(tx, sites.id, candidate)
   return row?.id ?? null
 }
 
@@ -205,11 +206,7 @@ async function resolveSubcontractor(
   if (legacyId === null) return null
   const mapped = await helpers.targetKey('subcontractor', 'subcontractor', String(legacyId))
   const candidate = intOf(mapped) ?? legacyId
-  const [row] = await tx
-    .select({ id: subcontractors.id })
-    .from(subcontractors)
-    .where(eq(subcontractors.id, candidate))
-    .limit(1)
+  const [row] = await selectIdMemo(tx, subcontractors.id, candidate)
   return row?.id ?? null
 }
 
@@ -237,7 +234,7 @@ async function resolveUser(
   if (legacyId === null) return null
   const mapped = await helpers.targetKey('user', 'users', String(legacyId))
   if (mapped !== null) {
-    const [byId] = await tx.select({ id: users.id }).from(users).where(eq(users.id, mapped)).limit(1)
+    const [byId] = await selectIdMemo(tx, users.id, mapped)
     if (byId) return byId.id
   }
   const [row] = await tx
@@ -268,11 +265,7 @@ async function resolveQuote(
   const mapped = await helpers.targetKey('tjx_quote', 'tjx_quote', String(legacyId))
   const candidate = intOf(mapped)
   if (candidate === null) return null
-  const [row] = await tx
-    .select({ id: tjxQuotes.id })
-    .from(tjxQuotes)
-    .where(eq(tjxQuotes.id, candidate))
-    .limit(1)
+  const [row] = await selectIdMemo(tx, tjxQuotes.id, candidate)
   return row?.id ?? null
 }
 
@@ -816,9 +809,36 @@ async function transformRoom(context: TransformContext): Promise<void> {
     return
   }
 
+  // Room names are unique ignoring case. Two legacy rooms with one name (2026-11
+  // dump: "Utility Rooms", ids 18 and 27) are one room here: the second is mapped
+  // onto the first, so quotes that used either still find their room.
+  const legacyId = helpers.int('id')
+  const [sameName] = await tx
+    .select({ id: tjxRooms.id, legacyId: tjxRooms.legacyId })
+    .from(tjxRooms)
+    .where(sql`lower(${tjxRooms.name}) = lower(${name})`)
+    .limit(1)
+  if (sameName && sameName.legacyId !== legacyId) {
+    await helpers.exception({
+      exceptionClass: 'duplicate_master_name',
+      entity,
+      sourceKey,
+      action: `mapped onto the existing room ${sameName.id} (legacy id ${sameName.legacyId}) instead of creating a second room with the same name`,
+      notes: `roomname = ${JSON.stringify(row.roomname)}`,
+    })
+    await helpers.remember({
+      entity,
+      sourceTable: context.table,
+      sourceKey,
+      targetTable: 'tjx_rooms',
+      targetKey: String(sameName.id),
+    })
+    return
+  }
+
   const [inserted] = await tx
     .insert(tjxRooms)
-    .values({ legacyId: helpers.int('id'), name, sortOrder: helpers.int('sortorder') ?? 0 })
+    .values({ legacyId, name, sortOrder: helpers.int('sortorder') ?? 0 })
     .returning({ id: tjxRooms.id })
 
   await helpers.remember({
@@ -872,8 +892,11 @@ async function transformRoomTemplate(context: TransformContext): Promise<void> {
 
   const [template] = await tx
     .insert(tjxRoomTemplates)
-    .values({ name: 'Legacy room template', isDefault: true })
-    .onConflictDoNothing({ target: tjxRoomTemplates.name })
+    // Not the default: the ERP already seeds one (only one default may exist), and a
+    // template the migration invents must not take that role from the owner's choice.
+    .values({ name: 'Legacy room template', isDefault: false })
+    // The name's unique index is on lower(name), which ON CONFLICT (name) cannot name.
+    .onConflictDoNothing()
     .returning({ id: tjxRoomTemplates.id })
   const templateId =
     template?.id ??
@@ -881,12 +904,21 @@ async function transformRoomTemplate(context: TransformContext): Promise<void> {
       await tx
         .select({ id: tjxRoomTemplates.id })
         .from(tjxRoomTemplates)
-        .where(eq(tjxRoomTemplates.name, 'Legacy room template'))
+        .where(sql`lower(${tjxRoomTemplates.name}) = lower('Legacy room template')`)
         .limit(1)
     )[0]?.id
-  if (templateId === undefined) return
+  if (templateId === undefined) {
+    await helpers.exception({
+      exceptionClass: 'orphan_line',
+      entity,
+      sourceKey,
+      action: 'template entry skipped: the legacy room template could not be created or found',
+      notes: `roomid = ${JSON.stringify(row.roomid)}`,
+    })
+    return
+  }
 
-  const roomId = await resolveRoom(tx, helpers.int('roomid'))
+  const roomId = await resolveRoom(tx, helpers, helpers.int('roomid'))
   if (roomId === null) {
     await helpers.exception({
       exceptionClass: 'orphan_line',
@@ -898,10 +930,22 @@ async function transformRoomTemplate(context: TransformContext): Promise<void> {
     return
   }
 
-  await tx
+  // A room can be listed twice and two entries can share a position; both are
+  // unique in the target, so a repeat is skipped and recorded, never an error.
+  const placed = await tx
     .insert(tjxRoomTemplateRooms)
     .values({ templateId, roomId, sortOrder: helpers.int('sortorder') ?? 0 })
-    .onConflictDoNothing({ target: [tjxRoomTemplateRooms.templateId, tjxRoomTemplateRooms.roomId] })
+    .onConflictDoNothing()
+    .returning({ id: tjxRoomTemplateRooms.id })
+  if (placed.length === 0) {
+    await helpers.exception({
+      exceptionClass: 'dated_duplicate_skipped',
+      entity,
+      sourceKey,
+      action: 'template entry skipped: the room, or its position, is already in the template',
+      notes: `roomid = ${JSON.stringify(row.roomid)}, sortorder = ${JSON.stringify(row.sortorder)}`,
+    })
+  }
 
   await helpers.remember({
     entity,
@@ -912,8 +956,18 @@ async function transformRoomTemplate(context: TransformContext): Promise<void> {
   })
 }
 
-async function resolveRoom(tx: Tx, legacyId: number | null): Promise<number | null> {
+/**
+ * A room resolves through the crosswalk first, because two legacy rooms can share
+ * one name and the second is mapped onto the first; only then by legacy id.
+ */
+async function resolveRoom(
+  tx: Tx,
+  helpers: TransformHelpers,
+  legacyId: number | null,
+): Promise<number | null> {
   if (legacyId === null) return null
+  const mapped = await helpers.targetKey('tjx_room', 'tjx_room', String(legacyId))
+  if (mapped !== null && Number.isFinite(Number(mapped))) return Number(mapped)
   const [row] = await tx
     .select({ id: tjxRooms.id })
     .from(tjxRooms)
@@ -972,7 +1026,7 @@ async function transformQuoteFixture(context: TransformContext): Promise<void> {
 
   const quoteId = await resolveQuote(tx, helpers, helpers.int('quoteid'))
   const roomId = helpers.int('roomid')
-  const roomMasterId = await resolveRoom(tx, roomId)
+  const roomMasterId = await resolveRoom(tx, helpers, roomId)
   const fixtureMasterId = await resolveFixture(tx, helpers.int('fixtureid'))
   const fixtureName = await resolveFixtureName(tx, helpers.int('fixtureid'))
   const quantity = helpers.money('totalfixtures')
@@ -1241,11 +1295,7 @@ async function resolveSubInvoice(
   const mapped = await helpers.targetKey('tjx_sub_invoice', 'tjx_sub_invoice', String(legacyId))
   const candidate = intOf(mapped)
   if (candidate === null) return null
-  const [row] = await tx
-    .select({ id: tjxSubInvoices.id })
-    .from(tjxSubInvoices)
-    .where(eq(tjxSubInvoices.id, candidate))
-    .limit(1)
+  const [row] = await selectIdMemo(tx, tjxSubInvoices.id, candidate)
   return row?.id ?? null
 }
 

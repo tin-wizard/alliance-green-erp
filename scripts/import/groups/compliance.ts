@@ -28,6 +28,7 @@ import {
   workOrders,
 } from '@cls/db/schema'
 import type { GroupTransformer, TransformContext, TransformHelpers } from '../types'
+import { selectIdMemo } from '../exists-memo'
 
 const GROUP = 'compliance'
 const SUB_DOCUMENT_KINDS = ['wsib', 'insurance', 'other'] as const
@@ -83,11 +84,7 @@ async function resolveSubcontractor(
   if (legacyId === null) return null
   const mapped = await helpers.targetKey('subcontractor', 'subcontractor', String(legacyId))
   const candidate = intOf(mapped) ?? legacyId
-  const [row] = await tx
-    .select({ id: subcontractors.id })
-    .from(subcontractors)
-    .where(eq(subcontractors.id, candidate))
-    .limit(1)
+  const [row] = await selectIdMemo(tx, subcontractors.id, candidate)
   return row?.id ?? null
 }
 
@@ -99,11 +96,7 @@ async function resolveSite(
   if (legacyId === null) return null
   const mapped = await helpers.targetKey('site', 'sites', String(legacyId))
   const candidate = intOf(mapped) ?? legacyId
-  const [row] = await tx
-    .select({ id: sites.id })
-    .from(sites)
-    .where(eq(sites.id, candidate))
-    .limit(1)
+  const [row] = await selectIdMemo(tx, sites.id, candidate)
   return row?.id ?? null
 }
 
@@ -116,11 +109,7 @@ async function resolveWorkOrder(
   if (legacyId === null) return null
   const mapped = await helpers.targetKey('work_order', 'workorder', String(legacyId))
   const candidate = intOf(mapped) ?? legacyId
-  const [row] = await tx
-    .select({ id: workOrders.id })
-    .from(workOrders)
-    .where(eq(workOrders.id, candidate))
-    .limit(1)
+  const [row] = await selectIdMemo(tx, workOrders.id, candidate)
   return row?.id ?? null
 }
 

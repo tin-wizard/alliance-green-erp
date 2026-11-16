@@ -28,6 +28,7 @@ import {
   parts,
   partSellingRateLists,
   partSellingRates,
+  partSupplierModelRates,
   partSupplierRateLists,
   partSupplierRates,
   sharedParts,
@@ -35,6 +36,7 @@ import {
   workOrderNumberSeries,
 } from '@cls/db/schema'
 import type { GroupTransformer, TransformContext } from '../types'
+import { selectIdMemo } from '../exists-memo'
 
 const GROUP = 'parts'
 
@@ -260,6 +262,37 @@ async function transformSupplierRateList(context: TransformContext): Promise<voi
   })
 }
 
+/**
+ * `parts_supplier_model_rates`: a supplier's price for one model number of a
+ * part. The target keeps the legacy columns as they are (the price stays text,
+ * as the legacy price lists typed it) and keys the row by its own legacy id.
+ */
+async function transformSupplierModelRate(context: TransformContext): Promise<void> {
+  const { tx, helpers, sourceKey } = context
+  const id = requiredId(context)
+  const values = {
+    partCode: helpers.text('part_code'),
+    listId: helpers.int('list_id'),
+    supplierId: helpers.int('supplier_id'),
+    modelPrice: helpers.text('model_price'),
+    defaultModel: helpers.flag('default_model') === 1,
+    modelNumber: helpers.text('model_number'),
+  }
+
+  await tx
+    .insert(partSupplierModelRates)
+    .values({ id, ...values })
+    .onConflictDoUpdate({ target: partSupplierModelRates.id, set: values })
+
+  await helpers.remember({
+    entity: 'part_supplier_model_rate',
+    sourceTable: context.table,
+    sourceKey,
+    targetTable: 'part_supplier_model_rates',
+    targetKey: String(id),
+  })
+}
+
 async function transformSellingRate(context: TransformContext): Promise<void> {
   const { tx, helpers, sourceKey } = context
   const partId = await resolvePart(tx, helpers.text('part_code'))
@@ -386,7 +419,7 @@ async function transformPriceHistory(context: TransformContext): Promise<void> {
   const parent =
     priceId === null
       ? undefined
-      : (await tx.select({ id: parts.id }).from(parts).where(eq(parts.id, priceId)).limit(1))[0]
+      : (await selectIdMemo(tx, parts.id, priceId))[0]
   if (!parent) {
     await helpers.exception({
       exceptionClass: 'orphan_line',
@@ -564,6 +597,8 @@ export const transformer: GroupTransformer = {
         return transformSupplierRate(context)
       case 'parts_supplier_rates_list':
         return transformSupplierRateList(context)
+      case 'parts_supplier_model_rates':
+        return transformSupplierModelRate(context)
       case 'parts_price_history':
         return transformPriceHistory(context)
       case 'shared_parts_list':
