@@ -7,7 +7,7 @@ import {
   EmptyState,
   ErrorPanel,
   Input,
-  formatMoney,
+  formatQuantity,
 } from '../../../modules/work-orders/components/ui'
 import { listStockFn } from '../../../modules/inventory/server/inventory.functions'
 import { getSessionFn } from '../../../server/auth.functions'
@@ -145,23 +145,23 @@ function InventoryPage() {
                     data-testid={`stock-current-${row.partNumber}`}
                     className="px-3 py-2 text-right font-medium tabular-nums"
                   >
-                    {formatMoney(row.currentQuantity)}
+                    {formatQuantity(row.currentQuantity)}
                   </td>
                   <td className="px-3 py-2 text-right tabular-nums">
-                    {formatMoney(row.purchasedQuantity)}
+                    {formatQuantity(row.purchasedQuantity)}
                   </td>
                   <td className="px-3 py-2 text-right tabular-nums">
-                    {formatMoney(row.soldQuantity)}
+                    {formatQuantity(row.soldQuantity)}
                   </td>
                   <td className="px-3 py-2 text-right tabular-nums text-fg-muted">
-                    {formatMoney(row.ledgerQuantity)}
+                    {formatQuantity(row.ledgerQuantity)}
                   </td>
                   <td
                     className={`px-3 py-2 text-right tabular-nums ${
                       row.difference === '0.00' ? 'text-fg-muted' : 'font-medium text-amber-700'
                     }`}
                   >
-                    {formatMoney(row.difference)}
+                    {formatQuantity(row.difference)}
                   </td>
                   <td className="px-3 py-2 text-[12px] text-fg-muted">
                     {row.subignore ? 'hidden' : 'visible'}
