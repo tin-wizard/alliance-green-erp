@@ -10,7 +10,7 @@ import {
   Select,
   Textarea,
   formatDateTime,
-  formatMoney,
+  formatQuantity,
 } from '../../../modules/work-orders/components/ui'
 import {
   adjustStockFn,
@@ -56,7 +56,7 @@ function AdjustStockPage() {
       }),
     onSuccess: (data) => {
       setResult(
-        `${data.replay ? 'Already posted' : 'Posted'} adjustment #${data.adjustmentId}. Current stock is ${formatMoney(
+        `${data.replay ? 'Already posted' : 'Posted'} adjustment #${data.adjustmentId}. Current stock is ${formatQuantity(
           data.currentQuantity,
         )}.`,
       )
@@ -178,7 +178,7 @@ function AdjustStockPage() {
                   <tr key={row.id} className="border-t border-hair">
                     <td className="py-1.5 pr-2 text-fg-muted">{formatDateTime(row.createdAt)}</td>
                     <td className="py-1.5 pr-2 font-mono text-[12px]">{row.partNo}</td>
-                    <td className="py-1.5 pr-2 text-right tabular-nums">{formatMoney(row.qty)}</td>
+                    <td className="py-1.5 pr-2 text-right tabular-nums">{formatQuantity(row.qty)}</td>
                     <td className="py-1.5 pr-2">{row.adjustmentType}</td>
                     <td className="py-1.5 text-fg-muted">{row.note}</td>
                   </tr>

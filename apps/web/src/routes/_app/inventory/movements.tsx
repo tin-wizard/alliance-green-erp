@@ -8,7 +8,7 @@ import {
   Input,
   Select,
   formatDateTime,
-  formatMoney,
+  formatQuantity,
 } from '../../../modules/work-orders/components/ui'
 import {
   movementReportFn,
@@ -77,8 +77,8 @@ function MovementsPage() {
           <ul className="mt-1 list-inside list-disc">
             {disagreements.data.slice(0, 8).map((row) => (
               <li key={row.partNumber}>
-                {row.partNumber}: counter {formatMoney(row.currentQuantity)}, ledger{' '}
-                {formatMoney(row.ledgerQuantity)} → {formatMoney(row.difference)}
+                {row.partNumber}: counter {formatQuantity(row.currentQuantity)}, ledger{' '}
+                {formatQuantity(row.ledgerQuantity)} → {formatQuantity(row.difference)}
               </li>
             ))}
           </ul>
@@ -159,7 +159,7 @@ function MovementsPage() {
                 <tr key={row.id} className="border-t border-hair">
                   <td className="px-3 py-2 text-fg-muted">{formatDateTime(row.createdAt)}</td>
                   <td className="px-3 py-2 font-mono">{row.partNo}</td>
-                  <td className="px-3 py-2 text-right tabular-nums">{formatMoney(row.qty)}</td>
+                  <td className="px-3 py-2 text-right tabular-nums">{formatQuantity(row.qty)}</td>
                   <td className="px-3 py-2">
                     {row.transactionType}
                     <span className="ml-1 text-fg-muted">({row.movementType})</span>
