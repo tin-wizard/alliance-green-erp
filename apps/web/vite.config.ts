@@ -22,5 +22,12 @@ export default defineConfig({
   ssr: {
     external: ['@react-pdf/renderer', '@react-pdf/font', '@react-pdf/layout', '@react-pdf/pdfkit'],
   },
-  plugins: [tanstackStart(), nitro({ preset: 'node-server' }), viteReact(), tailwindcss()],
+  plugins: [
+    tanstackStart(),
+    // LAN host keeps the single-process node-server preset; a Vercel build
+    // needs the serverless `vercel` preset (ADR 0002 + Vercel deployment).
+    nitro({ preset: process.env.VERCEL ? 'vercel' : 'node-server' }),
+    viteReact(),
+    tailwindcss(),
+  ],
 })

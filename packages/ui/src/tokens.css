@@ -14,11 +14,16 @@
 :root {
   /* ── LAYER 1 · PRIMITIVES ─────────────────────────────────────────────── */
 
-  /* Brand */
-  --cls-red: #CB0A0B;          /* approved brand red, sampled from the logo */
-  --cls-red-hover: #A50808;
-  --cls-red-soft: #FCEDED;
-  --cls-red-bright: #E8625F;   /* red text on ink only */
+  /* Brand — the Alliance green the legacy system was named for,
+     sampled from the legacy menu CSS (#46af42, app/css/css-temp.css).
+     The pure sample is decorative; text/action surfaces use the darkened
+     steps so white text keeps ≥ 4.9:1 contrast. */
+  --alliance-green: #46AF42;        /* the legacy menu green itself */
+  --alliance-green-hover: #2A6524;
+  --alliance-green-active: #1F4E1B;
+  --alliance-green-text: #357F2F;   /* 4.96:1 with white — buttons, links, focus */
+  --alliance-green-soft: #EBF6EA;
+  --alliance-green-bright: #7BCF74; /* green text on ink only */
   --cls-logo-gray: #6E6D6B;
 
   /* Warm editorial neutrals (v1) */
@@ -93,7 +98,7 @@
   --surface-canvas: var(--erp-neutral-0);
   --surface-subtle: var(--erp-neutral-25);
   --surface-muted: var(--erp-neutral-100);
-  --surface-selected: #FDF5F4;
+  --surface-selected: #F0F8EF;
   --surface-inverse: #171614;
   --surface-inverse-raised: #211F1D;
   --surface-overlay: rgba(20, 18, 16, 0.55);
@@ -110,27 +115,27 @@
   --text-inverse: #F5F5F3;
   --text-inverse-muted: #B9B7B1;
   --text-inverse-faint: #8C8A84;
-  --text-brand: var(--cls-red);
+  --text-brand: var(--alliance-green-text);
   --text-danger: var(--cls-brick);
-  --text-inverse-brand: var(--cls-red-bright);
+  --text-inverse-brand: var(--alliance-green-bright);
 
   /* Borders */
   --border-hair: var(--erp-neutral-200);
   --border-strong: var(--erp-neutral-300);
   --border-inverse: rgba(245, 245, 243, 0.14);
-  --border-brand: var(--cls-red);
+  --border-brand: var(--alliance-green-text);
   --border-danger: var(--cls-brick);
 
   /* Focus */
-  --focus-ring: var(--cls-red);
-  --focus-ring-inverse: var(--cls-red-bright);
-  --focus-halo: rgba(203, 10, 11, 0.16);
+  --focus-ring: var(--alliance-green-text);
+  --focus-ring-inverse: var(--alliance-green-bright);
+  --focus-halo: rgba(70, 175, 66, 0.16);
   --focus-offset: 2px;
 
   /* Actions */
-  --action-primary-bg: var(--cls-red);
-  --action-primary-bg-hover: var(--cls-red-hover);
-  --action-primary-bg-active: #8F0708;
+  --action-primary-bg: var(--alliance-green-text);
+  --action-primary-bg-hover: var(--alliance-green-hover);
+  --action-primary-bg-active: var(--alliance-green-active);
   --action-primary-fg: #FFFFFF;
   --action-secondary-bg: var(--erp-neutral-0);
   --action-secondary-bg-hover: var(--erp-neutral-25);
@@ -144,6 +149,19 @@
   --action-danger-border: var(--cls-brick);
   --action-disabled-bg: var(--erp-neutral-100);
   --action-disabled-fg: var(--erp-neutral-400);
+
+  /* Shell — sidebar in the Alliance green, echoing the legacy menu bar.
+     White text on --alliance-green-text is 4.96:1; the active item inverts
+     to a white pill with green text for the strongest possible contrast. */
+  --shell-sidebar-bg: var(--alliance-green-text);
+  --shell-sidebar-fg: #ffffff;
+  --shell-sidebar-fg-muted: rgba(255, 255, 255, 0.88);
+  --shell-sidebar-fg-faint: rgba(255, 255, 255, 0.75);
+  --shell-sidebar-hover: rgba(255, 255, 255, 0.12);
+  --shell-sidebar-border: rgba(255, 255, 255, 0.22);
+  --shell-sidebar-active-bg: #ffffff;
+  --shell-sidebar-active-fg: var(--alliance-green-text);
+  --shell-sidebar-active-inset: var(--alliance-green-hover);
 
   /* ── Status triples ─────────────────────────────────────────────────────
      Every chip/banner uses fg + bg + bd together. Sentence-case labels.
@@ -272,7 +290,7 @@
 
   /* ── Data visualisation ───────────────────────────────────────────────── */
 
-  --viz-1: #CB0A0B;   /* primary / current period */
+  --viz-1: #357F2F;   /* primary / current period — the Alliance green */
   --viz-2: #1E4A7A;   /* comparison */
   --viz-3: #2F5D3A;   /* complete / positive */
   --viz-4: #996A00;   /* pending / warning */
@@ -286,13 +304,13 @@
   --viz-tooltip-bg: var(--surface-canvas);
   --viz-tooltip-border: var(--border-hair);
 
-  --viz-seq-1: #FCEDED;
-  --viz-seq-2: #F6D3D2;
-  --viz-seq-3: #EDA7A5;
-  --viz-seq-4: #DF6E6B;
-  --viz-seq-5: #CB0A0B;
-  --viz-seq-6: #8F0708;
-  --viz-seq-7: #5C0405;
+  --viz-seq-1: #EBF6EA;
+  --viz-seq-2: #CDEBC9;
+  --viz-seq-3: #9CD697;
+  --viz-seq-4: #63BB5C;
+  --viz-seq-5: #357F2F;
+  --viz-seq-6: #24591F;
+  --viz-seq-7: #143A11;
 
   /* ── LAYER 3 · COMPONENT / DENSITY CONTRACTS ──────────────────────────── */
 
@@ -346,7 +364,7 @@
   --surface-canvas: #1B1B19;
   --surface-subtle: #20201E;
   --surface-muted: #262624;
-  --surface-selected: #2A1D1C;
+  --surface-selected: #1C2A1A;
   --surface-inverse: #0C0C0B;
   --text-primary: #F2F1ED;
   --text-secondary: #C9C7C1;
@@ -357,11 +375,11 @@
   --action-secondary-bg: #1B1B19;
   --action-secondary-bg-hover: #232321;
   --action-ghost-hover: #262624;
-  --text-brand: #E8625F;
+  --text-brand: #7BCF74;
   --text-danger: #E7A198;
-  --focus-ring: #E8625F;
-  --focus-ring-inverse: #E8625F;
-  --border-brand: #E8625F;
+  --focus-ring: #7BCF74;
+  --focus-ring-inverse: #7BCF74;
+  --border-brand: #7BCF74;
 
   --status-draft-fg: #C9C7C1;
   --status-draft-bg: #2A2A27;
@@ -407,7 +425,7 @@
   --status-rejected-bg: #2C1916;
   --status-rejected-bd: #482A25;
 
-  --viz-1: #E8625F;
+  --viz-1: #7BCF74;
   --viz-2: #6EA8D8;
   --viz-3: #6FAF7B;
   --viz-4: #D6A23A;
@@ -467,7 +485,7 @@ svg {
 }
 
 ::selection {
-  background: var(--cls-red);
+  background: var(--alliance-green-text);
   color: #fff;
 }
 
@@ -527,9 +545,9 @@ svg {
   --color-body: #4A4A45;
   --color-muted: #6A6A64;
   --color-faint: #8A8A84;
-  --color-brand: #CB0A0B;
-  --color-brand-hover: #A50808;
-  --color-brand-soft: #FCEDED;
+  --color-brand: #357F2F;
+  --color-brand-hover: #2A6524;
+  --color-brand-soft: #EBF6EA;
   --color-danger: #8B2E1F;
   --color-success: #2F5D3A;
   --color-warning: #8A5A00;

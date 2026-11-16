@@ -30,7 +30,7 @@ export function Sidebar({
       ) : null}
       <aside
         className={[
-          'fixed inset-y-0 left-0 z-40 flex w-[288px] flex-col bg-ink text-fg-inverse transition-transform',
+          'fixed inset-y-0 left-0 z-40 flex w-[288px] flex-col bg-[var(--shell-sidebar-bg)] text-[var(--shell-sidebar-fg)] transition-transform',
           'lg:static lg:z-auto lg:w-64 lg:translate-x-0',
           open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
         ].join(' ')}
@@ -41,7 +41,7 @@ export function Sidebar({
             <span className="text-[15px] font-semibold tracking-[0.01em] text-white">
               CLS Green System
             </span>
-            <span className="text-[9.5px] font-semibold uppercase tracking-[0.22em] text-[#918f88]">
+            <span className="text-[9.5px] font-semibold uppercase tracking-[0.22em] text-[var(--shell-sidebar-fg-faint)]">
               Operations
             </span>
           </div>
@@ -58,7 +58,7 @@ export function Sidebar({
         <nav aria-label="Primary" className="flex-1 overflow-y-auto px-2 pb-4">
           {groups.map((group) => (
             <div key={group.label} className="mt-6 first:mt-2">
-              <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#8c8a84]">
+              <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--shell-sidebar-fg-faint)]">
                 {group.label}
               </p>
               <ul className="space-y-1">
@@ -78,20 +78,20 @@ export function Sidebar({
           ))}
         </nav>
 
-        <div className="border-t border-ink-hair p-3">
+        <div className="border-t border-[var(--shell-sidebar-border)] p-3">
           <div className="flex items-center gap-2.5 rounded-[4px] px-2 py-1.5">
             <span
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10 text-[11px] font-semibold text-white"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/15 text-[11px] font-semibold text-white"
               aria-hidden="true"
             >
               {initials(user.displayName)}
             </span>
             <div className="min-w-0">
               <p className="truncate text-[13px] font-medium text-white">{user.displayName}</p>
-              <p className="truncate text-[11px] text-fg-inverse-muted">{ROLE_LABELS[user.role]}</p>
+              <p className="truncate text-[11px] text-[var(--shell-sidebar-fg-muted)]">{ROLE_LABELS[user.role]}</p>
             </div>
           </div>
-          <p className="px-2 pt-2 text-[10.5px] text-[#8c8a84]">v{APP_VERSION} · local server</p>
+          <p className="px-2 pt-2 text-[10.5px] text-[var(--shell-sidebar-fg-faint)]">v{APP_VERSION} · local server</p>
         </div>
       </aside>
     </>

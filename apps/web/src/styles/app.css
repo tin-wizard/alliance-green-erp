@@ -34,7 +34,7 @@
   --color-fg-inverse-muted: var(--text-inverse-muted);
   --color-fg-inverse-faint: var(--text-inverse-faint);
   --color-brand: var(--text-brand);
-  --color-brand-hover: var(--cls-red-hover);
+  --color-brand-hover: var(--alliance-green-hover);
   --color-danger: var(--text-danger);
 
   --color-hair: var(--border-hair);
@@ -100,4 +100,14 @@
  */
 a {
   color: inherit;
+}
+
+/*
+ * Sidebar badges invert when their item is the active white pill: green on
+ * white instead of white on green. TanStack marks the active link with
+ * data-status="active"; the badge carries .nav-badge.
+ */
+.group[data-status='active'] .nav-badge {
+  background-color: rgb(53 127 47 / 12%);
+  color: var(--alliance-green-text);
 }
