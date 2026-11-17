@@ -2,8 +2,8 @@
   "generatedAt": "2026-11-12T00:00:00.000Z",
   "source": "synthetic",
   "file": "alliance_db_synthetic.sql",
-  "sha256": "26f0f32ef0a0e13c5d24778df1885f019abe1f26a0da4fa5a3c5297373e8d9d9",
-  "sizeBytes": 209817,
+  "sha256": "c46e33d5ac3bcf2ae20b682b157a0df8c2fd1d9cac37d93822a95410d6ba0c5a",
+  "sizeBytes": 223235,
   "tables": [
     {
       "table": "wo_status",
@@ -659,6 +659,66 @@
     },
     {
       "table": "sub_stock_notification",
+      "rows": 0
+    },
+    {
+      "table": "bell_room",
+      "rows": 0
+    },
+    {
+      "table": "bell_fixture",
+      "rows": 0
+    },
+    {
+      "table": "bell_fixture_parts",
+      "rows": 0
+    },
+    {
+      "table": "bell_rooms_template",
+      "rows": 0
+    },
+    {
+      "table": "bell_quote",
+      "rows": 0
+    },
+    {
+      "table": "bell_fixture_per_quote",
+      "rows": 0
+    },
+    {
+      "table": "bell_fixture_parts_per_quote",
+      "rows": 0
+    },
+    {
+      "table": "bell_quote_fixtures",
+      "rows": 0
+    },
+    {
+      "table": "bell_prices_per_quote",
+      "rows": 0
+    },
+    {
+      "table": "bell_quote_parts",
+      "rows": 0
+    },
+    {
+      "table": "bell_quote_soparts",
+      "rows": 0
+    },
+    {
+      "table": "bell_quote_revisions",
+      "rows": 0
+    },
+    {
+      "table": "bell_quote_downloads",
+      "rows": 0
+    },
+    {
+      "table": "bell_foot_candle_readings",
+      "rows": 0
+    },
+    {
+      "table": "bell_quote_extra_workorders",
       "rows": 0
     },
     {

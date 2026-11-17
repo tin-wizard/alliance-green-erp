@@ -327,6 +327,31 @@ export const GROUPS: ManifestGroup[] = [
       table('sub_stock_notification', 'sub_stock_notification', 0),
     ],
   },
+  {
+    order: 13,
+    name: 'bell',
+    transformer: 'bell',
+    // Rows read what earlier rows of the same table created (a quote's rooms are
+    // made by its first fixture row), so the group runs one row at a time.
+    tables: [
+      table('bell_room', 'bell_room', 0),
+      table('bell_fixture', 'bell_fixture', 0),
+      table('bell_fixture_parts', 'bell_fixture_part', 0),
+      table('bell_rooms_template', 'bell_room_template_room', 0),
+      table('bell_quote', 'bell_quote', 0),
+      // Read by the quote-fixture rows (snapshot name, parts), not loaded on their own.
+      table('bell_fixture_per_quote', 'bell_fixture_per_quote', 0),
+      table('bell_fixture_parts_per_quote', 'bell_fixture_part_per_quote', 0),
+      table('bell_quote_fixtures', 'bell_quote_fixture', 0),
+      table('bell_prices_per_quote', 'bell_quote_price', 0),
+      table('bell_quote_parts', 'bell_quote_part', 0),
+      table('bell_quote_soparts', 'bell_quote_special_part', 0),
+      table('bell_quote_revisions', 'bell_quote_revision', 0),
+      table('bell_quote_downloads', 'bell_quote_download', 0),
+      table('bell_foot_candle_readings', 'bell_foot_candle_reading', 0),
+      table('bell_quote_extra_workorders', 'bell_quote_work_order', 0),
+    ],
+  },
 ]
 
 /** Tables classified as dated/duplicate copies: never loaded, always recorded. */
@@ -364,6 +389,29 @@ export interface OutOfScopeTable {
  * loaded, skipped as a dated duplicate, nor listed here.
  */
 export const OUT_OF_SCOPE_TABLES: OutOfScopeTable[] = [
+  {
+    table: 'bell_quote_status',
+    reason:
+      'Lookup whose codes (1, 3, 4, 5) are fixed by a check constraint on app.bell_quotes.status; the new model stores only the code.',
+  },
+  {
+    table: 'bell_quote_grid_types',
+    reason:
+      'Lookup whose codes (1 to 4) are fixed by a check constraint on app.bell_quotes.ceiling_grid_type; the new model stores only the code.',
+  },
+  {
+    table: 'bell_quote_payterms',
+    reason:
+      'Lookup whose codes (1, 3, 4, 5) are fixed by a check constraint on app.bell_quotes.payment_terms_code; the new model stores only the code.',
+  },
+  {
+    table: 'bell_quote_lastused_sharedpart',
+    reason: 'No rows in the 2026-11 dump (the table is empty), so there is nothing to load.',
+  },
+  {
+    table: 'bell_shared_parts_list',
+    reason: 'No rows in the 2026-11 dump (the table is empty), so there is nothing to load.',
+  },
   {
     table: 'settings',
     reason:
@@ -510,4 +558,4 @@ export function stagingTable(tableName: string): string {
 }
 
 /** The manifest's own version: bump when a table or key changes. */
-export const MANIFEST_VERSION = '2026-11-12.2'
+export const MANIFEST_VERSION = '2026-11-17.1'

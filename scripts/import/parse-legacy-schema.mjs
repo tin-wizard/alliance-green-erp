@@ -9,6 +9,11 @@
  *
  * Usage:
  *   LEGACY_SCHEMA=/path/to/schema.sql node scripts/import/parse-legacy-schema.mjs
+ *
+ * To add tables the contract did not cover (the Bell tables came in the 2026-11
+ * dump), pass a file holding only their CREATE TABLE statements and merge it in,
+ * leaving every existing table exactly as it was:
+ *   LEGACY_SCHEMA_MERGE=1 LEGACY_SCHEMA=/path/to/extra.sql node scripts/import/parse-legacy-schema.mjs
  */
 import { readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -48,5 +53,14 @@ for (const match of sql.matchAll(tablePattern)) {
   tables[name] = { engine, primaryKey, columns }
 }
 
-writeFileSync(join(here, 'legacy-schema.json'), `${JSON.stringify({ tables }, null, 2)}\n`)
-console.log(`parsed ${Object.keys(tables).length} tables`)
+const target = join(here, 'legacy-schema.json')
+if (process.env.LEGACY_SCHEMA_MERGE === '1') {
+  const existing = JSON.parse(readFileSync(target, 'utf8')).tables
+  const added = Object.keys(tables).filter((name) => !(name in existing))
+  const merged = { ...existing, ...Object.fromEntries(added.map((name) => [name, tables[name]])) }
+  writeFileSync(target, `${JSON.stringify({ tables: merged }, null, 2)}\n`)
+  console.log(`merged ${added.length} new tables (${Object.keys(tables).length - added.length} already present)`)
+} else {
+  writeFileSync(target, `${JSON.stringify({ tables }, null, 2)}\n`)
+  console.log(`parsed ${Object.keys(tables).length} tables`)
+}

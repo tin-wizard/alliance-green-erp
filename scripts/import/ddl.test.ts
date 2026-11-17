@@ -1,17 +1,23 @@
 import { describe, expect, it } from 'vitest'
 import { sql } from 'drizzle-orm'
 import { getDb } from '@cls/db'
-import { committedStagingDdl, stagingDdl } from './ddl'
+import { bellStagingDdl, committedBellStagingDdl, committedStagingDdl, stagingDdl } from './ddl'
 import { ALL_TABLES, SKIPPED_DATED_DUPLICATES, stagingTable } from './manifest'
 import { databaseConfigured } from './testing'
 
 describe('staging DDL', () => {
   it('matches the manifest exactly', () => {
     expect(committedStagingDdl()).toBe(stagingDdl())
+    expect(committedBellStagingDdl()).toBe(bellStagingDdl())
+  })
+
+  it('keeps the Bell staging tables out of the already applied 0017 migration', () => {
+    expect(committedStagingDdl()).not.toContain('stg_bell_')
+    expect(committedBellStagingDdl()).toContain('"migration"."stg_bell_quote"')
   })
 
   it('creates one all-text table per manifest table', () => {
-    const ddl = stagingDdl()
+    const ddl = `${stagingDdl()}\n${bellStagingDdl()}`
     const created = [...ddl.matchAll(/CREATE TABLE IF NOT EXISTS "migration"\."(stg_[a-z0-9_]+)"/g)].map(
       (match) => match[1],
     )

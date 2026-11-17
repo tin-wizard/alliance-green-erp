@@ -163,6 +163,14 @@ describe.skipIf(!databaseConfigured())('loadSource', () => {
     expect(rows[0]?._source_pk).toBe('1')
   }, 30_000)
 
+  it('a partial load touches only the tables it was asked for', async () => {
+    const report = await loadSource(db, fakeSource([customerTable]), DUMP_ID, { only: ['customer'] })
+    expect(report.tables.map((table) => table.table)).toEqual(['customer'])
+    // Nothing else is reported missing or skipped, so nothing else is rewritten.
+    expect(report.missing).toEqual([])
+    expect(report.skipped).toEqual([])
+  }, 30_000)
+
   // Built from the column names, so no credential-looking literal sits beside a username.
   const fakeCredentials = (tag = 'a'): Record<string, string> =>
     Object.fromEntries(
