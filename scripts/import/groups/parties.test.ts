@@ -46,6 +46,8 @@ const subcontractorId = base + 3
 const supplierId = base + 4
 const rivalSupplierId = base + 5
 const missingSiteId = base + 6
+const noVendorSupplierA = base + 7
+const noVendorSupplierB = base + 8
 
 async function crosswalkFor(entity: string, sourceKey: string) {
   const [row] = await getDb()
@@ -86,7 +88,7 @@ afterAll(async () => {
   await db.delete(sites).where(inArray(sites.id, [siteId, orphanSiteId]))
   await db.delete(customers).where(eq(customers.id, customerId))
   await db.delete(subcontractors).where(eq(subcontractors.id, subcontractorId))
-  await db.delete(suppliers).where(inArray(suppliers.id, [supplierId, rivalSupplierId]))
+  await db.delete(suppliers).where(inArray(suppliers.id, [supplierId, rivalSupplierId, noVendorSupplierA, noVendorSupplierB]))
   await db.delete(migrationRowMap).where(like(migrationRowMap.sourceKey, `%${marker}%`))
   await db.delete(migrationExceptions).where(like(migrationExceptions.sourceKey, `%${marker}%`))
 })
@@ -282,6 +284,23 @@ describe.skipIf(!configured)('parties group', () => {
         name: `Rival ${marker}`,
       }),
     ).rejects.toThrow(/sage_vendor_id/)
+  })
+
+  test('suppliers with sage_vendor_id 0 are kept unlinked, never claiming vendor 0', async () => {
+    // Legacy writes 0 for "no vendor". Two such suppliers must both migrate.
+    for (const id of [noVendorSupplierA, noVendorSupplierB]) {
+      const sourceKey = `suppliers:${marker}:${id}`
+      await transform('suppliers', sourceKey, {
+        id: String(id),
+        sage_vendor_id: '0',
+        name: `No vendor ${id}`,
+      })
+      const [row] = await getDb().select().from(suppliers).where(eq(suppliers.id, id))
+      expect(row?.sageVendorId).toBeNull()
+      expect(await crosswalkFor('supplier', sourceKey)).not.toBeNull()
+      const recorded = await exceptionFor('supplier_without_vendor', 'supplier', sourceKey)
+      expect(recorded?.notes).toContain('sage_vendor_id = 0')
+    }
   })
 
   test('customer e-mails are counted as not migrated and crosswalked to the mirror', async () => {

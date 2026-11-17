@@ -48,6 +48,7 @@ import {
 } from '@cls/db/schema'
 import { stagingTable } from '../manifest'
 import type { GroupTransformer, TransformContext, TransformHelpers } from '../types'
+import { selectIdMemo } from '../exists-memo'
 
 /** The manifest calls this group `messaging-history`; the module is `messaging`. */
 const GROUP = 'messaging-history'
@@ -148,7 +149,7 @@ async function resolveUser(
   if (legacyId === null) return null
   const mapped = await helpers.targetKey('user', 'users', String(legacyId))
   if (mapped !== null) {
-    const [byId] = await tx.select({ id: users.id }).from(users).where(eq(users.id, mapped)).limit(1)
+    const [byId] = await selectIdMemo(tx, users.id, mapped)
     if (byId) return byId.id
   }
   const [row] = await tx
@@ -349,7 +350,7 @@ async function transformRgaNotification(context: TransformContext): Promise<void
   const [rga] =
     rgaCandidate === null
       ? []
-      : await tx.select({ id: rgas.id }).from(rgas).where(eq(rgas.id, rgaCandidate)).limit(1)
+      : await selectIdMemo(tx, rgas.id, rgaCandidate)
   if (!rga) {
     await helpers.exception({
       exceptionClass: 'orphan_line',

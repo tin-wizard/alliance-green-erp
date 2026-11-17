@@ -8,7 +8,7 @@ import {
   Input,
   EmptyState,
   formatDateTime,
-  formatMoney,
+  formatQuantity,
 } from '../../../../modules/work-orders/components/ui'
 import {
   listSubStockFn,
@@ -119,7 +119,7 @@ function SubStockPage() {
                       ) : null}
                     </td>
                     <td className="py-2 text-right tabular-nums">
-                      {formatMoney(part.currentQuantity)}
+                      {formatQuantity(part.currentQuantity)}
                     </td>
                   </tr>
                 ))}

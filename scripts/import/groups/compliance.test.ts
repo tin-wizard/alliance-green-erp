@@ -236,7 +236,8 @@ describe.skipIf(!configured)('compliance group', () => {
       id: '6',
       partno: 'LED-2X4',
       partdesc: 'LED panel 2x4',
-      woid: '999999',
+      // A real legacy work order has id 999999, so use an id the dump never issues.
+      woid: String(base + 998),
       site_id: String(siteId),
       warranty_type: 'warranty',
       start_date: '2024-01-01',

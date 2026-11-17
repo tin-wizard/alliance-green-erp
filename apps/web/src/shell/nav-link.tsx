@@ -21,16 +21,18 @@ export function NavLink({
       to={to as '/'}
       onClick={onNavigate}
       activeOptions={{ exact: to === '/' }}
-      className="group flex h-9 items-center gap-2.5 rounded-[4px] px-3 text-[13px] font-medium text-fg-inverse-muted transition-colors hover:bg-white/5 hover:text-fg-inverse"
+      className="group flex h-9 items-center gap-2.5 rounded-[4px] px-3 text-[13px] font-medium text-[var(--shell-sidebar-fg-muted)] transition-colors hover:bg-[var(--shell-sidebar-hover)] hover:text-[var(--shell-sidebar-fg)]"
       activeProps={{
         className:
-          'bg-white/[0.07] text-white shadow-[inset_2px_0_0_0_var(--action-primary-bg)]',
+          // Important, so the active colours beat the base and hover colours above:
+          // the active pill is white, and white text on it is invisible.
+          'bg-[var(--shell-sidebar-active-bg)]! text-[var(--shell-sidebar-active-fg)]! hover:bg-[var(--shell-sidebar-active-bg)]! hover:text-[var(--shell-sidebar-active-fg)]! shadow-[inset_2px_0_0_0_var(--shell-sidebar-active-inset)]',
       }}
     >
       <Icon size={18} strokeWidth={1.5} aria-hidden="true" className="shrink-0" />
       <span className="truncate">{label}</span>
       {badge !== undefined && badge > 0 ? (
-        <span className="ml-auto inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-[2px] bg-[rgb(203_10_11_/_18%)] px-1 text-2xs font-semibold text-[#f19a97]">
+        <span className="nav-badge ml-auto inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-[2px] bg-white/20 px-1 text-2xs font-semibold text-white">
           {badge > 99 ? '99+' : badge}
         </span>
       ) : null}

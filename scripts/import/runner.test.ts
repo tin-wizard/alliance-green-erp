@@ -117,6 +117,28 @@ describe.skipIf(!databaseConfigured())('loadSource', () => {
     await db.execute(sql`delete from migration.dump_manifests where dump_id = ${DUMP_ID}`)
   })
 
+  it('stages a sliced source with the same checksum and rows as a whole one', async () => {
+    const whole = fakeSource([customerTable, usersTable])
+    const sliced: LegacySource = {
+      ...whole,
+      async *readTableSlices(name) {
+        const table = await whole.readTable(name)
+        // One row per slice: the smallest slicing there is.
+        for (const row of table.rows) yield { ...table, rows: [row] }
+        if (table.rows.length === 0) yield table
+      },
+    }
+    const expected = await loadSource(db, whole, DUMP_ID)
+    const actual = await loadSource(db, sliced, DUMP_ID)
+
+    expect(actual.totalRows).toBe(expected.totalRows)
+    for (const table of expected.tables) {
+      expect(actual.tables.find((t) => t.table === table.table)).toEqual(table)
+    }
+    const rows = await stagedRows(db, 'customer', DUMP_ID)
+    expect(rows).toHaveLength(3)
+  }, 60_000)
+
   it('stages every row as text, twice, with the same checksum', async () => {
     const source = fakeSource([customerTable, usersTable])
     const first = await loadSource(db, source, DUMP_ID)
@@ -139,6 +161,29 @@ describe.skipIf(!databaseConfigured())('loadSource', () => {
     expect(rows[1]?.name).toBe('Caf\u00e9 \u00c9clairage')
     expect(rows[2]?.name).toBe("O'Brien")
     expect(rows[0]?._source_pk).toBe('1')
+  }, 30_000)
+
+  it('never stages legacy credentials, but still hashes the real value', async () => {
+    const secretUsers: SourceTable = {
+      table: 'users',
+      columns: ['id', 'username', 'password', 'mailing_password', 'cls_mailing_password'],
+      rows: [
+        { rowNo: 1, values: { id: '10', username: 'gene', password: 'a3f1md5placeholder', mailing_password: 'smtp-secret', cls_mailing_password: 'smtp-secret-2' } },
+      ],
+    }
+    const first = await loadSource(db, fakeSource([secretUsers]), DUMP_ID)
+    const [row] = await stagedRows(db, 'users', DUMP_ID)
+    expect(row?.username).toBe('gene')
+    expect(row?.password).toBeNull()
+    expect(row?.mailing_password).toBeNull()
+    expect(row?.cls_mailing_password).toBeNull()
+
+    // The checksum comes from the real values, so a changed password is still a changed dump.
+    const changed = { ...secretUsers, rows: [{ rowNo: 1, values: { ...secretUsers.rows[0]!.values, password: 'different' } }] }
+    const second = await loadSource(db, fakeSource([changed]), DUMP_ID)
+    expect(second.tables.find((t) => t.table === 'users')?.checksum).not.toBe(
+      first.tables.find((t) => t.table === 'users')?.checksum,
+    )
   }, 30_000)
 
   it('records the manifest version and per-table object rows', async () => {

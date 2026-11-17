@@ -33,6 +33,7 @@ import type { Tx } from '@cls/db'
 import { ALL_PERMISSIONS } from '@cls/core'
 import { subcontractors, suppliers, userPermissions, users } from '@cls/db/schema'
 import type { GroupTransformer, TransformContext, TransformHelpers } from '../types'
+import { selectIdMemo } from '../exists-memo'
 import { normaliseEmail } from '../users'
 
 const GROUP = 'identity'
@@ -93,11 +94,7 @@ async function resolveSubcontractor(
   if (legacyId === null) return null
   const mapped = await helpers.targetKey('subcontractor', 'subcontractor', String(legacyId))
   const candidate = intOf(mapped) ?? legacyId
-  const [row] = await tx
-    .select({ id: subcontractors.id })
-    .from(subcontractors)
-    .where(eq(subcontractors.id, candidate))
-    .limit(1)
+  const [row] = await selectIdMemo(tx, subcontractors.id, candidate)
   return row?.id ?? null
 }
 
@@ -110,7 +107,7 @@ async function resolveUser(
   if (legacyId === null) return null
   const mapped = await helpers.targetKey('user', 'users', String(legacyId))
   if (mapped !== null) {
-    const [row] = await tx.select({ id: users.id }).from(users).where(eq(users.id, mapped)).limit(1)
+    const [row] = await selectIdMemo(tx, users.id, mapped)
     return row?.id ?? null
   }
   const [row] = await tx
@@ -378,6 +375,30 @@ async function transformPriceManagementPermission(context: TransformContext): Pr
   })
 }
 
+/**
+ * `permission_type` is the legacy catalogue of two WSIB document permissions
+ * (edit, delete). The ERP's permission catalogue (`ALL_PERMISSIONS`) is the
+ * authority now, and the two grants themselves migrate through
+ * `user_permissions`, so the catalogue rows stay in the read-only mirror.
+ */
+async function keepPermissionTypeInMirror(context: TransformContext): Promise<void> {
+  const { helpers, sourceKey } = context
+  await helpers.exception({
+    exceptionClass: 'not_migrated',
+    entity: 'permission_type',
+    sourceKey: context.table,
+    action: 'kept in the read-only legacy mirror only; the ERP permission catalogue replaces it',
+    notes: 'legacy codes perm_edit_wsib_insurance and perm_delete_wsib_insurance',
+  })
+  await helpers.remember({
+    entity: 'permission_type',
+    sourceTable: context.table,
+    sourceKey,
+    targetTable: `public.${context.table}`,
+    targetKey: sourceKey,
+  })
+}
+
 export const transformer: GroupTransformer = {
   group: GROUP,
 
@@ -389,6 +410,8 @@ export const transformer: GroupTransformer = {
         return transformUserPermission(context)
       case 'user_permissions_price_management':
         return transformPriceManagementPermission(context)
+      case 'permission_type':
+        return keepPermissionTypeInMirror(context)
       default:
         throw new Error(`${GROUP}: no mapping for table ${context.table}`)
     }

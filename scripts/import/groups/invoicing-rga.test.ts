@@ -156,6 +156,54 @@ describe.skipIf(!databaseConfigured())(`${GROUP} transformer`, () => {
     expect(invoice?.manualTaxAmount).toBe('13.00')
   })
 
+  it('dates an invoice from the invoiced date, else the completion date, and refreshes it on a re-run until edited', async () => {
+    const workOrderId = await createWorkOrder(nextWorkOrderId())
+    const line = (name: string, id: string) =>
+      inTransaction((tx) =>
+        runTransformerRow(tx, transformer, {
+          group: GROUP,
+          table: 'inv_hours',
+          sourceKey: key(name),
+          row: { id, woid: String(workOrderId), rate: '85.00', date: '2024-06-01', hours: '1.00' },
+        }),
+      )
+    const dateOf = async () => {
+      const [row] = await db
+        .select({ invoiceDate: salesInvoices.invoiceDate })
+        .from(salesInvoices)
+        .where(eq(salesInvoices.workOrderId, workOrderId))
+      return row?.invoiceDate
+    }
+
+    // No invoiced date: the completion date stands in (noon Toronto, so the day is unambiguous).
+    await db
+      .update(workOrders)
+      .set({ completedAt: new Date('2019-05-06T16:00:00Z') })
+      .where(eq(workOrders.id, workOrderId))
+    await line('date-1', '51')
+    expect(await dateOf()).toBe('2019-05-06')
+
+    // A re-run after the work order gains an invoiced date moves the invoice to it.
+    await db
+      .update(workOrders)
+      .set({ invoicedAt: new Date('2021-02-03T17:00:00Z') })
+      .where(eq(workOrders.id, workOrderId))
+    await line('date-2', '52')
+    expect(await dateOf()).toBe('2021-02-03')
+
+    // An invoice edited since the import is left alone.
+    await db
+      .update(salesInvoices)
+      .set({ version: 2 })
+      .where(eq(salesInvoices.workOrderId, workOrderId))
+    await db
+      .update(workOrders)
+      .set({ invoicedAt: new Date('2022-07-08T17:00:00Z') })
+      .where(eq(workOrders.id, workOrderId))
+    await line('date-3', '53')
+    expect(await dateOf()).toBe('2021-02-03')
+  })
+
   it('stores a blank tax as NULL, never as a default rate', async () => {
     const workOrderId = await createWorkOrder(nextWorkOrderId())
     const snapshotKey = key('tax-blank')

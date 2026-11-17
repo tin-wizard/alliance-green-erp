@@ -271,6 +271,26 @@ describe.skipIf(!configured)('purchasing group', () => {
     expect(missing?.migrationAction).toContain(`PO-LEGACY-${poWithLines}`)
   })
 
+  test('a negative-quantity line is recorded for the owner, not inserted and not an error', async () => {
+    const db = getDb()
+    const lineKey = `po_parts:${marker}:neg`
+    await transform('po_parts', lineKey, {
+      id: '90',
+      poid: String(poWithLines),
+      partno: 'NEG-RETURN',
+      qty: '-3.00',
+      qty_received: '0.00',
+      price: '0',
+    })
+    const recorded = await exceptionFor('negative_quantity', 'purchase_order_part', lineKey)
+    expect(recorded?.migrationAction).toContain('qty >= 0')
+    const lines = await db
+      .select()
+      .from(purchaseOrderParts)
+      .where(and(eq(purchaseOrderParts.poId, poWithLines), eq(purchaseOrderParts.partNo, 'NEG-RETURN')))
+    expect(lines).toHaveLength(0)
+  })
+
   test('a legacy display number is kept as-is', async () => {
     const db = getDb()
     const sourceKey = `purchaseorder:${marker}:${poWithNumber}`

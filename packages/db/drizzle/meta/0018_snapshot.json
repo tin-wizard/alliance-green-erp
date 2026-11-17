@@ -1,5 +1,5 @@
 {
-  "id": "0ecbe8be-960f-4ddd-bb91-e3b0206e80b0",
+  "id": "6063112d-097f-42cc-8b85-8cef866c3397",
   "prevId": "7d98d0ed-f5f5-4c43-9228-585bea8bc4ae",
   "version": "7",
   "dialect": "postgresql",
@@ -10000,12 +10000,6 @@
           "notNull": true,
           "default": 0
         },
-        "claimed_at": {
-          "name": "claimed_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
         "payload": {
           "name": "payload",
           "type": "jsonb",
@@ -10111,7 +10105,7 @@
       "checkConstraints": {
         "sage_postings_status_check": {
           "name": "sage_postings_status_check",
-          "value": "\"app\".\"sage_postings\".\"status\" in ('queued','processing','sent','unknown','failed','dead_letter','cancelled')"
+          "value": "\"app\".\"sage_postings\".\"status\" in ('queued','processing','sent','unknown','failed','cancelled')"
         }
       },
       "isRLSEnabled": false
@@ -16259,6 +16253,2289 @@
           "value": "\"app\".\"tjx_subcontractor_rates\".\"install_cost_per_unit\" >= 0"
         }
       },
+      "isRLSEnabled": false
+    },
+    "app.bell_fixture_parts": {
+      "name": "bell_fixture_parts",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "legacy_id": {
+          "name": "legacy_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fixture_id": {
+          "name": "fixture_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "part_no": {
+          "name": "part_no",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "part_type": {
+          "name": "part_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "markup": {
+          "name": "markup",
+          "type": "numeric(12, 4)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'1'"
+        },
+        "ratio_per_fixture": {
+          "name": "ratio_per_fixture",
+          "type": "numeric(12, 4)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'1'"
+        },
+        "sort_order": {
+          "name": "sort_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {
+        "bell_fixture_parts_fixture_part_unique": {
+          "name": "bell_fixture_parts_fixture_part_unique",
+          "columns": [
+            {
+              "expression": "fixture_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "part_no",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "bell_fixture_parts_fixture_idx": {
+          "name": "bell_fixture_parts_fixture_idx",
+          "columns": [
+            {
+              "expression": "fixture_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "sort_order",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "bell_fixture_parts_part_idx": {
+          "name": "bell_fixture_parts_part_idx",
+          "columns": [
+            {
+              "expression": "part_no",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "bell_fixture_parts_fixture_id_bell_fixtures_id_fk": {
+          "name": "bell_fixture_parts_fixture_id_bell_fixtures_id_fk",
+          "tableFrom": "bell_fixture_parts",
+          "tableTo": "bell_fixtures",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "fixture_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "bell_fixture_parts_part_type_check": {
+          "name": "bell_fixture_parts_part_type_check",
+          "value": "\"app\".\"bell_fixture_parts\".\"part_type\" in ('Ballast','Lamp','')"
+        },
+        "bell_fixture_parts_markup_check": {
+          "name": "bell_fixture_parts_markup_check",
+          "value": "\"app\".\"bell_fixture_parts\".\"markup\" > 0"
+        },
+        "bell_fixture_parts_ratio_check": {
+          "name": "bell_fixture_parts_ratio_check",
+          "value": "\"app\".\"bell_fixture_parts\".\"ratio_per_fixture\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "app.bell_fixtures": {
+      "name": "bell_fixtures",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "legacy_id": {
+          "name": "legacy_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sort_order": {
+          "name": "sort_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "bell_fixtures_name_unique": {
+          "name": "bell_fixtures_name_unique",
+          "columns": [
+            {
+              "expression": "lower(\"name\")",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "bell_fixtures_legacy_unique": {
+          "name": "bell_fixtures_legacy_unique",
+          "columns": [
+            {
+              "expression": "legacy_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "bell_fixtures_active_idx": {
+          "name": "bell_fixtures_active_idx",
+          "columns": [
+            {
+              "expression": "is_active",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "sort_order",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.bell_foot_candle_readings": {
+      "name": "bell_foot_candle_readings",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "quote_id": {
+          "name": "quote_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sort_order": {
+          "name": "sort_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "fr_reading": {
+          "name": "fr_reading",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fc_reading": {
+          "name": "fc_reading",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fl_reading": {
+          "name": "fl_reading",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cr_reading": {
+          "name": "cr_reading",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "c_reading": {
+          "name": "c_reading",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cl_reading": {
+          "name": "cl_reading",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "br_reading": {
+          "name": "br_reading",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bc_reading": {
+          "name": "bc_reading",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bl_reading": {
+          "name": "bl_reading",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ftr_reading": {
+          "name": "ftr_reading",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ftr_stall_reading": {
+          "name": "ftr_stall_reading",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "bell_foot_candle_readings_quote_idx": {
+          "name": "bell_foot_candle_readings_quote_idx",
+          "columns": [
+            {
+              "expression": "quote_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "sort_order",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "bell_foot_candle_readings_quote_id_bell_quotes_id_fk": {
+          "name": "bell_foot_candle_readings_quote_id_bell_quotes_id_fk",
+          "tableFrom": "bell_foot_candle_readings",
+          "tableTo": "bell_quotes",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "quote_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.bell_quote_downloads": {
+      "name": "bell_quote_downloads",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "quote_id": {
+          "name": "quote_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "file_name": {
+          "name": "file_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "folder_name": {
+          "name": "folder_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "downloaded_by_name": {
+          "name": "downloaded_by_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "revision_notes": {
+          "name": "revision_notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "bell_quote_downloads_quote_idx": {
+          "name": "bell_quote_downloads_quote_idx",
+          "columns": [
+            {
+              "expression": "quote_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "bell_quote_downloads_quote_id_bell_quotes_id_fk": {
+          "name": "bell_quote_downloads_quote_id_bell_quotes_id_fk",
+          "tableFrom": "bell_quote_downloads",
+          "tableTo": "bell_quotes",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "quote_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.bell_quote_fixture_parts": {
+      "name": "bell_quote_fixture_parts",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "quote_fixture_id": {
+          "name": "quote_fixture_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fixture_part_id": {
+          "name": "fixture_part_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "part_no": {
+          "name": "part_no",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "part_type": {
+          "name": "part_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "markup": {
+          "name": "markup",
+          "type": "numeric(12, 4)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ratio_per_fixture": {
+          "name": "ratio_per_fixture",
+          "type": "numeric(12, 4)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sort_order": {
+          "name": "sort_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {
+        "bell_quote_fixture_parts_unique": {
+          "name": "bell_quote_fixture_parts_unique",
+          "columns": [
+            {
+              "expression": "quote_fixture_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "part_no",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "bell_quote_fixture_parts_fixture_idx": {
+          "name": "bell_quote_fixture_parts_fixture_idx",
+          "columns": [
+            {
+              "expression": "quote_fixture_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "bell_quote_fixture_parts_quote_fixture_id_bell_quote_fixtures_id_fk": {
+          "name": "bell_quote_fixture_parts_quote_fixture_id_bell_quote_fixtures_id_fk",
+          "tableFrom": "bell_quote_fixture_parts",
+          "tableTo": "bell_quote_fixtures",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "quote_fixture_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "bell_quote_fixture_parts_fixture_part_id_bell_fixture_parts_id_fk": {
+          "name": "bell_quote_fixture_parts_fixture_part_id_bell_fixture_parts_id_fk",
+          "tableFrom": "bell_quote_fixture_parts",
+          "tableTo": "bell_fixture_parts",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "fixture_part_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "bell_quote_fixture_parts_markup_check": {
+          "name": "bell_quote_fixture_parts_markup_check",
+          "value": "\"app\".\"bell_quote_fixture_parts\".\"markup\" > 0"
+        },
+        "bell_quote_fixture_parts_ratio_check": {
+          "name": "bell_quote_fixture_parts_ratio_check",
+          "value": "\"app\".\"bell_quote_fixture_parts\".\"ratio_per_fixture\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "app.bell_quote_fixtures": {
+      "name": "bell_quote_fixtures",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "quote_id": {
+          "name": "quote_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "quote_room_id": {
+          "name": "quote_room_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fixture_id": {
+          "name": "fixture_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fixture_name": {
+          "name": "fixture_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "quantity": {
+          "name": "quantity",
+          "type": "numeric(12, 3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "gallery_folder_name": {
+          "name": "gallery_folder_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sort_order": {
+          "name": "sort_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {
+        "bell_quote_fixtures_order_unique": {
+          "name": "bell_quote_fixtures_order_unique",
+          "columns": [
+            {
+              "expression": "quote_room_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "sort_order",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "bell_quote_fixtures_quote_idx": {
+          "name": "bell_quote_fixtures_quote_idx",
+          "columns": [
+            {
+              "expression": "quote_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "bell_quote_fixtures_quote_id_bell_quotes_id_fk": {
+          "name": "bell_quote_fixtures_quote_id_bell_quotes_id_fk",
+          "tableFrom": "bell_quote_fixtures",
+          "tableTo": "bell_quotes",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "quote_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "bell_quote_fixtures_quote_room_id_bell_quote_rooms_id_fk": {
+          "name": "bell_quote_fixtures_quote_room_id_bell_quote_rooms_id_fk",
+          "tableFrom": "bell_quote_fixtures",
+          "tableTo": "bell_quote_rooms",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "quote_room_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "bell_quote_fixtures_fixture_id_bell_fixtures_id_fk": {
+          "name": "bell_quote_fixtures_fixture_id_bell_fixtures_id_fk",
+          "tableFrom": "bell_quote_fixtures",
+          "tableTo": "bell_fixtures",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "fixture_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "bell_quote_fixtures_qty_check": {
+          "name": "bell_quote_fixtures_qty_check",
+          "value": "\"app\".\"bell_quote_fixtures\".\"quantity\" > 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "app.bell_quote_parts": {
+      "name": "bell_quote_parts",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "quote_id": {
+          "name": "quote_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "part_no": {
+          "name": "part_no",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "qty_with_markup": {
+          "name": "qty_with_markup",
+          "type": "numeric(12, 3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "qty_without_markup": {
+          "name": "qty_without_markup",
+          "type": "numeric(12, 3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "unit_price": {
+          "name": "unit_price",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "line_subtotal": {
+          "name": "line_subtotal",
+          "type": "numeric(14, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "line_subtotal_without_markup": {
+          "name": "line_subtotal_without_markup",
+          "type": "numeric(14, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sort_order": {
+          "name": "sort_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "origin": {
+          "name": "origin",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'calculated'"
+        }
+      },
+      "indexes": {
+        "bell_quote_parts_quote_part_unique": {
+          "name": "bell_quote_parts_quote_part_unique",
+          "columns": [
+            {
+              "expression": "quote_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "part_no",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "bell_quote_parts_quote_idx": {
+          "name": "bell_quote_parts_quote_idx",
+          "columns": [
+            {
+              "expression": "quote_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "sort_order",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "bell_quote_parts_part_idx": {
+          "name": "bell_quote_parts_part_idx",
+          "columns": [
+            {
+              "expression": "part_no",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "bell_quote_parts_quote_id_bell_quotes_id_fk": {
+          "name": "bell_quote_parts_quote_id_bell_quotes_id_fk",
+          "tableFrom": "bell_quote_parts",
+          "tableTo": "bell_quotes",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "quote_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "bell_quote_parts_qty_check": {
+          "name": "bell_quote_parts_qty_check",
+          "value": "\"app\".\"bell_quote_parts\".\"qty_with_markup\" >= 0 and \"app\".\"bell_quote_parts\".\"qty_without_markup\" >= 0"
+        },
+        "bell_quote_parts_origin_check": {
+          "name": "bell_quote_parts_origin_check",
+          "value": "\"app\".\"bell_quote_parts\".\"origin\" in ('calculated','legacy')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "app.bell_quote_prices": {
+      "name": "bell_quote_prices",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "quote_id": {
+          "name": "quote_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "part_no": {
+          "name": "part_no",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "price": {
+          "name": "price",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "previous_price": {
+          "name": "previous_price",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "source": {
+          "name": "source",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'snapshot'"
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "bell_quote_prices_quote_part_unique": {
+          "name": "bell_quote_prices_quote_part_unique",
+          "columns": [
+            {
+              "expression": "quote_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "part_no",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "bell_quote_prices_quote_id_bell_quotes_id_fk": {
+          "name": "bell_quote_prices_quote_id_bell_quotes_id_fk",
+          "tableFrom": "bell_quote_prices",
+          "tableTo": "bell_quotes",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "quote_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "bell_quote_prices_price_check": {
+          "name": "bell_quote_prices_price_check",
+          "value": "\"app\".\"bell_quote_prices\".\"price\" >= 0"
+        },
+        "bell_quote_prices_source_check": {
+          "name": "bell_quote_prices_source_check",
+          "value": "\"app\".\"bell_quote_prices\".\"source\" in ('snapshot','override','imported')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "app.bell_quote_revisions": {
+      "name": "bell_quote_revisions",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "quote_id": {
+          "name": "quote_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "save_seq": {
+          "name": "save_seq",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "revision_no": {
+          "name": "revision_no",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "revision_type": {
+          "name": "revision_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "revised_by": {
+          "name": "revised_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "data_quote": {
+          "name": "data_quote",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data_rooms": {
+          "name": "data_rooms",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data_fixtures": {
+          "name": "data_fixtures",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data_parts": {
+          "name": "data_parts",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data_special_parts": {
+          "name": "data_special_parts",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "bell_quote_revisions_quote_seq_unique": {
+          "name": "bell_quote_revisions_quote_seq_unique",
+          "columns": [
+            {
+              "expression": "quote_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "save_seq",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "bell_quote_revisions_quote_idx": {
+          "name": "bell_quote_revisions_quote_idx",
+          "columns": [
+            {
+              "expression": "quote_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "bell_quote_revisions_quote_id_bell_quotes_id_fk": {
+          "name": "bell_quote_revisions_quote_id_bell_quotes_id_fk",
+          "tableFrom": "bell_quote_revisions",
+          "tableTo": "bell_quotes",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "quote_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "bell_quote_revisions_type_check": {
+          "name": "bell_quote_revisions_type_check",
+          "value": "\"app\".\"bell_quote_revisions\".\"revision_type\" in ('insert','update','submit','approve','cancel','refresh_prices','email','import')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "app.bell_quote_rooms": {
+      "name": "bell_quote_rooms",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "quote_id": {
+          "name": "quote_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "room_id": {
+          "name": "room_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "room_name": {
+          "name": "room_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sort_order": {
+          "name": "sort_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {
+        "bell_quote_rooms_order_unique": {
+          "name": "bell_quote_rooms_order_unique",
+          "columns": [
+            {
+              "expression": "quote_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "sort_order",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "bell_quote_rooms_quote_idx": {
+          "name": "bell_quote_rooms_quote_idx",
+          "columns": [
+            {
+              "expression": "quote_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "bell_quote_rooms_quote_id_bell_quotes_id_fk": {
+          "name": "bell_quote_rooms_quote_id_bell_quotes_id_fk",
+          "tableFrom": "bell_quote_rooms",
+          "tableTo": "bell_quotes",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "quote_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "bell_quote_rooms_room_id_bell_rooms_id_fk": {
+          "name": "bell_quote_rooms_room_id_bell_rooms_id_fk",
+          "tableFrom": "bell_quote_rooms",
+          "tableTo": "bell_rooms",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "room_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.bell_quote_special_parts": {
+      "name": "bell_quote_special_parts",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "quote_id": {
+          "name": "quote_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "quantity": {
+          "name": "quantity",
+          "type": "numeric(12, 3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "unit_price": {
+          "name": "unit_price",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "line_subtotal": {
+          "name": "line_subtotal",
+          "type": "numeric(14, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sort_order": {
+          "name": "sort_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {
+        "bell_quote_special_parts_quote_idx": {
+          "name": "bell_quote_special_parts_quote_idx",
+          "columns": [
+            {
+              "expression": "quote_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "sort_order",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "bell_quote_special_parts_quote_id_bell_quotes_id_fk": {
+          "name": "bell_quote_special_parts_quote_id_bell_quotes_id_fk",
+          "tableFrom": "bell_quote_special_parts",
+          "tableTo": "bell_quotes",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "quote_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "bell_quote_special_parts_qty_check": {
+          "name": "bell_quote_special_parts_qty_check",
+          "value": "\"app\".\"bell_quote_special_parts\".\"quantity\" > 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "app.bell_quote_work_orders": {
+      "name": "bell_quote_work_orders",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "quote_id": {
+          "name": "quote_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "work_order_id": {
+          "name": "work_order_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_primary": {
+          "name": "is_primary",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "sort_order": {
+          "name": "sort_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "linked_by": {
+          "name": "linked_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "linked_at": {
+          "name": "linked_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "bell_quote_wos_quote_wo_unique": {
+          "name": "bell_quote_wos_quote_wo_unique",
+          "columns": [
+            {
+              "expression": "quote_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "work_order_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "bell_quote_wos_primary_unique": {
+          "name": "bell_quote_wos_primary_unique",
+          "columns": [
+            {
+              "expression": "quote_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "\"app\".\"bell_quote_work_orders\".\"is_primary\"",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "bell_quote_wos_wo_idx": {
+          "name": "bell_quote_wos_wo_idx",
+          "columns": [
+            {
+              "expression": "work_order_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "bell_quote_work_orders_quote_id_bell_quotes_id_fk": {
+          "name": "bell_quote_work_orders_quote_id_bell_quotes_id_fk",
+          "tableFrom": "bell_quote_work_orders",
+          "tableTo": "bell_quotes",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "quote_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "bell_quote_work_orders_work_order_id_work_orders_id_fk": {
+          "name": "bell_quote_work_orders_work_order_id_work_orders_id_fk",
+          "tableFrom": "bell_quote_work_orders",
+          "tableTo": "work_orders",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "work_order_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.bell_quotes": {
+      "name": "bell_quotes",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "legacy_id": {
+          "name": "legacy_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "site_id": {
+          "name": "site_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "customer_id": {
+          "name": "customer_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        },
+        "version": {
+          "name": "version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        },
+        "quote_type": {
+          "name": "quote_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'LED'"
+        },
+        "ceiling_grid_type": {
+          "name": "ceiling_grid_type",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_type_maintenance": {
+          "name": "is_type_maintenance",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "payment_terms_code": {
+          "name": "payment_terms_code",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "due_date": {
+          "name": "due_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "work_order_number": {
+          "name": "work_order_number",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "attach_folder_path": {
+          "name": "attach_folder_path",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ship_to_type": {
+          "name": "ship_to_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ship_contact_name": {
+          "name": "ship_contact_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ship_company": {
+          "name": "ship_company",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ship_street_1": {
+          "name": "ship_street_1",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ship_street_2": {
+          "name": "ship_street_2",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ship_city": {
+          "name": "ship_city",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ship_province": {
+          "name": "ship_province",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ship_postal_code": {
+          "name": "ship_postal_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ship_phone": {
+          "name": "ship_phone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "shipping_address": {
+          "name": "shipping_address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tax_code": {
+          "name": "tax_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tax_province": {
+          "name": "tax_province",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "applied_tax_rate": {
+          "name": "applied_tax_rate",
+          "type": "numeric(9, 5)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "subtotal_amount": {
+          "name": "subtotal_amount",
+          "type": "numeric(14, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'"
+        },
+        "tax_amount": {
+          "name": "tax_amount",
+          "type": "numeric(14, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'"
+        },
+        "total_amount": {
+          "name": "total_amount",
+          "type": "numeric(14, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'"
+        },
+        "without_markup_subtotal_amount": {
+          "name": "without_markup_subtotal_amount",
+          "type": "numeric(14, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'"
+        },
+        "without_markup_tax_amount": {
+          "name": "without_markup_tax_amount",
+          "type": "numeric(14, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'"
+        },
+        "without_markup_total_amount": {
+          "name": "without_markup_total_amount",
+          "type": "numeric(14, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'"
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pdf_notes": {
+          "name": "pdf_notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "revision_notes": {
+          "name": "revision_notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "revision_no": {
+          "name": "revision_no",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "submitted_at": {
+          "name": "submitted_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "approved_at": {
+          "name": "approved_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cancelled_at": {
+          "name": "cancelled_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "imported_at": {
+          "name": "imported_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "bell_quotes_legacy_unique": {
+          "name": "bell_quotes_legacy_unique",
+          "columns": [
+            {
+              "expression": "legacy_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "bell_quotes_status_updated_idx": {
+          "name": "bell_quotes_status_updated_idx",
+          "columns": [
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "updated_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "bell_quotes_site_idx": {
+          "name": "bell_quotes_site_idx",
+          "columns": [
+            {
+              "expression": "site_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "bell_quotes_customer_idx": {
+          "name": "bell_quotes_customer_idx",
+          "columns": [
+            {
+              "expression": "customer_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "bell_quotes_site_id_sites_id_fk": {
+          "name": "bell_quotes_site_id_sites_id_fk",
+          "tableFrom": "bell_quotes",
+          "tableTo": "sites",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "site_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "bell_quotes_status_check": {
+          "name": "bell_quotes_status_check",
+          "value": "\"app\".\"bell_quotes\".\"status\" in (1,3,4,5)"
+        },
+        "bell_quotes_type_check": {
+          "name": "bell_quotes_type_check",
+          "value": "\"app\".\"bell_quotes\".\"quote_type\" in ('LED','Legacy')"
+        },
+        "bell_quotes_grid_check": {
+          "name": "bell_quotes_grid_check",
+          "value": "\"app\".\"bell_quotes\".\"ceiling_grid_type\" is null or \"app\".\"bell_quotes\".\"ceiling_grid_type\" in (1,2,3,4)"
+        },
+        "bell_quotes_payterms_check": {
+          "name": "bell_quotes_payterms_check",
+          "value": "\"app\".\"bell_quotes\".\"payment_terms_code\" is null or \"app\".\"bell_quotes\".\"payment_terms_code\" in (1,3,4,5)"
+        },
+        "bell_quotes_tax_rate_check": {
+          "name": "bell_quotes_tax_rate_check",
+          "value": "\"app\".\"bell_quotes\".\"applied_tax_rate\" is null or (\"app\".\"bell_quotes\".\"applied_tax_rate\" >= 0 and \"app\".\"bell_quotes\".\"applied_tax_rate\" <= 1)"
+        },
+        "bell_quotes_totals_check": {
+          "name": "bell_quotes_totals_check",
+          "value": "\"app\".\"bell_quotes\".\"subtotal_amount\" >= 0 and \"app\".\"bell_quotes\".\"tax_amount\" >= 0 and \"app\".\"bell_quotes\".\"total_amount\" >= 0 and \"app\".\"bell_quotes\".\"without_markup_subtotal_amount\" >= 0 and \"app\".\"bell_quotes\".\"without_markup_tax_amount\" >= 0 and \"app\".\"bell_quotes\".\"without_markup_total_amount\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "app.bell_room_template_rooms": {
+      "name": "bell_room_template_rooms",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "template_id": {
+          "name": "template_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "room_id": {
+          "name": "room_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sort_order": {
+          "name": "sort_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {
+        "bell_room_template_rooms_order_unique": {
+          "name": "bell_room_template_rooms_order_unique",
+          "columns": [
+            {
+              "expression": "template_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "sort_order",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "bell_room_template_rooms_room_idx": {
+          "name": "bell_room_template_rooms_room_idx",
+          "columns": [
+            {
+              "expression": "room_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "bell_room_template_rooms_template_id_bell_room_templates_id_fk": {
+          "name": "bell_room_template_rooms_template_id_bell_room_templates_id_fk",
+          "tableFrom": "bell_room_template_rooms",
+          "tableTo": "bell_room_templates",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "template_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "bell_room_template_rooms_room_id_bell_rooms_id_fk": {
+          "name": "bell_room_template_rooms_room_id_bell_rooms_id_fk",
+          "tableFrom": "bell_room_template_rooms",
+          "tableTo": "bell_rooms",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "room_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.bell_room_templates": {
+      "name": "bell_room_templates",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_default": {
+          "name": "is_default",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "bell_room_templates_name_unique": {
+          "name": "bell_room_templates_name_unique",
+          "columns": [
+            {
+              "expression": "lower(\"name\")",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "bell_room_templates_default_unique": {
+          "name": "bell_room_templates_default_unique",
+          "columns": [
+            {
+              "expression": "is_default",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "\"app\".\"bell_room_templates\".\"is_default\"",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "app.bell_rooms": {
+      "name": "bell_rooms",
+      "schema": "app",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "legacy_id": {
+          "name": "legacy_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sort_order": {
+          "name": "sort_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "bell_rooms_name_unique": {
+          "name": "bell_rooms_name_unique",
+          "columns": [
+            {
+              "expression": "lower(\"name\")",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "bell_rooms_legacy_unique": {
+          "name": "bell_rooms_legacy_unique",
+          "columns": [
+            {
+              "expression": "legacy_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "bell_rooms_active_idx": {
+          "name": "bell_rooms_active_idx",
+          "columns": [
+            {
+              "expression": "is_active",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "sort_order",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
       "isRLSEnabled": false
     },
     "app.notification_links": {

@@ -143,7 +143,13 @@ export const subStockNotifications = app.table(
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
-    uniqueIndex('sub_stock_notifications_code_unique').on(table.notificationCode),
+    // A legacy code names a round ("07.25") shared by every subcontractor in it, so
+    // it is unique per subcontractor, not on its own. The app's own subscription
+    // code, `sub-stock:<id>`, stays unique per subcontractor under the same key.
+    uniqueIndex('sub_stock_notifications_code_unique').on(
+      table.notificationCode,
+      table.subcontractorId,
+    ),
     index('sub_stock_notifications_sub_idx').on(table.subcontractorId),
   ],
 )

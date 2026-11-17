@@ -19,6 +19,7 @@ import {
   partSupplierRates,
   sharedParts,
   workOrderNumberSeries,
+  partSupplierModelRates,
 } from '@cls/db/schema'
 import { runTransformerRow } from '../testing'
 import { transformer } from './parts'
@@ -41,6 +42,7 @@ const partId = base
 const duplicatePartId = base + 1
 const groupId = base + 2
 const missingPartId = base + 3
+const modelRateId = base + 4
 const partNumber = `TEST-${marker}-AB`
 const sharedPartCode = `SH-${marker}`
 const stagedWorkOrderId = 5_500
@@ -82,6 +84,7 @@ afterAll(async () => {
   const db = getDb()
   await db.delete(partSupplierRates).where(eq(partSupplierRates.partId, partId))
   await db.delete(partSellingRates).where(eq(partSellingRates.partId, partId))
+  await db.delete(partSupplierModelRates).where(eq(partSupplierModelRates.id, modelRateId))
   await db.delete(partPriceHistory).where(eq(partPriceHistory.partId, partId))
   await db.delete(parts).where(inArray(parts.id, [partId, duplicatePartId]))
   await db.delete(partGroups).where(eq(partGroups.id, groupId))
@@ -369,5 +372,26 @@ describe.skipIf(!configured)('parts group', () => {
 
     expect(await exceptionFor('series_seed', 'wo_next_pid', sourceKey)).not.toBeNull()
     expect((await crosswalkFor('wo_next_pid', sourceKey))?.targetKey).toBe('2')
+  })
+
+  test('a supplier model rate keeps its legacy id, price text and default flag', async () => {
+    const sourceKey = `parts_supplier_model_rates:${marker}:${modelRateId}`
+    await transform('parts_supplier_model_rates', sourceKey, {
+      id: String(modelRateId),
+      part_code: `MODEL-${marker}`,
+      list_id: '7',
+      supplier_id: '12',
+      model_price: '$4.25',
+      default_model: '1',
+      model_number: 'ABC-123',
+    })
+    const [row] = await getDb()
+      .select()
+      .from(partSupplierModelRates)
+      .where(eq(partSupplierModelRates.id, modelRateId))
+    expect(row?.modelPrice).toBe('$4.25')
+    expect(row?.defaultModel).toBe(true)
+    expect(row?.modelNumber).toBe('ABC-123')
+    expect(row?.supplierId).toBe(12)
   })
 })

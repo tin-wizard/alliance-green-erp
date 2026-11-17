@@ -58,7 +58,7 @@ export async function queryQuotes(
   const cursor = decodeQuoteCursor(query.cursor ?? null)
   if (cursor) {
     filters.push(
-      sql`(${quotes.createdAt}, ${quotes.id}) < (${cursor.createdAt}::timestamptz, ${cursor.id})`,
+      sql`(${quotes.dateCreated}, ${quotes.id}) < (${cursor.createdAt}::date, ${cursor.id})`,
     )
   }
 
@@ -79,7 +79,8 @@ export async function queryQuotes(
       dueDate: quotes.dueDate,
       isDueDateTbd: quotes.isDueDateTbd,
       dateApproved: quotes.dateApproved,
-      createdAt: quotes.createdAt,
+      // The business date, not the row's insert time: migrated quotes all share one insert time.
+      createdAt: quotes.dateCreated,
       taxCode: quotes.taxCode,
       appliedTaxRate: quotes.appliedTaxRate,
       manualTaxAmount: quotes.manualTaxAmount,
@@ -88,7 +89,7 @@ export async function queryQuotes(
     .leftJoin(sites, eq(quotes.siteId, sites.id))
     .leftJoin(customers, eq(sites.customerId, customers.id))
     .where(and(...filters))
-    .orderBy(desc(quotes.createdAt), desc(quotes.id))
+    .orderBy(desc(quotes.dateCreated), desc(quotes.id))
     .limit(size + 1)
 
   const page = rows.slice(0, size)
@@ -135,7 +136,7 @@ export async function queryQuotes(
       dueDate: row.dueDate,
       isDueDateTbd: row.isDueDateTbd,
       dateApproved: row.dateApproved,
-      createdAt: row.createdAt.toISOString(),
+      createdAt: row.createdAt,
       total: totals.total,
     }
   })
@@ -152,7 +153,7 @@ export async function queryQuotes(
     nextCursor:
       rows.length > size && last
         ? encodeQuoteCursor({
-            createdAt: last.createdAt.toISOString(),
+            createdAt: last.createdAt,
             id: last.id,
           })
         : null,

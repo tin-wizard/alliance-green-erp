@@ -1,0 +1,1 @@
+ALTER TABLE "app"."work_order_revisions" ADD COLUMN "legacy_revision_type" text;

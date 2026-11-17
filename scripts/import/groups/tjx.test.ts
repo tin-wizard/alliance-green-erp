@@ -23,6 +23,11 @@ vi.setConfig({ testTimeout: 60_000, hookTimeout: 90_000 })
 
 const db = getDb()
 const RUN = `g11-${Date.now()}-${Math.floor(Math.random() * 100_000)}`
+// Legacy ids the real dump never issues, so a loaded room or fixture cannot collide.
+const ID_BASE = 2_100_000_000 + Math.floor(Math.random() * 40_000_000)
+const ROOM_ID = String(ID_BASE)
+const FIXTURE_ID = String(ID_BASE + 1)
+const QUOTE_FIXTURE_ID = String(ID_BASE + 2)
 const GROUP = 'tjx'
 const QUOTE_ID_BASE = 9_600_000 + Math.floor(Math.random() * 10_000)
 
@@ -85,6 +90,11 @@ afterAll(async () => {
     delete from app.tjx_fixtures where id in (
       select target_key::int from migration.row_map
       where target_table = 'tjx_fixtures' and source_key like ${`${RUN}-%`}
+    )`)
+  await db.execute(sql`
+    delete from app.tjx_room_template_rooms where room_id in (
+      select target_key::int from migration.row_map
+      where target_table = 'tjx_rooms' and source_key like ${`${RUN}-%`}
     )`)
   await db.execute(sql`
     delete from app.tjx_rooms where id in (
@@ -211,6 +221,55 @@ describe.skipIf(!databaseConfigured())(`${GROUP} transformer`, () => {
     expect(rows).toHaveLength(0)
   })
 
+  it('maps a second room with the same name onto the first, and quotes still find it', async () => {
+    const name = `${RUN} Utility Rooms`
+    const firstLegacy = String(ID_BASE + 10)
+    const secondLegacy = String(ID_BASE + 11)
+    await inTransaction((tx) =>
+      runTransformerRow(tx, transformer, {
+        group: GROUP,
+        table: 'tjx_room',
+        sourceKey: key('room-a'),
+        row: { id: firstLegacy, roomname: name, sortorder: '1' },
+      }),
+    )
+    await inTransaction((tx) =>
+      runTransformerRow(tx, transformer, {
+        group: GROUP,
+        table: 'tjx_room',
+        sourceKey: key('room-b'),
+        // Same name, different case and spacing: still one room.
+        row: { id: secondLegacy, roomname: `  ${name.toUpperCase()}  `, sortorder: '2' },
+      }),
+    )
+    const first = await targetKey(key('room-a'))
+    expect(first).not.toBeNull()
+    expect(await targetKey(key('room-b'))).toBe(first)
+    const classes = (await exceptionsFor(key('room-b'))).map((row) => row.exceptionClass)
+    expect(classes).toContain('duplicate_master_name')
+    const rooms = await db.execute(
+      sql`select count(*)::int as n from app.tjx_rooms where lower(name) = lower(${name})`,
+    ) as unknown as Array<{ n: number }>
+    expect(rooms[0]?.n).toBe(1)
+  })
+
+  it('a repeated room-template entry is skipped and recorded, not an error', async () => {
+    const legacyRoom = String(ID_BASE + 10)
+    for (const name of ['tpl-1', 'tpl-2']) {
+      await inTransaction((tx) =>
+        runTransformerRow(tx, transformer, {
+          group: GROUP,
+          table: 'tjx_rooms_template',
+          sourceKey: key(name),
+          row: { roomid: legacyRoom, sortorder: '5' },
+        }),
+      )
+    }
+    expect(await targetKey(key('tpl-1'))).not.toBeNull()
+    const classes = (await exceptionsFor(key('tpl-2'))).map((row) => row.exceptionClass)
+    expect(classes).toContain('dated_duplicate_skipped')
+  })
+
   it('rebuilds a quote room from the room master and keeps the fixture quantity', async () => {
     const quoteId = nextQuoteId()
     await inTransaction((tx) =>
@@ -227,7 +286,7 @@ describe.skipIf(!databaseConfigured())(`${GROUP} transformer`, () => {
         group: GROUP,
         table: 'tjx_room',
         sourceKey: key('room-1'),
-        row: { id: '41', roomname: `${RUN} Suite`, sortorder: '1' },
+        row: { id: ROOM_ID, roomname: `${RUN} Suite`, sortorder: '1' },
       }),
     )
     await inTransaction((tx) =>
@@ -235,7 +294,7 @@ describe.skipIf(!databaseConfigured())(`${GROUP} transformer`, () => {
         group: GROUP,
         table: 'tjx_fixture',
         sourceKey: key('fixture-1'),
-        row: { id: '42', fixturename: `${RUN} Troffer`, sortorder: '1' },
+        row: { id: FIXTURE_ID, fixturename: `${RUN} Troffer`, sortorder: '1' },
       }),
     )
 
@@ -245,12 +304,12 @@ describe.skipIf(!databaseConfigured())(`${GROUP} transformer`, () => {
         group: GROUP,
         table: 'tjx_quote_fixtures',
         sourceKey: fixtureRowKey,
-        row: { id: '43', quoteid: quoteId, roomid: '41', fixtureid: '42', totalfixtures: '6' },
+        row: { id: QUOTE_FIXTURE_ID, quoteid: quoteId, roomid: ROOM_ID, fixtureid: FIXTURE_ID, totalfixtures: '6' },
       }),
     )
 
     const quoteRoomKey = await db.execute(
-      sql`select target_key from migration.row_map where entity = 'quote_room' and source_key = ${`${quoteId}:41`} limit 1`,
+      sql`select target_key from migration.row_map where entity = 'quote_room' and source_key = ${`${quoteId}:${ROOM_ID}`} limit 1`,
     ) as unknown as Array<{ target_key: string }>
     expect(quoteRoomKey).toHaveLength(1)
 

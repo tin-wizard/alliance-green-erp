@@ -32,7 +32,7 @@
  * A status outside the target's check list cannot be stored as NULL, so the row
  * is reported and not inserted rather than guessed into a neighbouring code.
  */
-import { eq, sql } from 'drizzle-orm'
+import { and, eq, ne, sql } from 'drizzle-orm'
 import type { Tx } from '@cls/db'
 import {
   invoiceLabourLines,
@@ -51,6 +51,7 @@ import {
 } from '@cls/db/schema'
 import { stagingTable } from '../manifest'
 import type { GroupTransformer, TransformContext, TransformHelpers } from '../types'
+import { selectIdMemo } from '../exists-memo'
 
 const GROUP = 'invoicing-rga'
 const CALC_TYPES = ['sub', 'sub_project', 'local', 'local_project'] as const
@@ -169,11 +170,7 @@ async function resolveWorkOrder(
   if (legacyId === null) return null
   const mapped = await helpers.targetKey('work_order', 'workorder', String(legacyId))
   const candidate = intOf(mapped) ?? legacyId
-  const [row] = await tx
-    .select({ id: workOrders.id })
-    .from(workOrders)
-    .where(eq(workOrders.id, candidate))
-    .limit(1)
+  const [row] = await selectIdMemo(tx, workOrders.id, candidate)
   return row?.id ?? null
 }
 
@@ -185,7 +182,7 @@ async function resolveSite(
   if (legacyId === null) return null
   const mapped = await helpers.targetKey('site', 'sites', String(legacyId))
   const candidate = intOf(mapped) ?? legacyId
-  const [row] = await tx.select({ id: sites.id }).from(sites).where(eq(sites.id, candidate)).limit(1)
+  const [row] = await selectIdMemo(tx, sites.id, candidate)
   return row?.id ?? null
 }
 
@@ -197,11 +194,7 @@ async function resolveSubcontractor(
   if (legacyId === null) return null
   const mapped = await helpers.targetKey('subcontractor', 'subcontractor', String(legacyId))
   const candidate = intOf(mapped) ?? legacyId
-  const [row] = await tx
-    .select({ id: subcontractors.id })
-    .from(subcontractors)
-    .where(eq(subcontractors.id, candidate))
-    .limit(1)
+  const [row] = await selectIdMemo(tx, subcontractors.id, candidate)
   return row?.id ?? null
 }
 
@@ -213,11 +206,7 @@ async function resolveSupplier(
   if (legacyId === null) return null
   const mapped = await helpers.targetKey('supplier', 'suppliers', String(legacyId))
   const candidate = intOf(mapped) ?? legacyId
-  const [row] = await tx
-    .select({ id: suppliers.id })
-    .from(suppliers)
-    .where(eq(suppliers.id, candidate))
-    .limit(1)
+  const [row] = await selectIdMemo(tx, suppliers.id, candidate)
   return row?.id ?? null
 }
 
@@ -229,11 +218,7 @@ async function resolvePurchaseOrder(
   if (legacyId === null) return null
   const mapped = await helpers.targetKey('purchase_order', 'purchaseorder', String(legacyId))
   const candidate = intOf(mapped) ?? legacyId
-  const [row] = await tx
-    .select({ id: purchaseOrders.id })
-    .from(purchaseOrders)
-    .where(eq(purchaseOrders.id, candidate))
-    .limit(1)
+  const [row] = await selectIdMemo(tx, purchaseOrders.id, candidate)
   return row?.id ?? null
 }
 
@@ -264,7 +249,7 @@ async function resolveUser(
   if (legacyId === null) return null
   const mapped = await helpers.targetKey('user', 'users', String(legacyId))
   if (mapped !== null) {
-    const [byId] = await tx.select({ id: users.id }).from(users).where(eq(users.id, mapped)).limit(1)
+    const [byId] = await selectIdMemo(tx, users.id, mapped)
     if (byId) return byId.id
   }
   const [row] = await tx
@@ -288,13 +273,43 @@ const INVOICE_SOURCE_TABLE = 'workorder'
 /** Marks which `inv_tax` row wrote the posted snapshot of a work order's invoice. */
 const SNAPSHOT_ENTITY = 'invoice_tax_snapshot'
 
+/**
+ * A re-run gives an already imported invoice the date its work order now carries,
+ * so a better source for the date reaches rows loaded earlier. An invoice that
+ * has been edited since the import (version above 1) is left alone. An invoice
+ * with no invoice date takes its work order's completion date, as on first import.
+ */
+async function refreshInvoiceDate(tx: TransformContext['tx'], workOrderId: number): Promise<void> {
+  const [wo] = await tx
+    .select({ invoicedAt: workOrders.invoicedAt, completedAt: workOrders.completedAt })
+    .from(workOrders)
+    .where(eq(workOrders.id, workOrderId))
+    .limit(1)
+  const dated = wo?.invoicedAt ?? wo?.completedAt
+  if (!dated) return
+  const invoiceDate = businessDate(dated)
+  await tx
+    .update(salesInvoices)
+    .set({ invoiceDate })
+    .where(
+      and(
+        eq(salesInvoices.workOrderId, workOrderId),
+        eq(salesInvoices.version, 1),
+        ne(salesInvoices.invoiceDate, invoiceDate),
+      ),
+    )
+}
+
 async function ensureInvoice(
   context: TransformContext,
   workOrderId: number,
 ): Promise<number | null> {
   const { tx, helpers } = context
   const mapped = await helpers.targetKey(INVOICE_ENTITY, INVOICE_SOURCE_TABLE, String(workOrderId))
-  if (mapped !== null) return intOf(mapped)
+  if (mapped !== null) {
+    await refreshInvoiceDate(tx, workOrderId)
+    return intOf(mapped)
+  }
 
   const [wo] = await tx
     .select({
@@ -303,6 +318,7 @@ async function ensureInvoice(
       isLocal: workOrders.isLocal,
       isProject: workOrders.isProject,
       invoicedAt: workOrders.invoicedAt,
+      completedAt: workOrders.completedAt,
       sageSalesDone: workOrders.sageSalesDone,
     })
     .from(workOrders)
@@ -326,7 +342,11 @@ async function ensureInvoice(
       ? 'sub_project'
       : 'sub'
 
-  const invoiceDate = wo.invoicedAt ? businessDate(wo.invoicedAt) : null
+  // Invoices from before the old system recorded when one was marked have no
+  // invoice date at all. The work order's completion date is the nearest real
+  // fact (an invoice is raised after the work), so it stands in for those.
+  const dated = wo.invoicedAt ?? wo.completedAt
+  const invoiceDate = dated ? businessDate(dated) : null
   const issued = wo.sageSalesDone
 
   const [inserted] = await tx
@@ -894,7 +914,7 @@ async function resolveRga(
   const mapped = await helpers.targetKey('rga', 'rga', String(legacyId))
   const candidate = intOf(mapped)
   if (candidate === null) return null
-  const [row] = await tx.select({ id: rgas.id }).from(rgas).where(eq(rgas.id, candidate)).limit(1)
+  const [row] = await selectIdMemo(tx, rgas.id, candidate)
   return row?.id ?? null
 }
 

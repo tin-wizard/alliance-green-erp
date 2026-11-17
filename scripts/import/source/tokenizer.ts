@@ -118,6 +118,8 @@ interface MutableTable {
   table: string
   columns: string[]
   rows: SourceRow[]
+  /** Rows already handed to a consumer by `parseDumpSlices`; keeps row numbers global. */
+  flushed: number
 }
 
 /**
@@ -387,7 +389,7 @@ function parseCreateTable(
   // One declaration per table in a dump. Keeping the first means a stray second
   // one cannot silently reorder columns under rows already collected.
   if (!tables.has(name.value)) {
-    tables.set(name.value, { table: name.value, columns, rows: [] })
+    tables.set(name.value, { table: name.value, columns, rows: [], flushed: 0 })
   }
 }
 
@@ -488,7 +490,7 @@ function parseInsert(
     // neither, the rows cannot be named and the table is reported as skipped
     // rather than guessed at.
     if (!columnList) return
-    table = { table: name.value, columns: [...columnList], rows: [] }
+    table = { table: name.value, columns: [...columnList], rows: [], flushed: 0 }
     tables.set(name.value, table)
   } else if (table.columns.length === 0 && columnList) {
     table.columns = [...columnList]
@@ -525,7 +527,7 @@ function parseInsert(
       index = parsed.next
     }
 
-    const rowNo = target.rows.length + 1
+    const rowNo = target.flushed + target.rows.length + 1
     if (values.length !== order.length) {
       throw new DumpSyntaxError(
         `INSERT INTO ${target.table} row ${rowNo} has ${values.length} values for ${order.length} columns`,
@@ -560,6 +562,71 @@ export interface ParsedDump {
   skippedTables: string[]
 }
 
+function applyStatement(
+  tokens: Token[],
+  tables: Map<string, MutableTable>,
+  observed: Set<string>,
+): void {
+  const first = tokens[0]
+  if (first?.type !== 'word') return
+
+  const keyword = first.value.toUpperCase()
+  if (keyword === 'CREATE') {
+    let index = 1
+    if (tokens[index]?.type === 'word' && tokens[index]!.value.toUpperCase() === 'TEMPORARY') {
+      index += 1
+    }
+    const target = tokens[index]
+    if (target?.type === 'word' && target.value.toUpperCase() === 'TABLE') {
+      parseCreateTable(tokens, index + 1, tables, observed)
+    }
+    return
+  }
+
+  if (keyword === 'INSERT' || keyword === 'REPLACE') {
+    parseInsert(tokens, 1, tables, observed)
+  }
+}
+
+/**
+ * The same parse as `parseDump`, handed back a slice at a time.
+ *
+ * `parseDump` keeps every row of a table at once, which for a 500 MB table
+ * costs many times its size in objects. Here a table's rows are yielded once
+ * `sliceRows` have accumulated and then dropped, so memory follows the slice
+ * and not the table. Row numbers continue across slices, so the concatenation
+ * of the slices is exactly what `parseDump` returns. A table is always
+ * yielded at least once, even with no rows, so its columns are known.
+ */
+export function* parseDumpSlices(text: string, sliceRows: number): Generator<SourceTable> {
+  const limit = Math.max(1, sliceRows)
+  const tables = new Map<string, MutableTable>()
+  const observed = new Set<string>()
+  const yielded = new Set<string>()
+  const scanner = new StatementScanner(text)
+
+  for (;;) {
+    const tokens = scanner.nextStatement()
+    if (!tokens) break
+    applyStatement(tokens, tables, observed)
+
+    for (const entry of tables.values()) {
+      if (entry.rows.length < limit) continue
+      const rows = entry.rows
+      entry.flushed += rows.length
+      entry.rows = []
+      yielded.add(entry.table)
+      yield { table: entry.table, columns: entry.columns, rows }
+    }
+  }
+
+  for (const entry of tables.values()) {
+    if (entry.rows.length > 0 || !yielded.has(entry.table)) {
+      yield { table: entry.table, columns: entry.columns, rows: entry.rows }
+    }
+  }
+}
+
 /** Decodes dump bytes as latin1 — the one and only decode in the pipeline. */
 export function decodeDumpText(bytes: Uint8Array): string {
   // Buffer.from(bytes) would copy a multi-gigabyte dump; reuse the buffer we
@@ -576,26 +643,7 @@ export function parseDump(text: string, options: ParseDumpOptions = {}): ParsedD
   for (;;) {
     const tokens = scanner.nextStatement()
     if (!tokens) break
-
-    const first = tokens[0]
-    if (first?.type !== 'word') continue
-
-    const keyword = first.value.toUpperCase()
-    if (keyword === 'CREATE') {
-      let index = 1
-      if (tokens[index]?.type === 'word' && tokens[index]!.value.toUpperCase() === 'TEMPORARY') {
-        index += 1
-      }
-      const target = tokens[index]
-      if (target?.type === 'word' && target.value.toUpperCase() === 'TABLE') {
-        parseCreateTable(tokens, index + 1, tables, observed)
-      }
-      continue
-    }
-
-    if (keyword === 'INSERT' || keyword === 'REPLACE') {
-      parseInsert(tokens, 1, tables, observed)
-    }
+    applyStatement(tokens, tables, observed)
   }
 
   const result: SourceTable[] = []

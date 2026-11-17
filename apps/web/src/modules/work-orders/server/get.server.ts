@@ -9,9 +9,9 @@ import { and, desc, eq, inArray } from 'drizzle-orm'
 import { getDb, type Db } from '@cls/db'
 import {
   auditLog,
-  legacyCustomer,
-  legacySites,
-  legacySubcontractor,
+  customers,
+  sites,
+  subcontractors,
   legacyWoCategories,
   legacyWoPriority,
   legacyWoServtype,
@@ -83,26 +83,26 @@ export async function getWorkOrderDetail(
   ] = await Promise.all([
     db
       .select({
-        id: legacySites.id,
-        name: legacySites.name,
-        street: legacySites.street,
-        city: legacySites.city,
-        province: legacySites.province,
-        postalCode: legacySites.postalcode,
-        contactName: legacySites.cname,
-        contactNumber: legacySites.cnumber,
-        customerId: legacyCustomer.id,
-        customerName: legacyCustomer.name,
+        id: sites.id,
+        name: sites.name,
+        street: sites.street,
+        city: sites.city,
+        province: sites.province,
+        postalCode: sites.postalCode,
+        contactName: sites.contactName,
+        contactNumber: sites.contactNumber,
+        customerId: customers.id,
+        customerName: customers.name,
       })
-      .from(legacySites)
-      .leftJoin(legacyCustomer, eq(legacySites.custid, legacyCustomer.id))
-      .where(eq(legacySites.id, row.siteId))
+      .from(sites)
+      .leftJoin(customers, eq(sites.customerId, customers.id))
+      .where(eq(sites.id, row.siteId))
       .limit(1),
     row.subcontractorId
       ? db
-          .select({ id: legacySubcontractor.id, name: legacySubcontractor.name })
-          .from(legacySubcontractor)
-          .where(eq(legacySubcontractor.id, row.subcontractorId))
+          .select({ id: subcontractors.id, name: subcontractors.name })
+          .from(subcontractors)
+          .where(eq(subcontractors.id, row.subcontractorId))
           .limit(1)
       : Promise.resolve([]),
     db
@@ -241,9 +241,9 @@ export async function getWorkOrderDetail(
       ? {
           id: siteRows[0].id,
           name: siteRows[0].name,
-          street: siteRows[0].street,
-          city: siteRows[0].city,
-          province: siteRows[0].province,
+          street: siteRows[0].street ?? '',
+          city: siteRows[0].city ?? '',
+          province: siteRows[0].province ?? '',
           postalCode: siteRows[0].postalCode ?? null,
           contactName: siteRows[0].contactName ?? null,
           contactNumber: siteRows[0].contactNumber ?? null,
