@@ -129,6 +129,29 @@ describe.skipIf(!configured)('compliance group', () => {
     expect(await crosswalkFor('subcontractor_wsib_document', sourceKey)).not.toBeNull()
   })
 
+  test('the legacy WSIB-WCB type becomes the wsib kind and keeps its original text', async () => {
+    const db = getDb()
+    const sourceKey = `wsib:${marker}:5`
+    await transform('subcontractor_wsib_insurance_documents', sourceKey, {
+      id: '5',
+      subid: String(subcontractorId),
+      document_type: 'WSIB-WCB',
+      document_name: 'WSIB-WCB clearance',
+      file_name: `wcb-${marker}.pdf`,
+      is_expired: '0',
+      expiration_date: '2099-01-01',
+      uploaded_timespan: String(uploadedSeconds),
+    })
+    const [row] = await db
+      .select()
+      .from(subcontractorDocuments)
+      .where(eq(subcontractorDocuments.fileName, `wcb-${marker}.pdf`))
+    expect(row?.kind).toBe('wsib')
+    expect(row?.documentType).toBe('WSIB-WCB')
+    // It is a known spelling, so it is not logged as an unknown value.
+    expect(await exceptionFor('unknown_enum', 'subcontractor_wsib_document', sourceKey)).toBeNull()
+  })
+
   test('an unknown document type is not guessed', async () => {
     const db = getDb()
     const sourceKey = `wsib:${marker}:2`
