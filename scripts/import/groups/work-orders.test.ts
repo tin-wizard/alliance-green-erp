@@ -62,7 +62,8 @@ const closeoutRevisionId = 9_900_003
 // Every work order this file may create, so a failed test cannot leave one behind.
 const workOrderIds = [mainWorkOrder, fallbackWorkOrder, base + 102, base + 103, base + 104]
 const epochWorkOrder = base + 105
-workOrderIds.push(epochWorkOrder)
+const invoiceDateIds = { marked: base + 106, preview: base + 107, none: base + 108, explicit: base + 109 }
+workOrderIds.push(epochWorkOrder, ...Object.values(invoiceDateIds))
 
 async function transform(table: string, sourceKey: string, row: Record<string, string | null>) {
   await getDb().transaction(async (tx) => {
@@ -526,6 +527,30 @@ describe.skipIf(!configured)('work-orders group', () => {
     )) as unknown as Array<{ completed: string | null }>
     expect(stamped?.completed).toBe('2018-03-07 15:16:17')
     expect(await exceptionFor('unparseable_timestamp', 'work_order', `workorder:${marker}:${epochWorkOrder}`)).toBeNull()
+  })
+
+  test('the invoice date comes from invdate, then the invoiced time, then the preview date, else none', async () => {
+    const db = getDb()
+    const cases: Array<[number, Record<string, string>]> = [
+      // 1520453777 s = 2018-03-07 15:16:17 in Toronto.
+      [invoiceDateIds.marked, { invdate: '', marked_invoiced_time: '1520453777', calc_inv_date: '2019-01-01' }],
+      [invoiceDateIds.preview, { invdate: '', marked_invoiced_time: '', calc_inv_date: '2025-04-05' }],
+      [invoiceDateIds.none, { invdate: '', marked_invoiced_time: '', calc_inv_date: '0000-00-00' }],
+      [invoiceDateIds.explicit, { invdate: '2025-02-03', marked_invoiced_time: '1520453777', calc_inv_date: '2019-01-01' }],
+    ]
+    for (const [id, overrides] of cases) {
+      await transform('workorder', `workorder:${marker}:${id}`, workOrderRow(id, overrides))
+    }
+    const read = async (id: number): Promise<string | null> => {
+      const [row] = (await db.execute(
+        sql`select to_char(invoiced_at, 'YYYY-MM-DD') as day from app.work_orders where id = ${id}`,
+      )) as unknown as Array<{ day: string | null }>
+      return row?.day ?? null
+    }
+    expect(await read(invoiceDateIds.marked)).toBe('2018-03-07')
+    expect(await read(invoiceDateIds.preview)).toBe('2025-04-05')
+    expect(await read(invoiceDateIds.none)).toBeNull()
+    expect(await read(invoiceDateIds.explicit)).toBe('2025-02-03')
   })
 
   test('a note keeps its legacy type, and a revision keeps its legacy event name beside the mapped type', async () => {
