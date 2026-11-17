@@ -26,6 +26,11 @@ export interface LegacySource {
   listTables(): Promise<string[]>
   /** Rows for one table, or an empty result when the source lacks it. */
   readTable(table: string): Promise<SourceTable>
+  /**
+   * The same rows as `readTable`, a slice at a time, for tables too large to
+   * hold at once. Row numbers continue across slices.
+   */
+  readTableSlices?(table: string, sliceRows?: number): AsyncIterable<SourceTable>
   /** The identity of the underlying file, when the source has one. */
   dumpInfo?(): DumpInfo
   close?(): Promise<void>
