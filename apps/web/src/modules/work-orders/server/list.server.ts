@@ -7,9 +7,9 @@
 import { and, asc, desc, eq, ilike, inArray, isNotNull, isNull, or, sql, type SQL } from 'drizzle-orm'
 import { getDb, type Db } from '@cls/db'
 import {
-  legacyCustomer,
-  legacySites,
-  legacySubcontractor,
+  customers,
+  sites,
+  subcontractors,
   legacyWoCategories,
   legacyWoPriority,
   legacyWoServtype,
@@ -67,18 +67,19 @@ function searchCondition(search: string | undefined): SQL | undefined {
     sql`cast(${workOrders.id} as text) ilike ${pattern}`,
     ilike(workOrders.customerPo, pattern),
     ilike(workOrders.serviceRequired, pattern),
-    ilike(legacySites.name, pattern),
-    ilike(legacySites.city, pattern),
-    ilike(legacyCustomer.name, pattern),
-    ilike(legacySubcontractor.name, pattern),
+    ilike(sites.name, pattern),
+    ilike(sites.city, pattern),
+    ilike(customers.name, pattern),
+    ilike(subcontractors.name, pattern),
   )
 }
 
 const validWsibDocumentExists = sql`exists (
-  select 1 from public.subcontractor_wsib_insurance_documents d
-  where d.subid = ${workOrders.subcontractorId}
-    and coalesce(d.is_expired, 0) = 0
-    and d.expiration_date >= current_date
+  select 1 from app.subcontractor_documents d
+  where d.subcontractor_id = ${workOrders.subcontractorId}
+    and d.kind in ('wsib', 'insurance')
+    and not d.is_expired
+    and d.expires_on >= current_date
 )`
 
 function viewConditions(
@@ -210,11 +211,11 @@ export async function queryWorkOrders(
       series: workOrders.series,
       status: workOrders.status,
       siteId: workOrders.siteId,
-      siteName: legacySites.name,
-      siteCity: legacySites.city,
-      siteProvince: legacySites.province,
-      customerId: legacyCustomer.id,
-      customerName: legacyCustomer.name,
+      siteName: sites.name,
+      siteCity: sites.city,
+      siteProvince: sites.province,
+      customerId: customers.id,
+      customerName: customers.name,
       serviceTypeId: workOrders.serviceTypeId,
       serviceTypeName: legacyWoServtype.name,
       priorityId: workOrders.priorityId,
@@ -222,7 +223,7 @@ export async function queryWorkOrders(
       categoryId: workOrders.categoryId,
       categoryName: legacyWoCategories.name,
       subcontractorId: workOrders.subcontractorId,
-      subcontractorName: legacySubcontractor.name,
+      subcontractorName: subcontractors.name,
       dateTaken: workOrders.dateTaken,
       expectedCompletion: workOrders.expectedCompletion,
       customerPo: workOrders.customerPo,
@@ -245,9 +246,9 @@ export async function queryWorkOrders(
       )`,
     })
     .from(workOrders)
-    .leftJoin(legacySites, eq(workOrders.siteId, legacySites.id))
-    .leftJoin(legacyCustomer, eq(legacySites.custid, legacyCustomer.id))
-    .leftJoin(legacySubcontractor, eq(workOrders.subcontractorId, legacySubcontractor.id))
+    .leftJoin(sites, eq(workOrders.siteId, sites.id))
+    .leftJoin(customers, eq(sites.customerId, customers.id))
+    .leftJoin(subcontractors, eq(workOrders.subcontractorId, subcontractors.id))
     .leftJoin(legacyWoServtype, eq(workOrders.serviceTypeId, legacyWoServtype.id))
     .leftJoin(legacyWoPriority, eq(workOrders.priorityId, legacyWoPriority.id))
     .leftJoin(legacyWoCategories, eq(workOrders.categoryId, legacyWoCategories.id))
@@ -262,9 +263,9 @@ export async function queryWorkOrders(
   const countRows = await db
     .select({ n: sql<number>`count(*)::int` })
     .from(workOrders)
-    .leftJoin(legacySites, eq(workOrders.siteId, legacySites.id))
-    .leftJoin(legacyCustomer, eq(legacySites.custid, legacyCustomer.id))
-    .leftJoin(legacySubcontractor, eq(workOrders.subcontractorId, legacySubcontractor.id))
+    .leftJoin(sites, eq(workOrders.siteId, sites.id))
+    .leftJoin(customers, eq(sites.customerId, customers.id))
+    .leftJoin(subcontractors, eq(workOrders.subcontractorId, subcontractors.id))
     .where(and(...baseConditions))
 
   const last = page.at(-1)

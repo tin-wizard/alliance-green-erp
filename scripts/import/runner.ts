@@ -113,16 +113,15 @@ export async function loadSource(
       })
       continue
     }
-    const loaded = await source.readTable(table.table)
-    const checksum = await stageTable(db, dumpId, loaded)
-    report.tables.push({ table: table.table, rows: loaded.rows.length, checksum, status: 'loaded' })
-    report.totalRows += loaded.rows.length
+    const { checksum, rows } = await stageTable(db, dumpId, table.table, sliceSource(source, table.table))
+    report.tables.push({ table: table.table, rows, checksum, status: 'loaded' })
+    report.totalRows += rows
     objects.push({
       dumpId,
       tableName: table.table,
       engine,
-      sourceRows: loaded.rows.length,
-      stagedRows: loaded.rows.length,
+      sourceRows: rows,
+      stagedRows: rows,
       checksum,
       status: 'loaded',
       note: null,
@@ -170,63 +169,89 @@ export async function loadSource(
   return report
 }
 
-async function stageTable(db: Db, dumpId: string, table: SourceTable): Promise<string> {
-  const staging = stagingTable(table.table)
-  const columns = table.columns
+/** Rows per slice for sources that can hand a table over in pieces. */
+const STAGE_SLICE_ROWS = 5000
+
+/**
+ * A table as a sequence of slices. A source that can slice a table does, so a
+ * 500 MB table never sits in memory whole; any other source hands over the
+ * table as one slice.
+ */
+async function* sliceSource(source: LegacySource, name: string): AsyncIterable<SourceTable> {
+  if (source.readTableSlices) {
+    yield* source.readTableSlices(name, STAGE_SLICE_ROWS)
+    return
+  }
+  yield await source.readTable(name)
+}
+
+async function stageTable(
+  db: Db,
+  dumpId: string,
+  name: string,
+  slices: AsyncIterable<SourceTable>,
+): Promise<{ checksum: string; rows: number }> {
+  const staging = stagingTable(name)
   const hashes: string[] = []
+  let rows = 0
 
   await db.execute(
     sql`delete from ${sql.raw(`migration."${staging}"`)} where "_dump_id" = ${dumpId}`,
   )
 
-  const names = ['_row_no', '_source_pk', '_row_hash', '_dump_id', ...columns]
-  const manifestTable = ALL_TABLES.find((entry) => entry.table === table.table)
-  const header = sql`insert into ${sql.raw(`migration."${staging}"`)} (${sql.raw(
-    names.map((name) => `"${name}"`).join(', '),
-  )}) values `
-  // One round trip per batch, not per row: a real dump is millions of rows and
-  // the loader's speed must not scale with the network's latency. The batch
-  // stays well under Postgres's 65,535-parameter limit and caps row count so a
-  // table of large text columns does not build an enormous statement.
-  const batchSize = Math.max(1, Math.min(500, Math.floor(30_000 / names.length)))
+  const manifestTable = ALL_TABLES.find((entry) => entry.table === name)
 
-  for (let offset = 0; offset < table.rows.length; offset += batchSize) {
-    const tuples = table.rows.slice(offset, offset + batchSize).map((row) => {
-      const values: Record<string, string | null> = {}
-      for (const column of columns) values[column] = row.values[column] ?? null
-      const hash = rowHash(values)
-      hashes.push(hash)
+  for await (const table of slices) {
+    const columns = table.columns
+    const names = ['_row_no', '_source_pk', '_row_hash', '_dump_id', ...columns]
+    const header = sql`insert into ${sql.raw(`migration."${staging}"`)} (${sql.raw(
+      names.map((column) => `"${column}"`).join(', '),
+    )}) values `
+    // One round trip per batch, not per row: a real dump is millions of rows and
+    // the loader's speed must not scale with the network's latency. The batch
+    // stays well under Postgres's 65,535-parameter limit and caps row count so a
+    // table of large text columns does not build an enormous statement.
+    const batchSize = Math.max(1, Math.min(500, Math.floor(30_000 / names.length)))
 
-      const key = manifestTable
-        ? sourceKey(manifestTable, { ...values, _row_no: String(row.rowNo) })
-        : String(row.rowNo)
-      // Postgres text cannot hold a NUL byte, and legacy free-text columns do
-      // (14 values in the 2026-11 dump). The hash above is of the original, so
-      // parity stays honest; the staged copy loses only the NUL.
-      const params: Array<string | number | null> = [
-        row.rowNo,
-        key,
-        hash,
-        dumpId,
-        ...columns.map((column) => {
-          if (NEVER_STAGED_COLUMNS[table.table]?.has(column)) return null
-          const value = values[column] ?? null
-          if (value !== null && value.includes('\u0000')) {
-            console.warn(`[stage] ${table.table}.${column} row ${row.rowNo}: stripped NUL byte(s)`)
-            return value.replaceAll('\u0000', '')
-          }
-          return value
-        }),
-      ]
-      return sql`(${sql.join(
-        params.map((param) => sql`${param}`),
-        sql`, `,
-      )})`
-    })
-    await db.execute(sql`${header}${sql.join(tuples, sql`, `)}`)
+    for (let offset = 0; offset < table.rows.length; offset += batchSize) {
+      const tuples = table.rows.slice(offset, offset + batchSize).map((row) => {
+        const values: Record<string, string | null> = {}
+        for (const column of columns) values[column] = row.values[column] ?? null
+        const hash = rowHash(values)
+        hashes.push(hash)
+
+        const key = manifestTable
+          ? sourceKey(manifestTable, { ...values, _row_no: String(row.rowNo) })
+          : String(row.rowNo)
+        // Postgres text cannot hold a NUL byte, and legacy free-text columns do
+        // (14 values in the 2026-11 dump). The hash above is of the original, so
+        // parity stays honest; the staged copy loses only the NUL.
+        const params: Array<string | number | null> = [
+          row.rowNo,
+          key,
+          hash,
+          dumpId,
+          ...columns.map((column) => {
+            if (NEVER_STAGED_COLUMNS[name]?.has(column)) return null
+            const value = values[column] ?? null
+            if (value !== null && value.includes('\u0000')) {
+              console.warn(`[stage] ${name}.${column} row ${row.rowNo}: stripped NUL byte(s)`)
+              return value.replaceAll('\u0000', '')
+            }
+            return value
+          }),
+        ]
+        return sql`(${sql.join(
+          params.map((param) => sql`${param}`),
+          sql`, `,
+        )})`
+      })
+      await db.execute(sql`${header}${sql.join(tuples, sql`, `)}`)
+    }
+    rows += table.rows.length
   }
 
-  return sha256(hashes.join('\n'))
+  return { checksum: sha256(hashes.join('\n')), rows }
 }
 
 export interface TransformReport {

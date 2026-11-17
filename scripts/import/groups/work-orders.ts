@@ -450,7 +450,14 @@ async function transformWorkOrder(context: TransformContext): Promise<void> {
   }
 
   const dateTaken = helpers.date('datetaken')
-  const invoicedOn = helpers.date('invdate')
+  // The legacy `invdate` is set on only a few hundred orders. The invoice was
+  // otherwise dated by the moment it was marked invoiced (a Unix time), then by
+  // the preview date; a work order with none of the three stays undated.
+  const markedStamp = await timestampOf(helpers, context, 'marked_invoiced_time')
+  const invoicedOn =
+    helpers.date('invdate') ??
+    (markedStamp === null ? null : markedStamp.slice(0, 10)) ??
+    helpers.date('calc_inv_date')
 
   const values: typeof workOrders.$inferInsert = {
     id,
@@ -999,7 +1006,6 @@ export const transformer: GroupTransformer = {
     'workorder.tech': 'assignment, not authorship; technician history lives on the hour lines',
     'workorder.tech_2': 'assignment, not authorship',
     'workorder.tech_labour_rate': 'rate lives on the hour lines that were actually worked',
-    'workorder.calc_inv_date': 'legacy invoice preview date; the invoice is rebuilt by invoicing',
     'workorder.wo_folder_attach_path':
       'local filesystem path; files are re-uploaded to object storage',
     'workorder.printed': 'print marker, no business meaning in the new model',
@@ -1014,7 +1020,6 @@ export const transformer: GroupTransformer = {
     'workorder.customer_quote_id':
       'quote linkage is authoritative from app.quotes.work_order_number',
     'workorder.is_pma_bckup': 'backup copy of is_pma_order',
-    'workorder.marked_invoiced_time': 'unix marker; invoiced_at carries the invoice date',
     'workorder.enable_sale_stock_upd_btn': 'UI permission hint',
     'workorder.assigned_dispatch_id': 'dispatch assignment, superseded by work_order_assignments',
     'workorder.pma_order_category': 'free-text PMA category; no lookup id on the target',
