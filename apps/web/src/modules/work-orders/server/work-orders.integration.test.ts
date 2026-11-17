@@ -21,10 +21,6 @@ import { ALL_PERMISSIONS, ConflictError, ForbiddenError, NotFoundError, Validati
 import { getDb, type Db, type Tx } from '@cls/db'
 import {
   customers,
-  legacyCustomer,
-  legacySites,
-  legacySubcontractor,
-  legacySubcontractorWsibInsuranceDocuments,
   legacyWoPriority,
   legacyWoServtype,
   sites,
@@ -122,62 +118,7 @@ async function seedReference(tx: Tx): Promise<void> {
       { id: 3, name: 'Normal' },
     ])
     .onConflictDoNothing()
-  await tx
-    .insert(legacyCustomer)
-    .values({ id: 990001, name: 'Integration Customer' })
-    .onConflictDoNothing()
-  await tx
-    .insert(legacySites)
-    .values({
-      id: 990001,
-      custid: 990001,
-      name: 'Integration Site',
-      street: '1 Test Way',
-      city: 'Toronto',
-      province: 'ON',
-      postalcode: 'M5V 0A1',
-    })
-    .onConflictDoNothing()
-  await tx
-    .insert(legacySubcontractor)
-    .values([
-      {
-        id: 990001,
-        name: 'Subcontractor A',
-        street: '2 Test Way',
-        city: 'Toronto',
-        province: 'ON',
-        postalcode: 'M5V 0A2',
-        cname: 'A Contact',
-        cnumber: '416-555-0001',
-        cemail1: 'a@example.test',
-      },
-      {
-        id: 990002,
-        name: 'Subcontractor B',
-        street: '3 Test Way',
-        city: 'Toronto',
-        province: 'ON',
-        postalcode: 'M5V 0A3',
-        cname: 'B Contact',
-        cnumber: '416-555-0002',
-        cemail1: 'b@example.test',
-      },
-    ])
-    .onConflictDoNothing()
-  await tx
-    .insert(legacySubcontractorWsibInsuranceDocuments)
-    .values({
-      subid: 990001,
-      documentType: 'WSIB',
-      documentName: 'WSIB certificate',
-      isExpired: 0,
-      expirationDate: '2099-01-01',
-    })
-
-  // The frozen lookup adapter reads the forward `app` master-data tables.
-  // Keep the legacy rows above for list.server's interim joins and mirror the
-  // same ids here so the adapter has an equivalent fixture.
+  // Lookups, the list and the detail read the forward `app` master-data tables.
   await tx
     .insert(customers)
     .values({ id: 990001, name: 'Integration Customer' })
