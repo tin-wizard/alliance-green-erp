@@ -24,7 +24,9 @@ export function NavLink({
       className="group flex h-9 items-center gap-2.5 rounded-[4px] px-3 text-[13px] font-medium text-[var(--shell-sidebar-fg-muted)] transition-colors hover:bg-[var(--shell-sidebar-hover)] hover:text-[var(--shell-sidebar-fg)]"
       activeProps={{
         className:
-          'bg-[var(--shell-sidebar-active-bg)] text-[var(--shell-sidebar-active-fg)] shadow-[inset_2px_0_0_0_var(--shell-sidebar-active-inset)]',
+          // Important, so the active colours beat the base and hover colours above:
+          // the active pill is white, and white text on it is invisible.
+          'bg-[var(--shell-sidebar-active-bg)]! text-[var(--shell-sidebar-active-fg)]! hover:bg-[var(--shell-sidebar-active-bg)]! hover:text-[var(--shell-sidebar-active-fg)]! shadow-[inset_2px_0_0_0_var(--shell-sidebar-active-inset)]',
       }}
     >
       <Icon size={18} strokeWidth={1.5} aria-hidden="true" className="shrink-0" />
