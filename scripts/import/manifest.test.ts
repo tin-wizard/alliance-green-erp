@@ -20,7 +20,7 @@ import {
   groupForTable,
 } from './manifest'
 
-/** The twelve import groups, in dependency order. */
+/** The thirteen import groups, in dependency order. */
 const GROUP_NAMES = [
   'lookups',
   'parties',
@@ -34,6 +34,7 @@ const GROUP_NAMES = [
   'invoicing-rga',
   'tjx',
   'messaging-history',
+  'bell',
 ] as const
 
 /**
@@ -118,13 +119,30 @@ const NEWLY_CLASSIFIED: Record<string, string> = {
   email_messages_to_sub: 'messaging-history',
   sub_stock_messages: 'messaging-history',
   sub_stock_notification: 'messaging-history',
+  // The Bell tables came with the 2026-11 dump and have a group of their own.
+  bell_room: 'bell',
+  bell_fixture: 'bell',
+  bell_fixture_parts: 'bell',
+  bell_rooms_template: 'bell',
+  bell_quote: 'bell',
+  bell_fixture_per_quote: 'bell',
+  bell_fixture_parts_per_quote: 'bell',
+  bell_quote_fixtures: 'bell',
+  bell_prices_per_quote: 'bell',
+  bell_quote_parts: 'bell',
+  bell_quote_soparts: 'bell',
+  bell_quote_revisions: 'bell',
+  bell_quote_downloads: 'bell',
+  bell_foot_candle_readings: 'bell',
+  bell_quote_extra_workorders: 'bell',
 }
 
 describe('manifest coverage', () => {
   it('classifies every legacy table, and none as unknown', () => {
     const unknown = LEGACY_TABLES.filter((table) => dispositionFor(table).kind === 'unknown')
     expect(unknown).toEqual([])
-    expect(LEGACY_TABLES.length).toBe(175)
+    // 175 tables in the original contract plus the 20 bell_* tables of the 2026-11 dump.
+    expect(LEGACY_TABLES.length).toBe(195)
   })
 
   it('gives every legacy table exactly one disposition', () => {
@@ -151,9 +169,9 @@ describe('manifest coverage', () => {
     }
   })
 
-  it('keeps the twelve groups in dependency order under their plan names', () => {
+  it('keeps the thirteen groups in dependency order under their plan names', () => {
     expect(GROUPS.map((group) => group.name)).toEqual([...GROUP_NAMES])
-    expect(GROUPS.map((group) => group.order)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+    expect(GROUPS.map((group) => group.order)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13])
   })
 
   it('reports a dated duplicate as skipped, never as loaded or excluded', () => {
@@ -212,7 +230,7 @@ describe('newly classified tables', () => {
     })
   })
 
-  it('leaves every group name one of the twelve', () => {
+  it('leaves every group name one of the thirteen', () => {
     for (const entry of ALL_TABLES) {
       const group = groupForTable(entry.table)
       expect(group, entry.table).toBeDefined()

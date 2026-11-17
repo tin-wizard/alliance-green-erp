@@ -96,7 +96,7 @@ function intOf(value: string | null | undefined): number | null {
  * whatever zone the migration machine happens to be in and shift every value, so
  * the offset is taken from the zone itself and the wall clock is preserved.
  */
-function instantOf(value: string | null): Date | undefined {
+export function instantOf(value: string | null): Date | undefined {
   if (value === null) return undefined
   const match = /^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2}))?)?/.exec(value.trim())
   if (!match) return undefined

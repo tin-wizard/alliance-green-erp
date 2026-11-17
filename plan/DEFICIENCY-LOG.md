@@ -40,7 +40,7 @@ carried with an owner, **S3** should be fixed, **S4** housekeeping.
 | ID | Sev | Deficiency |
 |---|---|---|
 | F1 | S1 | Email and CRM (Brevo). Needs an API key from the owner. "Boss hubs" is unexplained; ask before building. Closes the legacy gaps: Send Email, subcontractor mass email, customer emails. |
-| F2 | S2 | Bell quoting: 16 tables and data are loaded and reconcile, but there are no screens, server functions or pricing logic yet. |
+| F2 | S2 | Bell quoting: **Updated 2026-11-17.** Bell is now a harness group (`bell`, 15 tables, links quotes to sites, customers and work orders, records an exception for every dropped row; 5 lookup or empty tables are out of scope). There are still no screens, server functions or pricing logic. Production still holds the earlier script-loaded rows, so empty them before the production run (see PRODUCTION-LOAD B2). |
 | F3 | S2 | ServiceChannel integration (live), batch import, work-order split, admin settings. |
 | F4 | S2 | Notification transports are deferred (depends on F1). |
 | F5 | S3 | Legacy portal parity matrix (54 rows) has open rows; it was last checked before the database arrived. Recheck against the real data. |

@@ -4835,6 +4835,427 @@ CREATE TABLE `sub_stock_notification` (
 
 
 --
+-- Table structure for table `bell_room`
+--
+
+DROP TABLE IF EXISTS `bell_room`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = latin1 */;
+CREATE TABLE `bell_room` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `roomname` varchar(80) DEFAULT NULL,
+  `sortorder` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `bell_room`
+--
+
+/*!40000 ALTER TABLE `bell_room` DISABLE KEYS */;
+/*!40000 ALTER TABLE `bell_room` ENABLE KEYS */;
+
+
+--
+-- Table structure for table `bell_fixture`
+--
+
+DROP TABLE IF EXISTS `bell_fixture`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = latin1 */;
+CREATE TABLE `bell_fixture` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `fixturename` varchar(80) DEFAULT NULL,
+  `sortorder` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `bell_fixture`
+--
+
+/*!40000 ALTER TABLE `bell_fixture` DISABLE KEYS */;
+/*!40000 ALTER TABLE `bell_fixture` ENABLE KEYS */;
+
+
+--
+-- Table structure for table `bell_fixture_parts`
+--
+
+DROP TABLE IF EXISTS `bell_fixture_parts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = latin1 */;
+CREATE TABLE `bell_fixture_parts` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `partno` varchar(30) DEFAULT NULL,
+  `fixtureid` int(11) DEFAULT NULL,
+  `markup` varchar(10) DEFAULT NULL,
+  `parttype` enum('ballast','lamp','') DEFAULT NULL,
+  `part_ratio_perfixture` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `bell_fixture_parts`
+--
+
+/*!40000 ALTER TABLE `bell_fixture_parts` DISABLE KEYS */;
+/*!40000 ALTER TABLE `bell_fixture_parts` ENABLE KEYS */;
+
+
+--
+-- Table structure for table `bell_rooms_template`
+--
+
+DROP TABLE IF EXISTS `bell_rooms_template`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = latin1 */;
+CREATE TABLE `bell_rooms_template` (
+  `roomid` int(11) DEFAULT NULL,
+  `sortorder` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `bell_rooms_template`
+--
+
+/*!40000 ALTER TABLE `bell_rooms_template` DISABLE KEYS */;
+/*!40000 ALTER TABLE `bell_rooms_template` ENABLE KEYS */;
+
+
+--
+-- Table structure for table `bell_quote`
+--
+
+DROP TABLE IF EXISTS `bell_quote`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = latin1 */;
+CREATE TABLE `bell_quote` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `status` int(11) DEFAULT NULL,
+  `pdf_notes` text DEFAULT NULL,
+  `notes` longtext DEFAULT NULL,
+  `due_date` varchar(15) DEFAULT NULL,
+  `payment_terms` int(11) DEFAULT NULL,
+  `ceiling_grid_type` int(11) DEFAULT NULL,
+  `ship_address_contactname` text DEFAULT NULL,
+  `ship_address_company` text DEFAULT NULL,
+  `ship_address_street1` text DEFAULT NULL,
+  `ship_address_street2` text DEFAULT NULL,
+  `ship_address_city` text DEFAULT NULL,
+  `ship_address_province` text DEFAULT NULL,
+  `ship_address_postalcode` text DEFAULT NULL,
+  `ship_address_phone` text DEFAULT NULL,
+  `shipping_address` text DEFAULT NULL,
+  `createdby` int(11) DEFAULT NULL,
+  `date_created` datetime DEFAULT NULL,
+  `bellquote_folder_attach_path` varchar(200) DEFAULT NULL,
+  `revision_no` int(11) DEFAULT NULL,
+  `is_submitted` int(11) DEFAULT NULL,
+  `ship_to_type` varchar(15) DEFAULT NULL,
+  `site` int(11) DEFAULT NULL,
+  `workordernumber` varchar(20) DEFAULT NULL,
+  `tax_code` varchar(12) DEFAULT NULL,
+  `tax_amount` varchar(15) DEFAULT NULL,
+  `subtotal_amount` varchar(15) DEFAULT NULL,
+  `total_amount` varchar(15) DEFAULT NULL,
+  `withoutmarkup_tax_amount` varchar(15) DEFAULT NULL,
+  `withoutmarkup_subtotal_amount` varchar(15) DEFAULT NULL,
+  `withoutmarkup_total_amount` varchar(15) DEFAULT NULL,
+  `revision_notes` text DEFAULT NULL,
+  `quote_type` varchar(15) DEFAULT NULL,
+  `appliedtaxrate` varchar(12) DEFAULT NULL,
+  `is_type_maintenance` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `bell_quote`
+--
+
+/*!40000 ALTER TABLE `bell_quote` DISABLE KEYS */;
+/*!40000 ALTER TABLE `bell_quote` ENABLE KEYS */;
+
+
+--
+-- Table structure for table `bell_fixture_per_quote`
+--
+
+DROP TABLE IF EXISTS `bell_fixture_per_quote`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = latin1 */;
+CREATE TABLE `bell_fixture_per_quote` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `fixtureid` int(11) DEFAULT NULL,
+  `quoteid` int(11) DEFAULT NULL,
+  `fixturename` varchar(80) DEFAULT NULL,
+  `sortorder` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `bell_fixture_per_quote`
+--
+
+/*!40000 ALTER TABLE `bell_fixture_per_quote` DISABLE KEYS */;
+/*!40000 ALTER TABLE `bell_fixture_per_quote` ENABLE KEYS */;
+
+
+--
+-- Table structure for table `bell_fixture_parts_per_quote`
+--
+
+DROP TABLE IF EXISTS `bell_fixture_parts_per_quote`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = latin1 */;
+CREATE TABLE `bell_fixture_parts_per_quote` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `partno` varchar(30) DEFAULT NULL,
+  `quoteid` int(11) NOT NULL,
+  `fixtureid` int(11) DEFAULT NULL,
+  `markup` varchar(10) DEFAULT NULL,
+  `parttype` enum('ballast','lamp','') DEFAULT NULL,
+  `part_ratio_perfixture` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `bell_fixture_parts_per_quote`
+--
+
+/*!40000 ALTER TABLE `bell_fixture_parts_per_quote` DISABLE KEYS */;
+/*!40000 ALTER TABLE `bell_fixture_parts_per_quote` ENABLE KEYS */;
+
+
+--
+-- Table structure for table `bell_quote_fixtures`
+--
+
+DROP TABLE IF EXISTS `bell_quote_fixtures`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = latin1 */;
+CREATE TABLE `bell_quote_fixtures` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `roomid` int(11) DEFAULT NULL,
+  `fixtureid` int(11) DEFAULT NULL,
+  `totalfixtures` varchar(12) DEFAULT NULL,
+  `fix_gallery_folder_name` varchar(100) DEFAULT NULL,
+  `quoteid` int(11) DEFAULT NULL,
+  `sortorder` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `bell_quote_fixtures`
+--
+
+/*!40000 ALTER TABLE `bell_quote_fixtures` DISABLE KEYS */;
+/*!40000 ALTER TABLE `bell_quote_fixtures` ENABLE KEYS */;
+
+
+--
+-- Table structure for table `bell_prices_per_quote`
+--
+
+DROP TABLE IF EXISTS `bell_prices_per_quote`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = latin1 */;
+CREATE TABLE `bell_prices_per_quote` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `quoteid` int(11) NOT NULL,
+  `partno` varchar(20) NOT NULL,
+  `price` varchar(25) DEFAULT NULL,
+  `last_price` varchar(25) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `bell_prices_per_quote`
+--
+
+/*!40000 ALTER TABLE `bell_prices_per_quote` DISABLE KEYS */;
+/*!40000 ALTER TABLE `bell_prices_per_quote` ENABLE KEYS */;
+
+
+--
+-- Table structure for table `bell_quote_parts`
+--
+
+DROP TABLE IF EXISTS `bell_quote_parts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = latin1 */;
+CREATE TABLE `bell_quote_parts` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `quoteid` int(11) NOT NULL,
+  `partno` varchar(30) NOT NULL,
+  `fixtured_partno` varchar(30) DEFAULT NULL,
+  `qty` int(11) NOT NULL,
+  `without_markup_qty` int(11) DEFAULT NULL,
+  `price` decimal(7,2) DEFAULT NULL,
+  `sortorder` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `bell_quote_parts`
+--
+
+/*!40000 ALTER TABLE `bell_quote_parts` DISABLE KEYS */;
+/*!40000 ALTER TABLE `bell_quote_parts` ENABLE KEYS */;
+
+
+--
+-- Table structure for table `bell_quote_soparts`
+--
+
+DROP TABLE IF EXISTS `bell_quote_soparts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = latin1 */;
+CREATE TABLE `bell_quote_soparts` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `quoteid` int(11) NOT NULL,
+  `name` varchar(150) DEFAULT NULL,
+  `qty` int(11) DEFAULT NULL,
+  `price` decimal(7,2) DEFAULT NULL,
+  `sortorder` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `bell_quote_soparts`
+--
+
+/*!40000 ALTER TABLE `bell_quote_soparts` DISABLE KEYS */;
+/*!40000 ALTER TABLE `bell_quote_soparts` ENABLE KEYS */;
+
+
+--
+-- Table structure for table `bell_quote_revisions`
+--
+
+DROP TABLE IF EXISTS `bell_quote_revisions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = latin1 */;
+CREATE TABLE `bell_quote_revisions` (
+  `revision_id` int(11) NOT NULL AUTO_INCREMENT,
+  `quoteid` int(11) DEFAULT NULL,
+  `created_time` timestamp DEFAULT NULL,
+  `revised_by_user` int(11) DEFAULT NULL,
+  `revision_type` varchar(45) DEFAULT NULL,
+  `data_quote` text DEFAULT NULL,
+  `data_fixtures` text DEFAULT NULL,
+  `data_parts` longtext DEFAULT NULL,
+  `data_soparts` text DEFAULT NULL,
+  PRIMARY KEY (`revision_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `bell_quote_revisions`
+--
+
+/*!40000 ALTER TABLE `bell_quote_revisions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `bell_quote_revisions` ENABLE KEYS */;
+
+
+--
+-- Table structure for table `bell_quote_downloads`
+--
+
+DROP TABLE IF EXISTS `bell_quote_downloads`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = latin1 */;
+CREATE TABLE `bell_quote_downloads` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `quoteid` int(11) DEFAULT NULL,
+  `filename` varchar(50) DEFAULT NULL,
+  `downloadbyname` varchar(30) DEFAULT NULL,
+  `foldername` varchar(20) DEFAULT NULL,
+  `datecreated` datetime DEFAULT NULL,
+  `download_revision_notes` text DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `bell_quote_downloads`
+--
+
+/*!40000 ALTER TABLE `bell_quote_downloads` DISABLE KEYS */;
+/*!40000 ALTER TABLE `bell_quote_downloads` ENABLE KEYS */;
+
+
+--
+-- Table structure for table `bell_foot_candle_readings`
+--
+
+DROP TABLE IF EXISTS `bell_foot_candle_readings`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = latin1 */;
+CREATE TABLE `bell_foot_candle_readings` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `quoteid` int(11) DEFAULT NULL,
+  `fr_reading` varchar(50) DEFAULT NULL,
+  `fc_reading` varchar(50) DEFAULT NULL,
+  `fl_reading` varchar(50) DEFAULT NULL,
+  `cr_reading` varchar(50) DEFAULT NULL,
+  `c_reading` varchar(50) DEFAULT NULL,
+  `cl_reading` varchar(50) DEFAULT NULL,
+  `br_reading` varchar(50) DEFAULT NULL,
+  `bc_reading` varchar(50) DEFAULT NULL,
+  `bl_reading` varchar(50) DEFAULT NULL,
+  `ftr_reading` varchar(50) DEFAULT NULL,
+  `ftr_stall_reading` varchar(50) DEFAULT NULL,
+  `sortorder` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `bell_foot_candle_readings`
+--
+
+/*!40000 ALTER TABLE `bell_foot_candle_readings` DISABLE KEYS */;
+/*!40000 ALTER TABLE `bell_foot_candle_readings` ENABLE KEYS */;
+
+
+--
+-- Table structure for table `bell_quote_extra_workorders`
+--
+
+DROP TABLE IF EXISTS `bell_quote_extra_workorders`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = latin1 */;
+CREATE TABLE `bell_quote_extra_workorders` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `quoteid` int(11) DEFAULT NULL,
+  `woid` int(11) DEFAULT NULL,
+  `is_project_workorder` int(11) DEFAULT NULL,
+  `sortorder` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `bell_quote_extra_workorders`
+--
+
+/*!40000 ALTER TABLE `bell_quote_extra_workorders` DISABLE KEYS */;
+/*!40000 ALTER TABLE `bell_quote_extra_workorders` ENABLE KEYS */;
+
+
+--
 -- Table structure for table `inv_parts_july_20_2025`
 --
 
