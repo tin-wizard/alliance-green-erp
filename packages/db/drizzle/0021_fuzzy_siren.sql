@@ -1,0 +1,3 @@
+ALTER TABLE "app"."sage_postings" DROP CONSTRAINT "sage_postings_status_check";--> statement-breakpoint
+ALTER TABLE "app"."sage_postings" ADD COLUMN "claimed_at" timestamp with time zone;--> statement-breakpoint
+ALTER TABLE "app"."sage_postings" ADD CONSTRAINT "sage_postings_status_check" CHECK ("app"."sage_postings"."status" in ('queued','processing','sent','unknown','failed','dead_letter','cancelled'));

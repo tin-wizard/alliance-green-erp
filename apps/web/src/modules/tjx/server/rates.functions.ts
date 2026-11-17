@@ -4,7 +4,7 @@ import { listRateSchema, saveRatesSchema } from '../lib/masters.validation'
 
 export const listTjxRatesFn = createServerFn({ method: 'GET' })
   .validator((input: unknown) => listRateSchema.parse(input))
-  .middleware([permissionMiddleware('tjx:read')])
+  .middleware([permissionMiddleware('report.download_rates')])
   .handler(async ({ data }) => {
     const { listRates } = await import('./rates.server')
     const { getDb } = await import('@cls/db')
@@ -13,7 +13,10 @@ export const listTjxRatesFn = createServerFn({ method: 'GET' })
 
 export const saveTjxRatesFn = createServerFn({ method: 'POST' })
   .validator((input: unknown) => saveRatesSchema.parse(input))
-  .middleware([permissionMiddleware('tjx:write')])
+  .middleware([
+    permissionMiddleware('report.download_rates'),
+    permissionMiddleware('tjx:write'),
+  ])
   .handler(async ({ data, context }) => {
     const { saveRatesCore } = await import('./rates.server')
     const { getDb } = await import('@cls/db')

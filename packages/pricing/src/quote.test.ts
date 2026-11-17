@@ -48,6 +48,21 @@ describe('quote calculator contract', () => {
     expect(totals.total).toBe('101.23')
   })
 
+  test('PHP empty() means zero techs become one, but "0.00" stays zero', () => {
+    expect(
+      calculateQuoteTotals({
+        taxProvince: 'ON',
+        labour: [{ hours: '2', numTechs: '0', rate: '85.00' }],
+      }).labour,
+    ).toBe('170.00')
+    expect(
+      calculateQuoteTotals({
+        taxProvince: 'ON',
+        labour: [{ hours: '2', numTechs: '0.00', rate: '85.00' }],
+      }).labour,
+    ).toBe('0.00')
+  })
+
   test('a blank manual tax leaves the calculated tax in place', () => {
     const totals = calculateQuoteTotals({
       taxProvince: 'ON',

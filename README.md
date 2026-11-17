@@ -2,8 +2,9 @@
 
 Rebuild of the Alliance Lighting workorder system (the "CLS Green System") as a local-first ERP.
 TanStack Start + React 19 + TypeScript, Drizzle ORM, Neon Postgres, Neon Auth, Neon Object
-Storage, Neon AI Gateway (wired, unfunded), and a preserved Sage 50 MySQL connection for the LAN
-host that runs Sage.
+Storage, Neon AI Gateway (wired, unfunded), and Sage Business Cloud Accounting over its REST API
+(OAuth 2.0, sandbox and production ledgers). The legacy Sage 50 company file is read once, during
+migration, for history and receipts; the app never talks to it.
 
 The legacy PHP application remains at `../CLS-Green System` as a read-only reference. This
 repository is the replacement.
@@ -20,7 +21,8 @@ Foundation scaffold, bootable and verified:
 - AI Gateway client seam, feature-flagged off (`credits_required`)
 - app shell (sidebar, top bar, dashboard, admin users, settings and activity log)
 - health, readiness and liveness endpoints covering every service
-- Sage 50 discovery and connection verification (MySQL sentinel, 13541 first)
+- Sage Business Cloud Accounting integration: OAuth consent, quota governor, idempotent posting
+  outbox (claim, call, record, dead letters) and daily reconciliation
 - design tokens adopted from the design agent, no placeholder palette
 
 Business modules built: work orders, quotes, master data, purchasing, inventory,
@@ -90,7 +92,7 @@ apps/web/            TanStack Start application and shell
 packages/core/       env, errors, logger, status vocabulary, permissions
 packages/db/         app schema, generated legacy mirror, client, migrations, seed
 packages/auth/       Neon Auth client, JWT verification, sealed cookie, RBAC, audit
-packages/sage/       Sage 50 adapter (MySQL sentinel discovery + connection verification)
+packages/sage/       Sage Business Cloud Accounting adapter (OAuth, posting, reconciliation)
 packages/storage/    object storage adapter (Neon S3 + local fallback)
 packages/ai/         Neon AI Gateway client seam (disabled until funded)
 packages/ui/         design tokens (adopted) and cn()
@@ -112,8 +114,8 @@ e2e/                 Playwright specs
 
 ## Requirements
 
-Node.js 22.12+ and pnpm 12. The production host should be the machine running Sage 50, because
-the Sage adapter preserves the legacy localhost MySQL probe (13541 first, sentinel-verified).
+Node.js 22.12+ and pnpm 12. There is no LAN host requirement: Sage is reached over HTTPS, so the
+app runs anywhere it can reach Postgres, Neon and `api.accounting.sage.com`.
 
 ## Secrets
 

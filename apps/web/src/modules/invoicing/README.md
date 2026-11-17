@@ -10,7 +10,8 @@ the only place that issues, rejects, posts and records payments.
   operator-posted totals and never recalculates them on save (A5). Preview is a
   separate `invoice.calculate` call (D13).
 - Labour is mandatory on save and issue. Negative quantities and prices are
-  legal because credits use them (A7/A8).
+  legal because credits use them (A7/A8). The `---` part placeholder is rejected
+  in the calculator, the Zod entry schemas, draft save and the Sage payload (C6).
 - Saving replaces the whole line set; there is no line-level edit (B1).
 - Issue is the only path that creates the PDF, queues the Sage outbox row and
   increments the version. Reject records the reason and snapshot in

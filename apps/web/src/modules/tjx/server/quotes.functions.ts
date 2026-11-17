@@ -45,6 +45,8 @@ export const saveTjxQuoteFn = createServerFn({ method: 'POST' })
   .validator((input: unknown) => saveQuoteSchema.parse(input))
   .middleware([permissionMiddleware('tjx:write')])
   .handler(async ({ data, context }) => {
+    const { warnUnknownSalesProvince } = await import('../../../server/province.server')
+    warnUnknownSalesProvince(data.taxProvince, 'tjx.quote.save')
     const { saveQuoteCore } = await import('./quotes.server')
     const { getDb } = await import('@cls/db')
     return getDb().transaction((tx) => saveQuoteCore(tx, data, context.session))

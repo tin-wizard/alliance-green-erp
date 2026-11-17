@@ -14,6 +14,8 @@ export default tseslint.config(
       'coverage/**',
       'playwright-report/**',
       'test-results/**',
+      // Nested agent worktrees and their build output are not this checkout.
+      '**/.claude/**',
     ],
   },
   js.configs.recommended,

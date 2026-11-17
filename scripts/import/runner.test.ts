@@ -164,11 +164,22 @@ describe.skipIf(!databaseConfigured())('loadSource', () => {
   }, 30_000)
 
   it('never stages legacy credentials, but still hashes the real value', async () => {
+    // Built at runtime so no credential-shaped literal is committed.
+    const fakeSecret = (label: string) => ['fixture', label, 'value'].join('-')
     const secretUsers: SourceTable = {
       table: 'users',
       columns: ['id', 'username', 'password', 'mailing_password', 'cls_mailing_password'],
       rows: [
-        { rowNo: 1, values: { id: '10', username: 'gene', password: 'a3f1md5placeholder', mailing_password: 'smtp-secret', cls_mailing_password: 'smtp-secret-2' } },
+        {
+          rowNo: 1,
+          values: {
+            id: '10',
+            username: 'gene',
+            password: fakeSecret('login'),
+            mailing_password: fakeSecret('mail'),
+            cls_mailing_password: fakeSecret('cls-mail'),
+          },
+        },
       ],
     }
     const first = await loadSource(db, fakeSource([secretUsers]), DUMP_ID)
@@ -179,7 +190,7 @@ describe.skipIf(!databaseConfigured())('loadSource', () => {
     expect(row?.cls_mailing_password).toBeNull()
 
     // The checksum comes from the real values, so a changed password is still a changed dump.
-    const changed = { ...secretUsers, rows: [{ rowNo: 1, values: { ...secretUsers.rows[0]!.values, password: 'different' } }] }
+    const changed = { ...secretUsers, rows: [{ rowNo: 1, values: { ...secretUsers.rows[0]!.values, password: fakeSecret('changed') } }] }
     const second = await loadSource(db, fakeSource([changed]), DUMP_ID)
     expect(second.tables.find((t) => t.table === 'users')?.checksum).not.toBe(
       first.tables.find((t) => t.table === 'users')?.checksum,

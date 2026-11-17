@@ -332,8 +332,15 @@ function InvoiceDetailBody({ detail }: { detail: InvoiceDetail }) {
               </div>
             ) : null}
             <p className="text-[12px] text-fg-muted">
-              Sage: {detail.sagePosting ? `${detail.sagePosting.status} (${detail.sagePosting.externalRef})` : 'not queued'}. Posting never blocks issue.
+              Sage:{' '}
+              {detail.sagePosting
+                ? `${detail.sagePosting.status} (${detail.sagePosting.externalRef}, attempt ${detail.sagePosting.attempt})`
+                : 'not queued'}
+              . Posting never blocks issue.
             </p>
+            {detail.sagePosting?.lastError && detail.sagePosting.status !== 'sent' ? (
+              <p className="text-[12px] text-danger">{detail.sagePosting.lastError}</p>
+            ) : null}
           </div>
         </Card>
 

@@ -31,12 +31,10 @@ export async function loadPurchaseOrder(
   session: AuthSessionView,
   id: number,
   executor: Executor,
+  forUpdate = false,
 ): Promise<PurchaseOrderRow> {
-  const [row] = await executor
-    .select()
-    .from(purchaseOrders)
-    .where(eq(purchaseOrders.id, id))
-    .limit(1)
+  const query = executor.select().from(purchaseOrders).where(eq(purchaseOrders.id, id)).limit(1)
+  const [row] = forUpdate ? await query.for('update') : await query
   if (!row) throw new NotFoundError('Purchase order')
 
   // Supplier accounts are always scoped to their own supplier record.

@@ -10,7 +10,7 @@
  * snapshot) and the authorization denials: subcontractor cross-tenant and
  * technician unassigned.
  */
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { describe, expect, test, vi } from 'vitest'
 
 // The Neon branch is remote; each test opens a transaction and runs several
@@ -20,12 +20,14 @@ import { getConfig } from '@cls/core/env.server'
 import { ALL_PERMISSIONS, ConflictError, ForbiddenError, NotFoundError, ValidationError } from '@cls/core'
 import { getDb, type Db, type Tx } from '@cls/db'
 import {
+  auditLog,
   customers,
   legacyWoPriority,
   legacyWoServtype,
   sites,
   subcontractorDocuments,
   subcontractors,
+  users,
   workOrderNumberSeries,
   workOrderRevisions,
   workOrders,
@@ -38,6 +40,7 @@ import { captureHoursCore, capturePartsCore } from './capture.server'
 import { updateWorkOrderCore } from './update.server'
 import { buildInvoiceReadySnapshot } from './snapshot.server'
 import { loadAccessibleWorkOrder, resolveScope } from './access.server'
+import { bulkUpdate } from './bulk.server'
 import { queryWorkOrders } from './list.server'
 import { allocateWorkOrderNumber } from './numbering.server'
 import { setSageNumberCollisionSourceForTests } from './sage-collisions.server'
@@ -408,6 +411,101 @@ describe.skipIf(!databaseConfigured())('work order server functions', () => {
         ),
       ).rejects.toBeInstanceOf(ConflictError)
     })
+  })
+
+  test('bulk priority and assignment do not overwrite a concurrent change', async () => {
+    const db = getDb()
+    const raceUserId = '00000000-0000-4000-8000-00000000f2a1'
+    let workOrderId: number | undefined
+    try {
+      await db.transaction(async (tx) => {
+        await seedReference(tx)
+        await tx
+          .insert(users)
+          .values({
+            id: raceUserId,
+            email: 'wo-bulk-race@example.test',
+            username: 'wo-bulk-race',
+            displayName: 'Bulk Race Admin',
+            role: 'admin',
+          })
+          .onConflictDoNothing()
+        const created = await createWorkOrderCore(
+          tx,
+          { ...baseInput, siteId: 990001 },
+          session({ id: raceUserId }),
+        )
+        workOrderId = created.id
+      })
+      const admin = session({ id: raceUserId })
+      const id = workOrderId!
+
+      const holdUpdate = async (set: { version: number; priorityId?: number; subcontractorId?: number }) => {
+        let release = () => {}
+        const held = new Promise<void>((resolve) => {
+          release = resolve
+        })
+        let locked = () => {}
+        const hasLock = new Promise<void>((resolve) => {
+          locked = resolve
+        })
+        const running = db.transaction(async (tx) => {
+          await tx
+            .update(workOrders)
+            .set({ ...set, updatedBy: raceUserId, updatedAt: new Date() })
+            .where(eq(workOrders.id, id))
+          locked()
+          await held
+        })
+        await hasLock
+        return { release, running }
+      }
+
+      const priorityHold = await holdUpdate({ priorityId: 3, version: 2 })
+      const priorityResult = bulkUpdate(
+        { ids: [id], change: { kind: 'priority', priorityId: 3 } },
+        admin,
+      )
+      await new Promise((resolve) => setTimeout(resolve, 300))
+      priorityHold.release()
+      await priorityHold.running
+      expect(await priorityResult).toEqual({
+        updated: [],
+        rejected: [{ id, reason: expect.stringMatching(/changed since/) }],
+      })
+
+      const assignmentHold = await holdUpdate({ subcontractorId: 990002, version: 3 })
+      const assignmentResult = bulkUpdate(
+        {
+          ids: [id],
+          change: { kind: 'assign_subcontractor', subcontractorId: 990001 },
+        },
+        admin,
+      )
+      await new Promise((resolve) => setTimeout(resolve, 300))
+      assignmentHold.release()
+      await assignmentHold.running
+      expect(await assignmentResult).toEqual({
+        updated: [],
+        rejected: [{ id, reason: expect.stringMatching(/changed since/) }],
+      })
+
+      const [final] = await db
+        .select({ version: workOrders.version })
+        .from(workOrders)
+        .where(eq(workOrders.id, id))
+      expect(final?.version).toBe(3)
+    } finally {
+      if (workOrderId !== undefined) {
+        await db
+          .delete(auditLog)
+          .where(
+            and(eq(auditLog.entityType, 'work_order'), eq(auditLog.entityId, String(workOrderId))),
+          )
+        await db.delete(workOrders).where(eq(workOrders.id, workOrderId))
+      }
+      await db.delete(users).where(eq(users.id, raceUserId))
+    }
   })
 
   test('strict numbering skips an app-side collision and the counter persists', async () => {

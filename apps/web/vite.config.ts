@@ -5,7 +5,7 @@ import tailwindcss from '@tailwindcss/vite'
 import { nitro } from 'nitro/vite'
 
 // TanStack Start -> Vite -> Nitro (node-server). The output is one Node process
-// that can run on the LAN host next to Sage 50. See docs/adr/0002.
+// that can run on the LAN host. See docs/adr/0002.
 export default defineConfig({
   server: {
     port: Number(process.env.PORT ?? 3000),

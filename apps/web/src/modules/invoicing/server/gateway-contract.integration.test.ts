@@ -1,7 +1,7 @@
 /**
  * Gateway contract tests.
  *
- * The invoicing worker (`processSagePostingCore`) is written against
+ * The invoicing worker (`processSagePosting`) is written against
  * `SageInvoiceGateway`. This file runs the same worker through both
  * implementations of that interface:
  *
@@ -12,7 +12,7 @@
  * If the two diverge, the outbox will behave differently in production than in
  * every other test, which is exactly the failure this file exists to prevent.
  */
-import { eq } from 'drizzle-orm'
+import { and, eq, inArray } from 'drizzle-orm'
 import { describe, expect, test, vi } from 'vitest'
 
 vi.setConfig({ testTimeout: 90_000, hookTimeout: 90_000 })
@@ -38,7 +38,12 @@ import {
 } from '@cls/sage'
 import type { AuthSessionView } from '../../../server/auth.types'
 import { createInvoiceFromSnapshotCore, issueInvoiceCore } from './sales.server'
-import { processSagePostingCore } from './posting.server'
+import {
+  SAGE_POSTING_MAX_ATTEMPTS,
+  SAGE_POSTING_STALE_CLAIM_MS,
+  claimSagePosting,
+  processSagePosting,
+} from './posting.server'
 
 function databaseConfigured(): boolean {
   try {
@@ -48,20 +53,7 @@ function databaseConfigured(): boolean {
   }
 }
 
-class Rollback extends Error {}
-
-async function inRollback(fn: (tx: Tx) => Promise<void>): Promise<void> {
-  try {
-    await getDb().transaction(async (tx) => {
-      await fn(tx)
-      throw new Rollback()
-    })
-  } catch (error) {
-    if (!(error instanceof Rollback)) throw error
-  }
-}
-
-const ADMIN_ID = '00000000-0000-4000-8000-0000000000b1'
+const ADMIN_ID = '00000000-0000-4000-8000-0000000000fd'
 
 function adminSession(): AuthSessionView {
   return {
@@ -170,16 +162,14 @@ describe.skipIf(!databaseConfigured())('SageInvoiceGateway contract', () => {
     describe(testCase.label, () => {
       test('a queued invoice posts once and links to the ledger', async () => {
         const installed = testCase.install()
-        await inRollback(async (tx) => {
-          await seed(tx)
-          const { invoiceId, externalRef } = await createAndQueue(tx)
-          const postingId = await postingIdFor(tx, invoiceId)
-
-          const result = await processSagePostingCore(tx, postingId, null)
+        const { externalRef, postingId } = await freshInvoice()
+        try {
+          const result = await processSagePosting(postingId, null)
           expect(result.status).toBe('sent')
           expect(result.externalId).toBeTruthy()
 
-          const [link] = await tx
+          const db = getDb()
+          const [link] = await db
             .select()
             .from(sageLinks)
             .where(eq(sageLinks.externalRef, externalRef))
@@ -188,56 +178,162 @@ describe.skipIf(!databaseConfigured())('SageInvoiceGateway contract', () => {
           const found = await installed.gateway.findSalesInvoice(externalRef)
           expect(found).toBe(result.externalId)
           expect(installed.ledgerSize()).toBeLessThanOrEqual(1)
-        })
+        } finally {
+          await cleanup()
+        }
       })
 
       test('draining twice does not create a second document', async () => {
         testCase.install()
-        await inRollback(async (tx) => {
-          await seed(tx)
-          const { invoiceId } = await createAndQueue(tx)
-          const postingId = await postingIdFor(tx, invoiceId)
-
-          const first = await processSagePostingCore(tx, postingId, null)
-          const second = await processSagePostingCore(tx, postingId, null)
+        const { invoiceId, postingId } = await freshInvoice()
+        try {
+          const first = await processSagePosting(postingId, null)
+          const second = await processSagePosting(postingId, null)
           expect({ status: first.status, error: first.error }).toEqual({ status: 'sent', error: null })
           expect(second.status).toBe('sent')
           expect(second.externalId).toBe(first.externalId)
 
-          const links = await tx
+          const links = await getDb()
             .select()
             .from(sageLinks)
             .where(eq(sageLinks.docId, invoiceId))
           expect(links).toHaveLength(1)
-        })
+        } finally {
+          await cleanup()
+        }
       })
 
       test('a failed posting leaves the issued invoice intact and can be retried', async () => {
         const installed = testCase.install()
         installed.fail?.()
-        await inRollback(async (tx) => {
-          await seed(tx)
-          const { invoiceId } = await createAndQueue(tx)
-          const postingId = await postingIdFor(tx, invoiceId)
-
-          const failed = await processSagePostingCore(tx, postingId, null)
+        const { invoiceId, postingId } = await freshInvoice()
+        try {
+          const failed = await processSagePosting(postingId, null)
           expect(failed.status).toBe('failed')
           expect(failed.error).toBeTruthy()
 
-          const [invoice] = await tx
+          const db = getDb()
+          const [invoice] = await db
             .select()
             .from(salesInvoices)
             .where(eq(salesInvoices.id, invoiceId))
           expect(invoice?.status).toBe('issued')
 
           installed.recover?.()
-          const retried = await processSagePostingCore(tx, postingId, null)
+          const retried = await processSagePosting(postingId, null)
           expect({ status: retried.status, error: retried.error }).toEqual({ status: 'sent', error: null })
-        })
+        } finally {
+          await cleanup()
+        }
+      })
+
+      test('a poisoned posting stops retrying at the attempt cap', async () => {
+        const installed = testCase.install()
+        installed.fail?.()
+        const { postingId } = await freshInvoice()
+        try {
+          const db = getDb()
+          // One attempt short of the cap: the next failure must dead-letter it.
+          await db
+            .update(sagePostings)
+            .set({ attempt: SAGE_POSTING_MAX_ATTEMPTS - 1 })
+            .where(eq(sagePostings.id, postingId))
+
+          const failed = await processSagePosting(postingId, null)
+          expect(failed.status).toBe('dead_letter')
+
+          const [row] = await db.select().from(sagePostings).where(eq(sagePostings.id, postingId))
+          expect({ status: row?.status, attempt: row?.attempt }).toEqual({
+            status: 'dead_letter',
+            attempt: SAGE_POSTING_MAX_ATTEMPTS,
+          })
+          expect(row?.lastError).toBeTruthy()
+
+          // Dead letters are not picked up again, so a poisoned row cannot burn
+          // a Sage call every tick.
+          const again = await processSagePosting(postingId, null)
+          expect(again.status).toBe('dead_letter')
+        } finally {
+          await cleanup()
+        }
+      })
+
+      test('an accepted document is linked, not re-posted, when the outcome write was lost', async () => {
+        const installed = testCase.install()
+        const { externalRef, postingId } = await freshInvoice()
+        try {
+          // Claim commits on its own; then Sage accepts and the process dies
+          // before the outcome transaction runs.
+          const claim = await getDb().transaction((tx) => claimSagePosting(tx, postingId))
+          if (claim.kind !== 'claimed') throw new Error('expected the row to be claimable')
+          const accepted = await installed.gateway.postSalesInvoice(claim.posting.payload as never)
+          // Age the claim past the stale window, the way a real crash minutes
+          // ago would look to the next tick.
+          await getDb()
+            .update(sagePostings)
+            .set({ claimedAt: new Date(Date.now() - SAGE_POSTING_STALE_CLAIM_MS - 60_000) })
+            .where(eq(sagePostings.id, postingId))
+
+          const replay = await processSagePosting(postingId, null)
+          expect({ status: replay.status, externalId: replay.externalId }).toEqual({
+            status: 'sent',
+            externalId: accepted.externalId,
+          })
+
+          const db = getDb()
+          const [row] = await db.select().from(sagePostings).where(eq(sagePostings.id, postingId))
+          expect((row?.response as { duplicate?: boolean } | null)?.duplicate).toBe(true)
+          const [link] = await db
+            .select()
+            .from(sageLinks)
+            .where(eq(sageLinks.externalRef, externalRef))
+          expect(link?.externalId).toBe(accepted.externalId)
+          expect(installed.ledgerSize()).toBeLessThanOrEqual(1)
+        } finally {
+          await cleanup()
+        }
       })
     })
   }
 })
+
+const WORK_ORDER_ID = 9_410_001
+const SITE_ID = 9_410_001
+
+/** Leave the fixture committed, because the worker opens its own transactions. */
+async function freshInvoice(): Promise<{
+  invoiceId: number
+  externalRef: string
+  postingId: number
+}> {
+  await cleanup()
+  return getDb().transaction(async (tx) => {
+    await seed(tx)
+    const created = await createAndQueue(tx)
+    const postingId = await postingIdFor(tx, created.invoiceId)
+    return { ...created, postingId }
+  })
+}
+
+async function cleanup(): Promise<void> {
+  const db = getDb()
+  const invoices = await db
+    .select({ id: salesInvoices.id })
+    .from(salesInvoices)
+    .where(eq(salesInvoices.workOrderId, WORK_ORDER_ID))
+  const ids = invoices.map((row) => row.id)
+  if (ids.length > 0) {
+    await db
+      .delete(sageLinks)
+      .where(and(eq(sageLinks.docType, 'sales_invoice'), inArray(sageLinks.docId, ids)))
+    await db
+      .delete(sagePostings)
+      .where(and(eq(sagePostings.docType, 'sales_invoice'), inArray(sagePostings.docId, ids)))
+  }
+  await db.delete(workOrders).where(eq(workOrders.id, WORK_ORDER_ID))
+  await db.delete(sites).where(eq(sites.id, SITE_ID))
+  await db.delete(users).where(eq(users.id, ADMIN_ID))
+}
 
 async function postingIdFor(tx: Tx, invoiceId: number): Promise<number> {
   const [posting] = await tx

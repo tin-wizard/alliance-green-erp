@@ -18,6 +18,7 @@ import { ALL_PERMISSIONS, NotFoundError, ValidationError } from '@cls/core'
 import { getDb, type Tx } from '@cls/db'
 import {
   invoiceLabourLines,
+  invoicePartLines,
   sageLinks,
   sagePostings,
   salesInvoices,
@@ -41,7 +42,9 @@ import {
 } from './sales.server'
 import { getInvoiceDetail } from './get.server'
 import {
-  processSagePostingCore,
+  claimSagePosting,
+  queueSalesInvoicePostingCore,
+  recordSagePostingOutcome,
   recordStockPostingCore,
 } from './posting.server'
 import { regenerateInvoiceDocument, renderInvoicePdfCore } from './pdf.server'
@@ -73,9 +76,9 @@ async function inRollback(fn: (tx: Tx) => Promise<void>): Promise<void> {
   }
 }
 
-const ADMIN_ID = '00000000-0000-4000-8000-0000000000a1'
-const SUB_USER = '00000000-0000-4000-8000-0000000000a2'
-const OTHER_SUB_USER = '00000000-0000-4000-8000-0000000000a3'
+const ADMIN_ID = '00000000-0000-4000-8000-0000000000fa'
+const SUB_USER = '00000000-0000-4000-8000-0000000000fb'
+const OTHER_SUB_USER = '00000000-0000-4000-8000-0000000000fc'
 
 function adminSession(): AuthSessionView {
   return {
@@ -393,16 +396,77 @@ describe.skipIf(!databaseConfigured())('Invoicing lifecycle', () => {
         .select()
         .from(sagePostings)
         .where(eq(sagePostings.docId, second.invoiceId))
-      const first = await processSagePostingCore(tx, posting!.id, session)
-      expect(first.status).toBe('sent')
-      const again = await processSagePostingCore(tx, posting!.id, session)
-      expect(again.status).toBe('sent')
-      expect(again.externalId).toBe(first.externalId)
+      // The worker's two transactions are driven by hand here so the test can
+      // roll back; the gateway call itself is covered in the gateway contract.
+      const first = await claimSagePosting(tx, posting!.id)
+      expect(first.kind).toBe('claimed')
+      if (first.kind !== 'claimed') throw new Error('expected a claim')
+      const sent = await recordSagePostingOutcome(
+        tx,
+        first.posting,
+        { ok: true, externalId: 'TEST-EXT-1', duplicate: false },
+        session,
+      )
+      expect(sent.status).toBe('sent')
+      const again = await claimSagePosting(tx, posting!.id)
+      expect(again).toMatchObject({ kind: 'done', result: { status: 'sent', externalId: 'TEST-EXT-1' } })
       const links = await tx
         .select()
         .from(sageLinks)
         .where(eq(sageLinks.externalRef, `cls:sales_invoice:${second.invoiceId}`))
       expect(links).toHaveLength(1)
+    })
+  })
+
+  test('the --- part placeholder is rejected before and at the Sage boundary', async () => {
+    resetSageInvoiceGateway()
+    await inRollback(async (tx) => {
+      await seed(tx)
+      const session = adminSession()
+      const created = await createInvoiceFromSnapshotCore(tx, { workOrderId: 9_400_001 }, session)
+
+      await expect(
+        saveInvoiceDraftCore(
+          tx,
+          {
+            invoiceId: created.invoiceId,
+            version: created.version,
+            taxProvince: 'ON',
+            labour: [
+              {
+                date: '2026-02-01',
+                hours: '1.00',
+                rateCode: 1,
+                hourlyRate: '10.00',
+              },
+            ],
+            parts: [
+              { partNo: '---', qty: '1', price: '5.00', isLocalPart: false },
+            ],
+            specialParts: [],
+            totals: {
+              labour: '10.00',
+              material: '5.00',
+              subtotal: '15.00',
+              tax: '1.95',
+              total: '16.95',
+            },
+          },
+          session,
+        ),
+      ).rejects.toThrow(/placeholder/i)
+
+      await tx.insert(invoicePartLines).values({
+        invoiceId: created.invoiceId,
+        position: 1,
+        partNo: '---',
+        qty: '1.00',
+        price: '5.00',
+        amount: '5.00',
+      })
+      await expect(
+        queueSalesInvoicePostingCore(tx, created.invoiceId, session),
+      ).rejects.toThrow(/placeholder/i)
     })
   })
 
