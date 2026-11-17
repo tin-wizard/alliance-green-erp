@@ -11,7 +11,13 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterAll, describe, expect, it } from 'vitest'
-import { DumpSyntaxError, computeDumpId, decodeDumpText, parseDump } from './tokenizer'
+import {
+  DumpSyntaxError,
+  computeDumpId,
+  decodeDumpText,
+  parseDump,
+  parseDumpSlices,
+} from './tokenizer'
 import { DumpSource } from './dump'
 
 describe('parseDump: statement shapes', () => {
@@ -286,5 +292,31 @@ describe('DumpSource', () => {
     const path = join(directory, 'dump.sql')
     const source = new DumpSource(path)
     expect(await source.readTable('nope')).toEqual({ table: 'nope', columns: [], rows: [] })
+  })
+})
+
+describe('parseDumpSlices', () => {
+  const dump = [
+    'CREATE TABLE `t` (`id` int(11) NOT NULL, `note` text, PRIMARY KEY (`id`));',
+    "INSERT INTO `t` VALUES (1,'a'),(2,NULL),(3,'c');",
+    "INSERT INTO `t` VALUES (4,'d'),(5,'e'),(6,'f'),(7,'g');",
+    'CREATE TABLE `empty` (`id` int(11) NOT NULL);',
+  ].join('\n')
+
+  it('yields the same rows, with the same numbers, as parseDump', () => {
+    const whole = parseDump(dump).tables.find((t) => t.table === 't')!
+    for (const size of [1, 2, 3, 4, 100]) {
+      const slices = [...parseDumpSlices(dump, size)].filter((t) => t.table === 't')
+      expect(slices.flatMap((t) => t.rows)).toEqual(whole.rows)
+      expect(slices.every((t) => t.columns.join() === whole.columns.join())).toBe(true)
+      if (size < 7) expect(Math.max(...slices.map((t) => t.rows.length))).toBeLessThanOrEqual(size + 3)
+    }
+  })
+
+  it('yields a table with no rows once, so its columns are known', () => {
+    const empty = [...parseDumpSlices(dump, 2)].filter((t) => t.table === 'empty')
+    expect(empty).toHaveLength(1)
+    expect(empty[0]!.columns).toEqual(['id'])
+    expect(empty[0]!.rows).toEqual([])
   })
 })

@@ -117,6 +117,28 @@ describe.skipIf(!databaseConfigured())('loadSource', () => {
     await db.execute(sql`delete from migration.dump_manifests where dump_id = ${DUMP_ID}`)
   })
 
+  it('stages a sliced source with the same checksum and rows as a whole one', async () => {
+    const whole = fakeSource([customerTable, usersTable])
+    const sliced: LegacySource = {
+      ...whole,
+      async *readTableSlices(name) {
+        const table = await whole.readTable(name)
+        // One row per slice: the smallest slicing there is.
+        for (const row of table.rows) yield { ...table, rows: [row] }
+        if (table.rows.length === 0) yield table
+      },
+    }
+    const expected = await loadSource(db, whole, DUMP_ID)
+    const actual = await loadSource(db, sliced, DUMP_ID)
+
+    expect(actual.totalRows).toBe(expected.totalRows)
+    for (const table of expected.tables) {
+      expect(actual.tables.find((t) => t.table === table.table)).toEqual(table)
+    }
+    const rows = await stagedRows(db, 'customer', DUMP_ID)
+    expect(rows).toHaveLength(3)
+  }, 60_000)
+
   it('stages every row as text, twice, with the same checksum', async () => {
     const source = fakeSource([customerTable, usersTable])
     const first = await loadSource(db, source, DUMP_ID)
