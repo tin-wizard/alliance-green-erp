@@ -162,7 +162,11 @@ async function transformSubcontractorDocument(
 
   const uploaded = await uploadedAt(helpers, context, 'uploaded_timespan')
   const isWsib = source === 'wsib'
-  const declared = isWsib ? helpers.enumOf('document_type', SUB_DOCUMENT_KINDS) : null
+  // The legacy WSIB certificate type is spelled `WSIB-WCB` (the board's two names),
+  // so an exact match on the new kind would file every certificate as `other`.
+  const legacyType = isWsib ? helpers.text('document_type') : null
+  const wsibAlias = legacyType !== null && /^wsib([-_ /]?wcb)?$/i.test(legacyType.trim()) ? 'wsib' : null
+  const declared = isWsib ? (wsibAlias ?? helpers.enumOf('document_type', SUB_DOCUMENT_KINDS)) : null
 
   const values: DocumentValues = {
     subcontractorId,

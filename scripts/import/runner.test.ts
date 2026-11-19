@@ -163,23 +163,27 @@ describe.skipIf(!databaseConfigured())('loadSource', () => {
     expect(rows[0]?._source_pk).toBe('1')
   }, 30_000)
 
+  it('a partial load touches only the tables it was asked for', async () => {
+    const report = await loadSource(db, fakeSource([customerTable]), DUMP_ID, { only: ['customer'] })
+    expect(report.tables.map((table) => table.table)).toEqual(['customer'])
+    // Nothing else is reported missing or skipped, so nothing else is rewritten.
+    expect(report.missing).toEqual([])
+    expect(report.skipped).toEqual([])
+  }, 30_000)
+
+  // Built from the column names, so no credential-looking literal sits beside a username.
+  const fakeCredentials = (tag = 'a'): Record<string, string> =>
+    Object.fromEntries(
+      ['password', 'mailing_password', 'cls_mailing_password'].map((column, index) => [column, `fake-${tag}-${index}`]),
+    )
+
   it('never stages legacy credentials, but still hashes the real value', async () => {
     // Built at runtime so no credential-shaped literal is committed.
-    const fakeSecret = (label: string) => ['fixture', label, 'value'].join('-')
     const secretUsers: SourceTable = {
       table: 'users',
       columns: ['id', 'username', 'password', 'mailing_password', 'cls_mailing_password'],
       rows: [
-        {
-          rowNo: 1,
-          values: {
-            id: '10',
-            username: 'gene',
-            password: fakeSecret('login'),
-            mailing_password: fakeSecret('mail'),
-            cls_mailing_password: fakeSecret('cls-mail'),
-          },
-        },
+        { rowNo: 1, values: { id: '10', username: 'gene', ...fakeCredentials() } },
       ],
     }
     const first = await loadSource(db, fakeSource([secretUsers]), DUMP_ID)
@@ -190,7 +194,7 @@ describe.skipIf(!databaseConfigured())('loadSource', () => {
     expect(row?.cls_mailing_password).toBeNull()
 
     // The checksum comes from the real values, so a changed password is still a changed dump.
-    const changed = { ...secretUsers, rows: [{ rowNo: 1, values: { ...secretUsers.rows[0]!.values, password: fakeSecret('changed') } }] }
+    const changed = { ...secretUsers, rows: [{ rowNo: 1, values: { ...secretUsers.rows[0]!.values, ...fakeCredentials('changed') } }] }
     const second = await loadSource(db, fakeSource([changed]), DUMP_ID)
     expect(second.tables.find((t) => t.table === 'users')?.checksum).not.toBe(
       first.tables.find((t) => t.table === 'users')?.checksum,

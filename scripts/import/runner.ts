@@ -78,6 +78,7 @@ export async function loadSource(
   db: Db,
   source: LegacySource,
   dumpId: string,
+  options: { only?: readonly string[] } = {},
 ): Promise<LoadReport> {
   const available = new Set(await source.listTables())
   const report: LoadReport = { dumpId, tables: [], skipped: [], missing: [], totalRows: 0 }
@@ -97,6 +98,9 @@ export async function loadSource(
     })
 
   for (const table of ALL_TABLES) {
+    // A partial load (one group's tables) must leave every other table's staged
+    // rows and bookkeeping exactly as they were.
+    if (options.only && !options.only.includes(table.table)) continue
     const engine = (legacyTables[table.table] as { engine?: string } | undefined)?.engine ?? 'unknown'
     if (!available.has(table.table)) {
       report.missing.push(table.table)

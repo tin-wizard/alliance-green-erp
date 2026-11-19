@@ -9006,6 +9006,825 @@
           "notNull": true
         }
       ]
+    },
+    "bell_fixture": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "fixturename",
+          "type": "varchar(80)",
+          "notNull": false
+        },
+        {
+          "name": "sortorder",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "bell_fixture_parts": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "partno",
+          "type": "varchar(30)",
+          "notNull": false
+        },
+        {
+          "name": "fixtureid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "markup",
+          "type": "varchar(10)",
+          "notNull": false
+        },
+        {
+          "name": "parttype",
+          "type": "enum('ballast','lamp','')",
+          "notNull": false
+        },
+        {
+          "name": "part_ratio_perfixture",
+          "type": "varchar(20)",
+          "notNull": false
+        }
+      ]
+    },
+    "bell_fixture_parts_per_quote": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "partno",
+          "type": "varchar(30)",
+          "notNull": false
+        },
+        {
+          "name": "quoteid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "fixtureid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "markup",
+          "type": "varchar(10)",
+          "notNull": false
+        },
+        {
+          "name": "parttype",
+          "type": "enum('ballast','lamp','')",
+          "notNull": false
+        },
+        {
+          "name": "part_ratio_perfixture",
+          "type": "varchar(20)",
+          "notNull": false
+        }
+      ]
+    },
+    "bell_fixture_per_quote": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "fixtureid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "quoteid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "fixturename",
+          "type": "varchar(80)",
+          "notNull": false
+        },
+        {
+          "name": "sortorder",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "bell_foot_candle_readings": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "quoteid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "fr_reading",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "fc_reading",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "fl_reading",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "cr_reading",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "c_reading",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "cl_reading",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "br_reading",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "bc_reading",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "bl_reading",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "ftr_reading",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "ftr_stall_reading",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "sortorder",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "bell_prices_per_quote": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "quoteid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "partno",
+          "type": "varchar(20)",
+          "notNull": true
+        },
+        {
+          "name": "price",
+          "type": "varchar(25)",
+          "notNull": false
+        },
+        {
+          "name": "last_price",
+          "type": "varchar(25)",
+          "notNull": false
+        }
+      ]
+    },
+    "bell_quote": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "status",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "pdf_notes",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "notes",
+          "type": "longtext",
+          "notNull": false
+        },
+        {
+          "name": "due_date",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "payment_terms",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "ceiling_grid_type",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "ship_address_contactname",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ship_address_company",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ship_address_street1",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ship_address_street2",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ship_address_city",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ship_address_province",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ship_address_postalcode",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "ship_address_phone",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "shipping_address",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "createdby",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "date_created",
+          "type": "datetime",
+          "notNull": false
+        },
+        {
+          "name": "bellquote_folder_attach_path",
+          "type": "varchar(200)",
+          "notNull": false
+        },
+        {
+          "name": "revision_no",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "is_submitted",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "ship_to_type",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "site",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "workordernumber",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "tax_code",
+          "type": "varchar(12)",
+          "notNull": false
+        },
+        {
+          "name": "tax_amount",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "subtotal_amount",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "total_amount",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "withoutmarkup_tax_amount",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "withoutmarkup_subtotal_amount",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "withoutmarkup_total_amount",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "revision_notes",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "quote_type",
+          "type": "varchar(15)",
+          "notNull": false
+        },
+        {
+          "name": "appliedtaxrate",
+          "type": "varchar(12)",
+          "notNull": false
+        },
+        {
+          "name": "is_type_maintenance",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "bell_quote_downloads": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "quoteid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "filename",
+          "type": "varchar(50)",
+          "notNull": false
+        },
+        {
+          "name": "downloadbyname",
+          "type": "varchar(30)",
+          "notNull": false
+        },
+        {
+          "name": "foldername",
+          "type": "varchar(20)",
+          "notNull": false
+        },
+        {
+          "name": "datecreated",
+          "type": "datetime",
+          "notNull": false
+        },
+        {
+          "name": "download_revision_notes",
+          "type": "text",
+          "notNull": false
+        }
+      ]
+    },
+    "bell_quote_extra_workorders": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "quoteid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "woid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "is_project_workorder",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "sortorder",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "bell_quote_fixtures": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "roomid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "fixtureid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "totalfixtures",
+          "type": "varchar(12)",
+          "notNull": false
+        },
+        {
+          "name": "fix_gallery_folder_name",
+          "type": "varchar(100)",
+          "notNull": false
+        },
+        {
+          "name": "quoteid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "sortorder",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "bell_quote_grid_types": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "tinyint(1)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(25)",
+          "notNull": true
+        }
+      ]
+    },
+    "bell_quote_lastused_sharedpart": {
+      "engine": "InnoDB",
+      "primaryKey": [],
+      "columns": [
+        {
+          "name": "quoteid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "used_partcode",
+          "type": "varchar(15)",
+          "notNull": true
+        },
+        {
+          "name": "main_partcode",
+          "type": "varchar(15)",
+          "notNull": true
+        }
+      ]
+    },
+    "bell_quote_parts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "quoteid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "partno",
+          "type": "varchar(30)",
+          "notNull": true
+        },
+        {
+          "name": "fixtured_partno",
+          "type": "varchar(30)",
+          "notNull": false
+        },
+        {
+          "name": "qty",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "without_markup_qty",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "price",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "sortorder",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "bell_quote_payterms": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "tinyint(1)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(25)",
+          "notNull": true
+        }
+      ]
+    },
+    "bell_quote_revisions": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "revision_id"
+      ],
+      "columns": [
+        {
+          "name": "revision_id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "quoteid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "created_time",
+          "type": "timestamp",
+          "notNull": false
+        },
+        {
+          "name": "revised_by_user",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "revision_type",
+          "type": "varchar(45)",
+          "notNull": false
+        },
+        {
+          "name": "data_quote",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "data_fixtures",
+          "type": "text",
+          "notNull": false
+        },
+        {
+          "name": "data_parts",
+          "type": "longtext",
+          "notNull": false
+        },
+        {
+          "name": "data_soparts",
+          "type": "text",
+          "notNull": false
+        }
+      ]
+    },
+    "bell_quote_soparts": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "quoteid",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(150)",
+          "notNull": false
+        },
+        {
+          "name": "qty",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "price",
+          "type": "decimal(7,2)",
+          "notNull": false
+        },
+        {
+          "name": "sortorder",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "bell_quote_status": {
+      "engine": "MyISAM",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "tinyint(1)",
+          "notNull": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(25)",
+          "notNull": true
+        }
+      ]
+    },
+    "bell_room": {
+      "engine": "InnoDB",
+      "primaryKey": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "int(11)",
+          "notNull": true
+        },
+        {
+          "name": "roomname",
+          "type": "varchar(80)",
+          "notNull": false
+        },
+        {
+          "name": "sortorder",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "bell_rooms_template": {
+      "engine": "InnoDB",
+      "primaryKey": [],
+      "columns": [
+        {
+          "name": "roomid",
+          "type": "int(11)",
+          "notNull": false
+        },
+        {
+          "name": "sortorder",
+          "type": "int(11)",
+          "notNull": false
+        }
+      ]
+    },
+    "bell_shared_parts_list": {
+      "engine": "InnoDB",
+      "primaryKey": [],
+      "columns": [
+        {
+          "name": "partcode",
+          "type": "varchar(15)",
+          "notNull": true
+        },
+        {
+          "name": "main_partcode",
+          "type": "varchar(15)",
+          "notNull": true
+        }
+      ]
     }
   }
 }
