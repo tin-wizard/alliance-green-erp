@@ -1,12 +1,9 @@
 # Local Runbook — CLS Green ERP
 
-How to install, configure, run, upgrade and troubleshoot the ERP on the company LAN server.
-Written for a Windows host (the likely case, because Sage 50 lives there) with Linux notes where
-they differ.
-
-**The app must run on the same machine as Sage 50.** The Sage adapter opens MySQL to
-`127.0.0.1`, trying **13541 first**, then 13540, 13542–13544, and accepts a port only when the
-`SagePort` vendor row answers.
+How to install, configure, run, upgrade and troubleshoot the ERP. It can run on the company LAN
+(written for a Windows host, with Linux notes where they differ) or on Vercel with a scheduled
+platform cron. **Sage does not need to be on the same machine**: the adapter talks to Sage Business
+Cloud Accounting over HTTPS, so the only requirement is outbound access to `api.accounting.sage.com`.
 
 ---
 
@@ -19,7 +16,7 @@ they differ.
 | Git | to clone and update the repo |
 | Neon project | Postgres + Auth + Object Storage provisioned (AI optional) |
 | Neon CLI | `neon` 2.26+ for `env pull`, auth domains and credentials |
-| Sage 50 | already installed on this host; `simply` database |
+| Sage Business Cloud Accounting | an app with OAuth credentials and a consented company (sandbox first) |
 | Disk | ~1 GB for node_modules and build output |
 | Network | outbound HTTPS to Neon; inbound LAN access to the app port only |
 
@@ -103,10 +100,13 @@ the process with a readable list.
 | `AI_ENABLED` | `false`; inference is unfunded |
 | `NEON_AI_GATEWAY_BASE_URL` / `NEON_AI_GATEWAY_TOKEN` | present from `neon env pull`; kept server-side |
 | `AI_DEFAULT_MODEL` | `claude-haiku-4-5` |
-| `SAGE_ENABLED` | `true` on the Sage host |
-| `SAGE_HOST` / `SAGE_PORTS` | `127.0.0.1` / `13541,13540,13542,13543,13544` — legacy order, do not sort |
-| `SAGE_DATABASE` | `simply` |
-| `SAGE_USER` / `SAGE_PASSWORD` | **required** to verify the company through the `SagePort` sentinel |
+| `SAGE_ENABLED` | `true` once the Sage connection is consented |
+| `SAGE_ENVIRONMENT` | `sandbox` or `production` |
+| `SAGE_CLIENT_ID` / `SAGE_CLIENT_SECRET` | Sage Business Cloud Accounting app credentials |
+| `SAGE_REDIRECT_URI` | `<APP_URL>/api/sage/oauth/callback`, registered on the Sage app |
+| `SAGE_TOKEN_ENC_KEY` | Base64 32-byte key that encrypts the stored refresh token. Rotating it forces a new consent |
+| `SAGE_CRON_SECRET` | Shared secret for `/api/cron/*`; set `CRON_SECRET` in Vercel to the same value (§2.2) |
+| `JOB_RUNNER_SECRET` | `x-job-secret` for `POST /api/internal/jobs/<key>`, the manual trigger |
 | `SEED_ADMIN_EMAIL` | optional; a real verified address only |
 | `LOG_LEVEL` | `info` in production; `debug` while diagnosing |
 
@@ -188,8 +188,8 @@ sudo systemctl enable --now cls-green-erp
 journalctl -u cls-green-erp -f
 ```
 
-Sage 50 does not run on Linux, so the Sage adapter reports `unreachable`. Use Linux only if Sage
-is retired or proxied by another host.
+Sage needs no local install on Linux: the adapter is an HTTPS client, so the Linux service and the
+Windows service behave identically.
 
 ---
 
@@ -291,9 +291,9 @@ system taught that lesson expensively.
 | Storage card says "Unavailable" | `AWS_*` credentials expired or the branch lineage changed; re-run `neon env pull` |
 | Storage silently uses local disk | `AWS_*` values are missing and `STORAGE_DRIVER=auto`; set `s3` to fail loudly |
 | AI card says "Off" | Expected: `AI_ENABLED=false`; inference also needs prepaid credits |
-| Sage card says "Unreachable" | Sage is not running, or moved off 13541/13540/13542-13544 |
-| Sage card says "Unverified" | `SAGE_USER` / `SAGE_PASSWORD` are missing; only a TCP listener was found |
-| Sage card says "Wrong company" | A MySQL server answered but has no `tvendor` row `(663, 'SagePort')` |
+| Sage card says "Disconnected" | No consent yet: open `/admin/reconciliation` and connect the Sage app |
+| Sage card says "Needs reauth" | The refresh token was revoked, expired, or `SAGE_TOKEN_ENC_KEY` changed |
+| Sage card says "Degraded" with a stale check | The daily reconciliation has not run; check `/api/cron/jobs` is being called |
 | LAN machines cannot connect | `HOST=0.0.0.0`, firewall rule, and no VPN split-tunnel blocking the subnet |
 | Port 3000 already in use | Set `PORT` in `.env`; the start script passes it to Nitro |
 

@@ -57,6 +57,8 @@ export const previewInvoiceFn = createServerFn({ method: 'POST' })
   .validator((input: unknown) => previewInvoiceSchema.parse(input))
   .middleware([permissionMiddleware('invoice.calculate')])
   .handler(async ({ data }) => {
+    const { warnUnknownSalesProvince } = await import('../../../server/province.server')
+    warnUnknownSalesProvince(data.taxProvince, 'invoice.preview')
     const { previewInvoiceTotals } = await import('../lib/money')
     return previewInvoiceTotals(data as never)
   })
@@ -74,6 +76,8 @@ export const saveInvoiceFn = createServerFn({ method: 'POST' })
   .validator((input: unknown) => saveInvoiceSchema.parse(input))
   .middleware([authMiddleware])
   .handler(async ({ data, context }) => {
+    const { warnUnknownSalesProvince } = await import('../../../server/province.server')
+    warnUnknownSalesProvince(data.taxProvince, 'invoice.save')
     const { saveInvoiceDraftCore } = await import('./sales.server')
     const { getDb } = await import('@cls/db')
     return getDb().transaction((tx) => saveInvoiceDraftCore(tx, data as never, context.session))
@@ -127,9 +131,25 @@ export const processSagePostingFn = createServerFn({ method: 'POST' })
   .validator((input: unknown) => z.object({ postingId: z.number().int().positive() }).parse(input))
   .middleware([permissionMiddleware('invoice.post_sage')])
   .handler(async ({ data, context }) => {
-    const { processSagePostingCore } = await import('./posting.server')
+    const { processSagePosting } = await import('./posting.server')
+    return processSagePosting(data.postingId, context.session)
+  })
+
+export const listSageOutboxFn = createServerFn({ method: 'GET' })
+  .middleware([permissionMiddleware('invoice.post_sage')])
+  .handler(async () => {
+    const { listSageOutbox } = await import('./posting.server')
+    return listSageOutbox((await import('@cls/db')).getDb())
+  })
+
+export const retrySagePostingFn = createServerFn({ method: 'POST' })
+  .validator((input: unknown) => z.object({ postingId: z.number().int().positive() }).parse(input))
+  .middleware([permissionMiddleware('invoice.post_sage')])
+  .handler(async ({ data, context }) => {
+    const { retrySagePostingCore } = await import('./posting.server')
     const { getDb } = await import('@cls/db')
-    return getDb().transaction((tx) => processSagePostingCore(tx, data.postingId, context.session))
+    await getDb().transaction((tx) => retrySagePostingCore(tx, data.postingId, context.session))
+    return { ok: true }
   })
 
 export const listSubcontractorInvoicesFn = createServerFn({ method: 'GET' })

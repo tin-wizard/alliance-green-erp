@@ -72,8 +72,8 @@ function expectFields(actual: object, expected: object, label: string) {
 describe('TJX two-triplet fixtures', () => {
   const cases = load()
 
-  test('the pack carries all eighteen cases', () => {
-    expect(cases).toHaveLength(18)
+  test('the pack carries all nineteen cases', () => {
+    expect(cases).toHaveLength(19)
   })
 
   test.each(cases)('$id — $note', (raw) => {

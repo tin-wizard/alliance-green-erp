@@ -20,8 +20,8 @@ export const Route = createFileRoute('/api/cron/sage-postings')({
 
         const { getDb } = await import('@cls/db')
         const { sagePostings } = await import('@cls/db/schema')
-        const { and, asc, inArray } = await import('drizzle-orm')
-        const { processSagePostingCore } = await import(
+        const { and, asc, eq, inArray, isNull, lt, or } = await import('drizzle-orm')
+        const { processSagePosting, SAGE_POSTING_STALE_CLAIM_MS } = await import(
           '../../../modules/invoicing/server/posting.server'
         )
         const { installSagePostingGateway, getPauseGovernor } = await import(
@@ -39,20 +39,31 @@ export const Route = createFileRoute('/api/cron/sage-postings')({
         }
 
         const db = getDb()
+        const staleBefore = new Date(Date.now() - SAGE_POSTING_STALE_CLAIM_MS)
         const rows = await db
           .select({ id: sagePostings.id })
           .from(sagePostings)
-          .where(and(inArray(sagePostings.status, ['queued', 'failed'])))
+          .where(
+            or(
+              inArray(sagePostings.status, ['queued', 'failed']),
+              // A worker that died between claiming and recording leaves a
+              // stale claim; the gateway is idempotent, so taking it back is safe.
+              and(
+                eq(sagePostings.status, 'processing'),
+                or(lt(sagePostings.claimedAt, staleBefore), isNull(sagePostings.claimedAt)),
+              ),
+            ),
+          )
           .orderBy(asc(sagePostings.requestedAt))
           .limit(50)
 
         let sent = 0
         let failed = 0
+        let deadLettered = 0
         for (const row of rows) {
-          const outcome = await db.transaction((tx) =>
-            processSagePostingCore(tx, row.id, null),
-          )
+          const outcome = await processSagePosting(row.id, null)
           if (outcome.status === 'sent') sent += 1
+          else if (outcome.status === 'dead_letter') deadLettered += 1
           else failed += 1
           const current = await pause.report()
           if (current.paused) break
@@ -60,7 +71,13 @@ export const Route = createFileRoute('/api/cron/sage-postings')({
 
         const after = await pause.report()
         return Response.json(
-          { processed: sent + failed, sent, failed, paused: after.paused ? after.reason : null },
+          {
+            processed: sent + failed + deadLettered,
+            sent,
+            failed,
+            deadLettered,
+            paused: after.paused ? after.reason : null,
+          },
           { headers: { 'cache-control': 'no-store' } },
         )
       },

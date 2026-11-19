@@ -45,7 +45,7 @@ These are blockers, in order. Each is a known open item, not a new one.
 | # | Item | Why it blocks | Who |
 |---|---|---|---|
 | B1 | **WSIB classification.** The migrated documents are 136 `insurance`, 628 `other`, 0 `wsib`, so compliance shows all 896 active subcontractors missing WSIB and 828 blocked from assignment. | It decides who can be given work in the live app. Find out if the source really has no WSIB records or if the transform filed them under another kind. | Me, then owner |
-| B2 | **Bell tables already on production.** Production has 58 Bell quotes copied directly by a one-off script, with no `row_map` entries. Bell is now a harness group (`bell`, group 13, migration 0021 adds its staging tables). Quotes and masters are adopted by legacy id, but special parts, downloads and readings have no natural key and **double** if the group runs over existing rows (seen on dev). | Before the production run: apply 0021, then empty the Bell tables (quotes and children, room templates, fixtures, rooms) and let the group load them. The clone rehearsal proves this. | Me |
+| B2 | **Bell tables already on production.** Production has 58 Bell quotes copied directly by a one-off script, with no `row_map` entries. Bell is now a harness group (`bell`, group 13, migration 0022 adds its staging tables). Quotes and masters are adopted by legacy id, but special parts, downloads and readings have no natural key and **double** if the group runs over existing rows (seen on dev). | Before the production run: apply 0021 and 0022, then empty the Bell tables (quotes and children, room templates, fixtures, rooms) and let the group load them. The clone rehearsal proves this. | Me |
 | B3 | **Pending notifications and email.** Imported messages and notifications must land as history, not as unsent mail. The email transport (Brevo) is not built, but when it is, anything `pending` in the outbox would be sent. | A mass email to staff and subcontractors on the first send. Check the outbox is empty after the clone run. | Me |
 | B4 | **Exceptions (G4).** 436,516 pending, none decided. The big ones: `unknown_enum` 193,687 and `unparseable_json` 193,545 (work order revisions), `not_migrated` 55,645, `orphan_line` 25,549, `orphan_workorder_site` 14,194. | The owner must accept the handling per class. Most are policy, not row-by-row work. | Owner |
 | B5 | **Production guard in the runner.** The rehearsal scripts refuse the production endpoint. The production run needs the reverse: it refuses unless the target is exactly the production endpoint and `--target=production` is passed. | Stops a wrong-database run in either direction (P5). | Me |
@@ -77,7 +77,7 @@ Not blockers for a first load, but required before running both systems together
 Environment for each run: sandbox in the same region as Neon (round trip about 1.4 ms, against 102 ms from a
 laptop), dump copied by presigned upload and deleted after, reports written to durable storage.
 
-1. **Preflight.** Confirm the target endpoint and branch id, the migration level (0021), the dump SHA-256
+1. **Preflight.** Confirm the target endpoint and branch id, the migration level (0022), the dump SHA-256
    (`ada3ee06…42e5`), and row counts before. Capture the parity baseline.
 2. **Stage.** Load the split dump into `migration.stg_*` (about 5 min). Expect 164 tables, 1,747,599
    rows, 0 missing, 5 skipped dated duplicates, 14 NUL-byte strips.

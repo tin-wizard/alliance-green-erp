@@ -12,7 +12,9 @@
  *  - without markup, per fixture: `ceil(F) * R`;
  *  - `WIN-150` is the legacy exception: both sides use `F * M * R`;
  *  - raw quantities aggregate across fixtures before the global ceiling
- *    (with markup) or the 3-decimal round (without markup), never per fixture;
+ *    (with markup) or the 3-decimal display round (without markup), never per
+ *    fixture; the without-markup line prices the raw quantity, not the display
+ *    value;
  *  - tax is rounded per line to two decimals and summed.
  *
  * Pure: no database, no React, no environment.
@@ -224,7 +226,7 @@ export function calculateTjxQuote(input: TjxQuoteInput): TjxQuoteCalculation {
     const qtyWithMarkup = ceiling(accumulator.withRaw)
     const qtyWithoutMarkup = round(accumulator.withoutRaw, 3)
     const lineWithMarkup = round(multiply(qtyWithMarkup, unitPrice), 2)
-    const lineWithoutMarkup = round(multiply(qtyWithoutMarkup, unitPrice), 2)
+    const lineWithoutMarkup = round(multiply(accumulator.withoutRaw, unitPrice), 2)
     const taxWithMarkup = round(multiply(lineWithMarkup, taxRate), 2)
     const taxWithoutMarkup = round(multiply(lineWithoutMarkup, taxRate), 2)
 

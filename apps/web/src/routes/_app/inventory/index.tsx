@@ -1,5 +1,5 @@
 import { createFileRoute, Link, redirect } from '@tanstack/react-router'
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Plus, RefreshCw } from 'lucide-react'
 import {
@@ -21,14 +21,19 @@ export const Route = createFileRoute('/_app/inventory/')({
   component: InventoryPage,
 })
 
+const PAGE_SIZE = 100
+
 function InventoryPage() {
   const [term, setTerm] = useState('')
   const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
   const query = useQuery({
-    queryKey: ['inventory-stock', search],
-    queryFn: () => listStockFn({ data: { search, page: 1, pageSize: 100 } }),
+    queryKey: ['inventory-stock', search, page],
+    queryFn: () => listStockFn({ data: { search, page, pageSize: PAGE_SIZE } }),
+    placeholderData: keepPreviousData,
   })
 
+  const totalPages = query.data ? Math.max(1, Math.ceil(query.data.total / PAGE_SIZE)) : 1
   const differences = query.data?.rows.filter((row) => row.difference !== '0.00') ?? []
 
   return (
@@ -66,6 +71,7 @@ function InventoryPage() {
         className="flex flex-wrap items-center gap-2"
         onSubmit={(event) => {
           event.preventDefault()
+          setPage(1)
           setSearch(term.trim())
         }}
       >
@@ -82,6 +88,7 @@ function InventoryPage() {
             variant="ghost"
             onClick={() => {
               setTerm('')
+              setPage(1)
               setSearch('')
             }}
           >
@@ -101,8 +108,8 @@ function InventoryPage() {
           data-testid="counter-difference-note"
           className="rounded-[4px] border border-amber-300 bg-amber-50 px-3 py-2 text-[12.5px] text-amber-900"
         >
-          {differences.length} part{differences.length === 1 ? '' : 's'} have a counter/ledger
-          difference. The counter remains the stock figure.
+          {differences.length} part{differences.length === 1 ? '' : 's'} on this page have a
+          counter/ledger difference. The counter remains the stock figure.
         </div>
       ) : null}
 
@@ -170,6 +177,30 @@ function InventoryPage() {
               ))}
             </tbody>
           </table>
+          <div className="flex items-center justify-between border-t border-hair px-3 py-2 text-[12.5px] text-fg-muted">
+            <span>
+              Page {page} of {totalPages} · showing {(page - 1) * PAGE_SIZE + 1}–
+              {Math.min(page * PAGE_SIZE, query.data.total)} of {query.data.total}
+            </span>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                disabled={page <= 1 || query.isFetching}
+                onClick={() => setPage((current) => Math.max(1, current - 1))}
+                aria-label="Previous page"
+              >
+                Previous
+              </Button>
+              <Button
+                variant="ghost"
+                disabled={page >= totalPages || query.isFetching}
+                onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
+                aria-label="Next page"
+              >
+                Next
+              </Button>
+            </div>
+          </div>
         </div>
       ) : null}
 

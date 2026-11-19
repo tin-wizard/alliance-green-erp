@@ -11,12 +11,13 @@ export default defineConfig({
     clearMocks: true,
     restoreMocks: true,
     /**
-     * Database suites hold one long transaction each against a single Neon
-     * compute. Eight parallel forks made the heaviest suites queue past their
-     * own test timeouts; four workers keeps every suite inside its budget
-     * without serialising the run. Each fork still owns one pool.
+     * One worker. The database suites share one Neon database and some of them
+     * assert against a whole table (the RGA notification job selects every open
+     * RGA), so two forks running at once made the gate nondeterministic: the
+     * same commit produced disjoint failure sets. Serialising the run is slower
+     * and predictable, which is what a gate has to be.
      */
-    maxWorkers: 4,
+    maxWorkers: 1,
     env: {
       NODE_ENV: 'test',
       LOG_LEVEL: 'error',

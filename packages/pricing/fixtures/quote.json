@@ -115,6 +115,21 @@
         "margin": "80.00",
         "marginPercent": "40.00"
       }
+    },
+    {
+      "id": "quote-e9-zero-techs",
+      "note": "PHP empty(0) means one tech; 2 h × 85.00 is 170.00, not zero.",
+      "provenance": "audits/MONEY-AUDIT.md N4; app/ajaxQuoteCalcTotal.php:270",
+      "input": {
+        "taxProvince": "ON",
+        "labour": [{ "hours": "2", "numTechs": 0, "rate": "85.00" }]
+      },
+      "expected": {
+        "labour": "170.00",
+        "subtotal": "170.00",
+        "tax": "22.10",
+        "total": "192.10"
+      }
     }
   ]
 }

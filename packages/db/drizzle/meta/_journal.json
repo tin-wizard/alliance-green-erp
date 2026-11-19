@@ -152,8 +152,15 @@
     {
       "idx": 21,
       "version": "7",
+      "when": 1794904006033,
+      "tag": "0021_fuzzy_siren",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
       "when": 1794904636418,
-      "tag": "0021_migration_staging_bell",
+      "tag": "0022_migration_staging_bell",
       "breakpoints": true
     }
   ]

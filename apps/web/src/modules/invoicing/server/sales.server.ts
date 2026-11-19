@@ -18,7 +18,7 @@ import {
   rejectedInvoices,
   salesInvoices,
 } from '@cls/db/schema'
-import { format, parseDecimal, round } from '@cls/pricing'
+import { format, parseDecimal, round, LEGACY_PART_PLACEHOLDER, LEGACY_PART_PLACEHOLDER_MESSAGE } from '@cls/pricing'
 import type { AuthSessionView } from '../../../server/auth.types'
 import { buildInvoiceReadySnapshot } from '../../work-orders/server/snapshot.server'
 import {
@@ -227,6 +227,9 @@ export async function saveInvoiceDraftCore(
   }
   if (input.labour.length === 0) {
     throw new ValidationError('Enter labour before saving an invoice.')
+  }
+  if (input.parts.some((line) => line.partNo.trim() === LEGACY_PART_PLACEHOLDER)) {
+    throw new ValidationError(LEGACY_PART_PLACEHOLDER_MESSAGE)
   }
 
   await tx.delete(invoiceLabourLines).where(eq(invoiceLabourLines.invoiceId, invoice.id))

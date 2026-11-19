@@ -20,6 +20,7 @@ import {
   getThread,
   listNotifications,
   listOutbox,
+  listMessageUsers,
   listThreads,
   markNotificationReadCore,
   markThreadReadCore,
@@ -109,6 +110,57 @@ async function seed(tx: Tx): Promise<void> {
 }
 
 describe.skipIf(!databaseConfigured())('messaging', () => {
+  test('a subcontractor sees admins and their own vendor contacts only', async () => {
+    await inRollback(async (tx) => {
+      await seed(tx)
+      const VENDOR_USER = '00000000-0000-4000-8000-0000000000d4'
+      const VENDOR_MATE = '00000000-0000-4000-8000-0000000000d5'
+      const OTHER_VENDOR = '00000000-0000-4000-8000-0000000000d6'
+      await tx.insert(users).values([
+        {
+          id: VENDOR_USER,
+          email: `vendor-${suffix}@example.test`,
+          username: `vendor-${suffix}`,
+          displayName: 'Vendor User',
+          role: 'subcontractor',
+          subcontractorId: 7701,
+        },
+        {
+          id: VENDOR_MATE,
+          email: `vendor-mate-${suffix}@example.test`,
+          username: `vendor-mate-${suffix}`,
+          displayName: 'Vendor Mate',
+          role: 'subcontractor',
+          subcontractorId: 7701,
+        },
+        {
+          id: OTHER_VENDOR,
+          email: `other-vendor-${suffix}@example.test`,
+          username: `other-vendor-${suffix}`,
+          displayName: 'Other Vendor',
+          role: 'subcontractor',
+          subcontractorId: 7702,
+        },
+      ])
+      const baseSession = sessionFor(VENDOR_USER, `vendor-${suffix}@example.test`)
+      const vendorSession: AuthSessionView = {
+        ...baseSession,
+        user: {
+          ...baseSession.user,
+          role: 'subcontractor',
+          subcontractorId: 7701,
+        },
+      }
+
+      const visible = (await listMessageUsers(vendorSession, tx)).map((person) => person.id)
+      expect(visible).toContain(ALICE)
+      expect(visible).toContain(VENDOR_MATE)
+      expect(visible).not.toContain(BOB)
+      expect(visible).not.toContain(OTHER_VENDOR)
+      expect(visible).not.toContain(VENDOR_USER)
+    })
+  })
+
   test('threads keep unread state per participant', async () => {
     await inRollback(async (tx) => {
       await seed(tx)

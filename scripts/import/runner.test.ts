@@ -178,6 +178,7 @@ describe.skipIf(!databaseConfigured())('loadSource', () => {
     )
 
   it('never stages legacy credentials, but still hashes the real value', async () => {
+    // Built at runtime so no credential-shaped literal is committed.
     const secretUsers: SourceTable = {
       table: 'users',
       columns: ['id', 'username', 'password', 'mailing_password', 'cls_mailing_password'],

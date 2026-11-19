@@ -13,7 +13,7 @@ import { describe, expect, test, vi } from 'vitest'
 vi.setConfig({ testTimeout: 90_000, hookTimeout: 90_000 })
 
 import { getConfig } from '@cls/core/env.server'
-import { ALL_PERMISSIONS, ForbiddenError, ValidationError } from '@cls/core'
+import { ALL_PERMISSIONS, ConflictError, ForbiddenError, ValidationError } from '@cls/core'
 import { getDb, type Tx } from '@cls/db'
 import {
   auditLog,
@@ -114,11 +114,11 @@ async function seedReference(tx: Tx): Promise<void> {
     { id: TECH, email: 'po-tech@example.test', username: 'po-tech', displayName: 'PO Tech', role: 'technician' },
     { id: SUPPLIER_USER, email: 'po-supplier@example.test', username: 'po-supplier', displayName: 'PO Supplier', role: 'supplier' },
     { id: OTHER_SUPPLIER_USER, email: 'po-supplier-2@example.test', username: 'po-supplier-2', displayName: 'PO Supplier 2', role: 'supplier' },
-  ])
+  ]).onConflictDoNothing()
   await tx.insert(suppliers).values([
     { id: SUPPLIER_ID, name: 'Purchasing Test Supplier', province: 'ON', userId: SUPPLIER_USER },
     { id: OTHER_SUPPLIER_ID, name: 'Other Purchasing Supplier', province: 'ON', userId: OTHER_SUPPLIER_USER },
-  ])
+  ]).onConflictDoNothing()
 }
 
 function poInput(overrides: Partial<PurchaseOrderCreateInput> = {}): PurchaseOrderCreateInput {
@@ -303,6 +303,65 @@ describe.skipIf(!databaseConfigured())('purchasing', () => {
         transitionPurchaseOrderCore(tx, { id: created.id, version: requested.version, to: 4 }, adminA),
       ).rejects.toBeInstanceOf(ValidationError)
     })
+  })
+
+  test('two racing transitions: one wins and the other gets a conflict', async () => {
+    const db = getDb()
+    const raceA = '00000000-0000-4000-8000-00000000f0a1'
+    const raceB = '00000000-0000-4000-8000-00000000f0b1'
+    const raceSupplier = 990901
+    let poId: number | undefined
+    let release = () => {}
+    try {
+      await db.transaction(async (tx) => {
+        await tx
+          .insert(users)
+          .values([
+            { id: raceA, email: `${raceA}@example.test`, username: raceA, displayName: 'Race A', role: 'admin' },
+            { id: raceB, email: `${raceB}@example.test`, username: raceB, displayName: 'Race B', role: 'admin' },
+          ])
+          .onConflictDoNothing()
+        await tx
+          .insert(suppliers)
+          .values({ id: raceSupplier, name: 'Race Supplier', province: 'ON' })
+          .onConflictDoNothing()
+        poId = (
+          await createPurchaseOrderCore(tx, poInput({ supplierId: raceSupplier }), session(raceA, 'admin', ALL_PERMISSIONS))
+        ).id
+      })
+      const held = new Promise<void>((resolve) => {
+        release = resolve
+      })
+      let firstLocked = () => {}
+      const firstHasLock = new Promise<void>((resolve) => {
+        firstLocked = resolve
+      })
+      const first = db.transaction(async (tx) => {
+        await transitionPurchaseOrderCore(tx, { id: poId!, version: 1, to: 7 }, session(raceA, 'admin', ALL_PERMISSIONS))
+        firstLocked()
+        await held
+      })
+      await firstHasLock
+      const second = db.transaction((tx) =>
+        transitionPurchaseOrderCore(tx, { id: poId!, version: 1, to: 7 }, session(raceB, 'admin', ALL_PERMISSIONS)),
+      )
+      await new Promise((resolve) => setTimeout(resolve, 300))
+      release()
+      await first
+      await expect(second).rejects.toBeInstanceOf(ConflictError)
+    } finally {
+      release()
+      if (poId !== undefined) {
+        await db
+          .delete(auditLog)
+          .where(and(eq(auditLog.entityType, 'purchase_order'), eq(auditLog.entityId, String(poId))))
+        await db.delete(purchaseOrders).where(eq(purchaseOrders.id, poId))
+      }
+      await db.delete(suppliers).where(eq(suppliers.id, raceSupplier))
+      for (const id of [raceA, raceB]) {
+        await db.delete(users).where(eq(users.id, id))
+      }
+    }
   })
 
   test('receipt posts stock once, is idempotent, and an invoice before receipt closes only after delivery', async () => {

@@ -14,6 +14,7 @@
  */
 import {
   add,
+  compare,
   format,
   multiply,
   parseDecimal,
@@ -93,7 +94,7 @@ export function calculatePurchaseOrderTotals(input: PurchaseOrderInput): Purchas
     if (!name) continue
     const qty = decimal(line.qty, 'special part quantity')
     // Legacy sentinel: a special line at or below -99999 is not counted.
-    if (qty.value <= -99999n) continue
+    if (compare(qty, parseDecimal('-99999') ?? { value: -99999n, scale: 0 }) <= 0) continue
     accumulate(qty, decimal(line.price, 'special part price'), 'special')
   }
 

@@ -23,7 +23,7 @@ const here = dirname(fileURLToPath(import.meta.url))
 const migrationFile = join(here, '../../packages/db/drizzle/0017_migration_staging_expand.sql')
 // The Bell tables joined the manifest later. 0017 is already applied wherever the
 // database exists, so their staging tables get a migration of their own.
-const bellMigrationFile = join(here, '../../packages/db/drizzle/0021_migration_staging_bell.sql')
+const bellMigrationFile = join(here, '../../packages/db/drizzle/0022_migration_staging_bell.sql')
 
 const isBell = (entry: { table: string }): boolean => entry.table.startsWith('bell_')
 
@@ -32,7 +32,7 @@ export function stagingDdl(): string {
   return ddlFor(ALL_TABLES.filter((entry) => !isBell(entry)), true)
 }
 
-/** The staging DDL of 0021: the Bell group only. */
+/** The staging DDL of 0022: the Bell group only. */
 export function bellStagingDdl(): string {
   return ddlFor(ALL_TABLES.filter(isBell), false)
 }

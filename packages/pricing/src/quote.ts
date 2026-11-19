@@ -92,6 +92,18 @@ function lineTotal(quantity: Decimal, price: Decimal, field: string): Decimal {
   return round(multiply(quantity, price), HUNDREDTHS)
 }
 
+/** PHP `empty()`: null, '', 0 and '0' mean one tech; '0.00' stays zero. */
+function techCount(raw: string | number | null | undefined): Decimal {
+  if (raw === null || raw === undefined) return parseDecimal('1')!
+  if (typeof raw === 'number') {
+    if (raw === 0) return parseDecimal('1')!
+  } else {
+    const text = raw.trim()
+    if (text === '' || text === '0') return parseDecimal('1')!
+  }
+  return requireDecimal(raw, 'technicians')
+}
+
 export function calculateQuoteTotals(input: QuoteInput): QuoteTotals {
   const province = salesTaxRate(input.taxProvince)
   const override = parseDecimal(input.appliedTaxRate)
@@ -106,7 +118,7 @@ export function calculateQuoteTotals(input: QuoteInput): QuoteTotals {
 
   for (const line of input.labour ?? []) {
     const hours = requireDecimal(line.hours, 'hours')
-    const techs = parseDecimal(line.numTechs) ?? parseDecimal('1')!
+    const techs = techCount(line.numTechs)
     const rate = requireDecimal(line.rate, 'rate')
     const billedHours = multiply(hours, techs)
     const amount = lineTotal(billedHours, rate, 'rate')

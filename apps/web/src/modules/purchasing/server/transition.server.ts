@@ -6,8 +6,8 @@
  * user, timestamp, PO version and whether it was their own PO. Editing after
  * approval is handled by `update.server.ts`, which resets to 3.
  */
-import { eq } from 'drizzle-orm'
-import { ValidationError } from '@cls/core'
+import { and, eq } from 'drizzle-orm'
+import { ConflictError, ValidationError } from '@cls/core'
 import type { Db, Tx } from '@cls/db'
 import { purchaseOrderApprovals, purchaseOrders } from '@cls/db/schema'
 import { assertPermission } from '../../../server/middleware'
@@ -33,12 +33,12 @@ export async function transitionPurchaseOrderCore(
   input: PurchaseOrderTransitionInput,
   session: AuthSessionView,
 ): Promise<TransitionResult> {
-  const current = await loadPurchaseOrder(session, input.id, tx)
+  const current = await loadPurchaseOrder(session, input.id, tx, true)
   const from = current.status as PurchaseOrderStatus
   const to = input.to
 
   if (current.version !== input.version) {
-    throw new ValidationError('This purchase order changed since it was loaded. Reload and retry.')
+    throw new ConflictError('This purchase order changed since it was loaded. Reload and retry.')
   }
   if (isTerminalStatus(from)) {
     throw new ValidationError(`Purchase order ${input.id} is ${from === 10 ? 'cancelled' : 'invoiced'} and cannot move again.`)
@@ -129,10 +129,10 @@ export async function transitionPurchaseOrderCore(
       closedShort: to === 4 && from === 5 ? true : current.closedShort,
       shortCloseReason: to === 4 && from === 5 ? (input.reason ?? null) : current.shortCloseReason,
     })
-    .where(eq(purchaseOrders.id, current.id))
+    .where(and(eq(purchaseOrders.id, current.id), eq(purchaseOrders.version, input.version)))
     .returning()
 
-  if (!row) throw new ValidationError('The purchase order could not be updated.')
+  if (!row) throw new ConflictError('This purchase order changed since it was loaded. Reload and retry.')
 
   await recordStatus(tx, session, {
     poId: row.id,

@@ -70,6 +70,8 @@
    "note": "three 0.165 lines: per-line rounding 0.51 vs 0.50 for one rounding of the raw sum",
    "taxprov": "ON",
    "input": {
+    "hhours": ["0"],
+    "rrate": ["0.00"],
     "qty": [
      "1.5",
      "1.5",
@@ -150,6 +152,8 @@
    "taxprov": "ON",
    "input": {
     "woidd": "73850",
+    "hhours": ["0"],
+    "rrate": ["0.00"],
     "qty": [
      "1"
     ],

@@ -143,9 +143,11 @@ export const sagePostings = app.table(
     docType: text('doc_type').notNull(),
     docId: integer('doc_id').notNull(),
     externalRef: text('external_ref').notNull(),
-    /** queued | processing | sent | unknown | failed | cancelled */
+    /** queued | processing | sent | unknown | failed | dead_letter | cancelled */
     status: text('status').notNull().default('queued'),
     attempt: integer('attempt').notNull().default(0),
+    /** Set when the worker claims the row; a stale claim is retried. */
+    claimedAt: timestamp('claimed_at', { withTimezone: true }),
     payload: jsonb('payload').notNull().$type<Record<string, unknown>>(),
     response: jsonb('response').$type<Record<string, unknown> | null>(),
     lastError: text('last_error'),
@@ -159,7 +161,7 @@ export const sagePostings = app.table(
     index('sage_postings_status_idx').on(table.status, table.requestedAt),
     check(
       'sage_postings_status_check',
-      sql`${table.status} in ('queued','processing','sent','unknown','failed','cancelled')`,
+      sql`${table.status} in ('queued','processing','sent','unknown','failed','dead_letter','cancelled')`,
     ),
   ],
 )

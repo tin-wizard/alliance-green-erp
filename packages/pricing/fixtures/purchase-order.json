@@ -64,6 +64,15 @@
       "parts": [{ "qty": "1", "price": "10.00" }],
       "specialParts": [{ "name": "   ", "qty": "1", "price": "99.00" }],
       "expected": { "subtotal": "10.00", "tax": "1.30", "total": "11.30" }
+    },
+    {
+      "id": "po-e6-sentinel-scale",
+      "note": "The -99999 sentinel compares the scaled quantity, so -9999.99 is included.",
+      "provenance": "audits/MONEY-AUDIT.md N1; app/ajaxCalcPurchaseOrder.php:151",
+      "taxProvince": "ON",
+      "parts": [{ "qty": "1", "price": "10.00" }],
+      "specialParts": [{ "name": "Returned batch", "qty": "-9999.99", "price": "1.00" }],
+      "expected": { "subtotal": "-9989.99", "tax": "-1298.70", "total": "-11288.69" }
     }
   ]
 }

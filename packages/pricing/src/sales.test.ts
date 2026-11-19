@@ -209,4 +209,14 @@ describe('sales calculator contract', () => {
     expect(totals.subtotal).toBe('75.00')
     expect(totals.tax).toBe('9.75')
   })
+
+  test('C6 the --- part placeholder is rejected', () => {
+    expect(() =>
+      calculateSalesInvoice({
+        taxProvince: 'ON',
+        labour: [{ hours: '1', rate: '100.00' }],
+        parts: [{ partNo: '---', qty: '1', price: '5.00' }],
+      }),
+    ).toThrow(/placeholder/i)
+  })
 })
